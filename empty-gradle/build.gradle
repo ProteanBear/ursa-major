@@ -1,0 +1,164 @@
+//项目信息
+group 'com.github.ProteanBear'
+version '1.0.0-SNAPSHOT'
+
+//配置插件仓库
+buildscript{
+    //仓库位置
+    repositories{
+        //Maven中心
+        mavenCentral()
+        //JCenter
+        jcenter()
+        //Gradle
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    //插件依赖
+    dependencies{
+        //gretty
+        classpath 'gradle.plugin.org.gretty:gretty:+'
+    }
+}
+
+//项目插件
+apply plugin: 'java'
+apply plugin: 'war'
+//服务调试工具
+apply plugin: 'org.gretty'
+
+//设置Java编译版本为1.8
+sourceCompatibility = 1.8
+//设置编译编码为UTF-8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+
+//配置依赖仓库
+repositories {
+    //Maven中心
+    mavenCentral()
+    //JCenter
+    jcenter()
+    //本地Jar
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+//配置依赖
+dependencies {
+    //本地文件夹libs
+    runtime fileTree(dir: 'libs',includes: ['*.jar'])
+}
+
+//设置当前默认环境（开发环境）
+ext {
+    if (!project.hasProperty("environment")) {
+        environment = "develop"
+    }
+}
+//根据不同环境设置目录
+sourceSets{
+    main{
+        resources{
+            srcDir('src/main/resources')
+            srcDir('src/main/resources-'+project['environment'])
+        }
+    }
+}
+
+//动态设置当前编译环境
+//开发环境
+task envDevelop{
+    doLast{
+        environment="develop"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
+//测试环境
+task envTest{
+    doLast{
+        environment="test"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
+//生成环境
+task envProduct{
+    doLast{
+        environment="product"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
+
+//gretty配置：运行服务使用
+gretty{
+    //基本信息
+    //根目录
+    contextPath="/empty-gradle"
+    //端口
+    httpPort=8080
+    //支持 jetty7/8/9，tomcat7/8
+    servletContainer="jetty9"
+
+    //热部署
+    //监视周期，单位为秒，设置为0等于完全关闭热部署
+    scanInterval=30
+    //需要监视的文件夹,默认包括${projectDir}/src/main/java、${projectDir}/src/main/groovy、${projectDir}/src/main/resources、${projectDir}/build/classes/main、${projectDir}/build/resources/main
+    scanDir "${projectDir}/src/main/resources-${project['environment']}"
+    //监视源码变动，自动编译；默认为true
+    recompileOnSourceChange=true
+    //编译的类发生改变，自动加载；默认为true
+    reloadOnClassChange=true
+    //WEB-INF或META-INF发生改变，自动加载；默认为true
+    reloadOnConfigChange=true
+    //依赖发生改变，自动加载；默认为true
+    reloadOnLibChange=true
+
+    //资源加载
+    //默认为true，监听webapp中的内容，文件发生改变，无需重启
+    fastReload=true
+    //除了src/main/webapp外，可另外指定资源目录
+    //extraResourceBases 'dir2','dir3'
+
+    //调试
+    debugPort=5005
+
+    //Https支持
+    httpsEnabled = false
+    //禁用http
+    //httpEnabled = false
+    //Https端口，默认为 8443
+    //httpsPort = 443
+    //SSL配置
+    //sslKeyStorePath = '/some/path/keystore'
+    //sslKeyStorePassword = 'someKeystorePassword'
+    //sslKeyManagerPassword = 'someKeyManagerPassword'
+    //sslTrustStorePath = '/another/path/trust_keystore'
+    //sslTrustStorePassword = 'someTrustStorePassword'
+}
