@@ -1,5 +1,5 @@
 //项目信息
-group 'com.github.proteanbear'
+group 'xyz.proteanbear'
 version '1.0.0-SNAPSHOT'
 
 //配置插件仓库
