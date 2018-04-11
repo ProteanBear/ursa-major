@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <!-- Information -->
+    <display-name>${project-display-name}</display-name>
+    <description>${project-description}</description>
+    <icon>
+        <small-icon>${project-icon-small}</small-icon>
+        <large-icon>${project-icon-large}</large-icon>
+    </icon>
+
+    <!-- Welcome -->
+    <welcome-file-list>
+        <welcome-file>${project-page-welcome}</welcome-file>
+    </welcome-file-list>
+
+    <!-- Error Page -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/${project-page-404}</location>
+    </error-page>
+</web-app>
