@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+        ">
+
+    <!-- 读取配置文件 -->
+    <context:property-placeholder
+            location="
+                classpath:application.properties,
+                classpath:jdbc.properties,
+                classpath:pool.properties
+        "/>
+
+    <!-- 扫描注解，除去web层注解，web层注解在mvc配置中扫描 -->
+    <context:component-scan base-package="${project-base-package}">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController" />
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!-- 开启AOP监听 只对当前配置文件有效 -->
+    <!--<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true" />-->
+
+    <!-- 连接池:配置数据源 -->
+    <import resource="spring-pool.xml" />
+    <!-- Spring整合MyBatis -->
+    <import resource="spring-mybatis.xml" />
+</beans>

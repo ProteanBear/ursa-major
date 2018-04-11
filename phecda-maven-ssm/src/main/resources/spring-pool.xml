@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+        ">
+
+    <!-- 配置数据源 -->
+    <!-- 配置属性在文件jdbc.properties和pool.properties中 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 -->
+        <property name="url" value="${jdbc.url}"/>
+        <property name="driverClassName" value="${pool.driver}"/>
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="${pool.initialSize}"/>
+        <property name="maxActive" value="${pool.maxActive}"/>
+        <property name="minIdle" value="${pool.minIdle}"/>
+
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${pool.maxWait}"/>
+
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${pool.timeBetweenEvictionRunsMillis}"/>
+
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${pool.minEvictableIdleTimeMillis}"/>
+
+        <!-- 验证数据库连接有效性，要求查询语句 -->
+        <property name="validationQuery" value="${pool.validationQuery}"/>
+        <property name="testOnBorrow" value="${pool.testOnBorrow}"/>
+        <property name="testOnReturn" value="${pool.testOnReturn}"/>
+        <property name="testWhileIdle" value="${pool.testWhileIdle}"/>
+
+        <!-- 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。 -->
+        <property name="poolPreparedStatements" value="${pool.poolPreparedStatements}" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="${pool.maxPoolPreparedStatementPerConnectionSize}" />
+
+        <!-- 空闲连接的关闭 -->
+        <property name="removeAbandoned" value="${pool.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${pool.removeAbandonedTimeout}"/>
+        <property name="logAbandoned" value="${pool.logAbandoned}"/>
+
+        <!-- 配置监控统计拦截的filters;去掉后监控界面sql无法统计 -->
+        <property name="filters" value="stat,slf4j" />
+        <property name="connectionProperties" value="
+            druid.stat.mergeSql=${pool.mergeSql};
+            druid.stat.slowSqlMillis=${pool.slowSqlMillis};
+            druid.stat.logSlowSql=${pool.logSlowSql}
+        "/>
+        <property name="useGlobalDataSourceStat" value="${pool.useGlobalDataSourceStat}"/>
+    </bean>
+
+</beans>

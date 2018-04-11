@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <!-- 文件输出: 每日一个日志文件(仅ERROR)-->
+    <appender name="FILE-EVERYDAY-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.error.log</file>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.error.log.zip</fileNamePattern>
+            <!-- 保存天数 -->
+            <maxHistory>${log.file.saveDays}</maxHistory>
+            <!-- 当文件大于指定值时，生成新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${log.file.maxSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!-- 此日志文件只记录ERROR级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 文件输出: 每日一个日志文件(仅WARN)-->
+    <appender name="FILE-EVERYDAY-WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.warn.log</file>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.warn.log.zip</fileNamePattern>
+            <!-- 保存天数 -->
+            <maxHistory>${log.file.saveDays}</maxHistory>
+            <!-- 当文件大于指定值时，生成新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${log.file.maxSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!-- 此日志文件只记录WARN级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 文件输出: 每日一个日志文件(仅INFO)-->
+    <appender name="FILE-EVERYDAY-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.info.log</file>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.info.log.zip</fileNamePattern>
+            <!-- 保存天数 -->
+            <maxHistory>${log.file.saveDays}</maxHistory>
+            <!-- 当文件大于指定值时，生成新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${log.file.maxSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!-- 此日志文件只记录INFO级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 文件输出: 每日一个日志文件(仅DEBUG)-->
+    <appender name="FILE-EVERYDAY-DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.debug.log</file>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.debug.log.zip</fileNamePattern>
+            <!-- 保存天数 -->
+            <maxHistory>${log.file.saveDays}</maxHistory>
+            <!-- 当文件大于指定值时，生成新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${log.file.maxSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!-- 此日志文件只记录DEBUG级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 基本级别输出 -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY-DEBUG" />
+    </root>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY-INFO" />
+    </root>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY-WARN" />
+    </root>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY-ERROR" />
+    </root>
+</included>
