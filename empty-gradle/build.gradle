@@ -1,0 +1,107 @@
+//项目信息
+group 'xyz.proteanbear'
+version '1.0.0-SNAPSHOT'
+
+//配置插件仓库
+buildscript {
+    //仓库位置
+    repositories {
+        //Maven中心
+        mavenCentral()
+        //JCenter
+        jcenter()
+        //Gradle
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
+//项目插件
+apply plugin: 'java'
+
+//设置Java编译版本为1.8
+sourceCompatibility = 1.8
+//设置编译编码为UTF-8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+//配置依赖仓库
+repositories {
+    //Maven中心
+    mavenCentral()
+    //JCenter
+    jcenter()
+    //本地Jar
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+//配置依赖
+dependencies {
+    //本地文件夹libs
+    compile fileTree(dir: 'libs',includes: ['*.jar'])
+}
+
+//设置当前默认环境（开发环境）
+ext {
+    if (!project.hasProperty("environment")) {
+        environment = "develop"
+    }
+}
+//根据不同环境设置目录
+sourceSets{
+    main{
+        resources{
+            srcDir('src/main/resources')
+            srcDir('src/main/resources-'+project['environment'])
+        }
+    }
+}
+
+//动态设置当前编译环境
+//开发环境
+task envDevelop{
+    doLast{
+        environment="develop"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
+//测试环境
+task envTest{
+    doLast{
+        environment="test"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
+//生成环境
+task envProduct{
+    doLast{
+        environment="product"
+        sourceSets{
+            main{
+                resources{
+                    srcDir('src/main/resources')
+                    srcDir('src/main/resources-'+project['environment'])
+                }
+            }
+        }
+        println "运行环境为:${project['environment']}"
+    }
+}
