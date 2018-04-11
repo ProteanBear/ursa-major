@@ -10,8 +10,6 @@
         <version-jdk>1.8</version-jdk>
         <!-- jar编译器 -->
         <version-maven-complier>3.7.0</version-maven-complier>
-        <!-- junit -->
-        <version-junit>4.12</version-junit>
     </properties>
 
     <!-- 项目信息 -->
@@ -35,14 +33,6 @@
 
     <!-- 依赖库 -->
     <dependencies>
-        <!-- Test -->
-        <!-- junit -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version-junit}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <!-- Profile配置 -->
