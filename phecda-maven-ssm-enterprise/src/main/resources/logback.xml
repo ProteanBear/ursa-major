@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- configuration：测试使用的日志配置 -->
+<!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。 -->
+<!-- scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 -->
+<!-- debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。  -->
+<!-- packagingData:当此属性设置为true时，将打印出错误类所属的jar包位置。默认值为false。 -->
+<configuration scan="true" scanPeriod="300 seconds"
+               debug="false" packagingData="false">
+    <!-- 载入属性文件 -->
+    <property resource="log.properties"></property>
+
+    <!-- 设置上下文名称，用于区分不同应用程序的记录 -->
+    <contextName>${project.name}</contextName>
+
+    <!-- 日志路径及名称 -->
+    <property name="LOG_FILE_NAME" value="${log.file.path}/${project.name}/${log.file.name}"></property>
+
+    <!-- 载入写日志配置组件 -->
+    <include resource="logback-appender/console.xml" />
+    <include resource="logback-appender/${log.file.appenderResource}.xml" />
+
+    <!-- 日志级别配置 -->
+    <!-- Spring相关 -->
+    <logger name="org.springframework.aop.aspectj" level="ERROR"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.web.servlet" level="${log.level.project}"/>
+    <!-- MyBatis及SQL相关 -->
+    <logger name="org.apache.ibatis" level="${log.level.data}"/>
+    <logger name="java.sql.Connection" level="${log.level.data}" />
+    <logger name="java.sql.Statement" level="${log.level.data}" />
+    <logger name="java.sql.PreparedStatement" level="${log.level.data}" />
+    <!-- 当前项目 -->
+    <logger name="${project-base-package}" level="${log.level.project}"/>
+
+</configuration>

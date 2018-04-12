@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <!-- 文件输出: 当文件大于设定时，生成新的日志文件 -->
+    <appender name="FILE-BY-SIZE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.log</file>
+        <!-- 按照固定窗口模式 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!-- 包含“%i”序号转换符 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%i.log.zip</fileNamePattern>
+            <!-- 当保存了maxIndex个归档文件后，将覆盖最早的日志。 -->
+            <minIndex>1</minIndex>
+            <maxIndex>${log.file.maxIndex}</maxIndex>
+        </rollingPolicy>
+        <!-- 当文件大于指定值时，生成新的日志文件 -->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${log.file.maxSize}</maxFileSize>
+        </triggeringPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 基本级别输出 -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-BY-SIZE" />
+    </root>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-BY-SIZE" />
+    </root>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-BY-SIZE" />
+    </root>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-BY-SIZE" />
+    </root>
+</included>

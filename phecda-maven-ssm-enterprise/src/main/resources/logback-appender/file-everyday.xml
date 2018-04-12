@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <!-- 文件输出: 每日一个日志文件-->
+    <appender name="FILE-EVERYDAY" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- RollingFileAppender的file字节点可有可无 -->
+        <!-- 通过设置file，可以为活动文件和归档文件指定不同位置，当前日志总是记录到file指定的文件（活动文件），活动文件的名字不会改变 -->
+        <!-- 如果没设置file，活动文件的名字会根据fileNamePattern 的值，每隔一段时间改变一次。 -->
+        <file>${LOG_FILE_NAME}.log</file>
+        <!-- 根据时间来制定滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 包含文件名及“%d”转换符，“%d”可以包含一个java.text.SimpleDateFormat指定的时间格式，如：%d{yyyy-MM}。如果直接使用 %d，默认格式是 yyyy-MM-dd。 -->
+            <fileNamePattern>${LOG_FILE_NAME}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 保存天数 -->
+            <maxHistory>${log.file.saveDays}</maxHistory>
+            <!-- 当文件大于指定值时，生成新的日志文件 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${log.file.maxSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 基本级别输出 -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY" />
+    </root>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY" />
+    </root>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY" />
+    </root>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-EVERYDAY" />
+    </root>
+</included>

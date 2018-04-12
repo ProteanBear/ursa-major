@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <!-- 文件输出:单个文件 -->
+    <appender name="FILE-SIMPLE" class="ch.qos.logback.core.FileAppender">
+        <!-- 被写入的文件名，可以是相对目录，也可以是绝对目录，如果上级目录不存在会自动创建，没有默认值。 -->
+        <file>${LOG_FILE_NAME}.log</file>
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <append>${log.file.append}</append>
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <!-- 如果是 true，日志会被安全的写入文件，即使其他的FileAppender也在向此文件做写入操作，效率低，默认是 false。 -->
+        <prudent>false</prudent>
+    </appender>
+
+    <!-- 基本级别输出 -->
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-SIMPLE" />
+    </root>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-SIMPLE" />
+    </root>
+    <root level="WARN">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-SIMPLE" />
+    </root>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE-SIMPLE" />
+    </root>
+</included>

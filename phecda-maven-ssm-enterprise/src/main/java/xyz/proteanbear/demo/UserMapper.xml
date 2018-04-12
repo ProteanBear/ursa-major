@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="xyz.proteanbear.demo.UserMapper">
+
+    <!-- 结果 -->
+    <resultMap id="user" type="xyz.proteanbear.demo.User">
+        <!-- 基本属性 -->
+        <result property="host" column="host"/>
+        <result property="user" column="user"/>
+        <result property="passwordLastChanged" column="password_last_changed"/>
+
+        <!-- 关联扩展 -->
+    </resultMap>
+
+    <!-- 查询 -->
+    <sql id="select_basic">
+        SELECT DISTINCT(u.user) as limit_id,u.*
+        FROM user u
+    </sql>
+    <sql id="select_count">
+        SELECT count(u.user)
+    </sql>
+    <sql id="select_column">
+        SELECT
+            u.host,
+            u.user,
+            u.password_last_changed
+    </sql>
+    <sql id="select_left">
+    </sql>
+    <sql id="select_where">
+        <where>
+            <if test="condition.user != null and condition.user != ''">
+                and u.user like concat('%',#{condition.user},'%')
+            </if>
+        </where>
+    </sql>
+    <select id="list" resultMap="user">
+        <include refid="select_column"/>
+        FROM (
+        <include refid="select_basic"/>
+        <include refid="select_left"/>
+        <include refid="select_where"/>
+        <if test="condition.orderBy != null and condition.orderBy != ''">
+            order by ${condition.orderBy}
+        </if>
+        <if test="condition.startIndex != null and condition.startIndex != ''">
+            <![CDATA[ LIMIT ${condition.startIndex},${condition.size}]]>
+        </if>
+        ) u
+        <include refid="select_left"/>
+        <if test="condition.orderBy != null and condition.orderBy != ''">
+            order by ${condition.orderBy}
+        </if>
+    </select>
+    <select id="count" resultType="java.lang.Integer" parameterType="map">
+        <include refid="select_count"/>
+        FROM (
+        <include refid="select_basic"/>
+        <include refid="select_left"/>
+        <include refid="select_where"/>
+        ) u
+    </select>
+    <select id="get" resultMap="user" parameterType="java.lang.String">
+        <include refid="select_column"/>
+        FROM (
+        <include refid="select_basic"/>
+        <where>
+            u.user=#{id}
+        </where>
+        ) u
+        <include refid="select_left"/>
+    </select>
+
+    <!-- 插入 -->
+    <insert id="save">
+		<![CDATA[
+
+			INSERT INTO user(
+                    host,
+                    user,
+                    password_last_changed
+            )VALUES(
+                    #{host},
+                    #{user},
+                    #{passwordLastChanged}
+            )
+
+        ]]>
+	</insert>
+
+    <!-- 编辑 -->
+    <update id="update">
+        UPDATE user SET
+        <if test="passwordLastChanged != null">
+            password_last_changed = #{passwordLastChanged}
+        </if>
+        <if test="host != null and host != ''">
+            ,host = #{host}
+        </if>
+        WHERE user= #{user}
+    </update>
+
+    <!-- 删除：只有状态为完成的才能删除 -->
+    <delete id="remove" parameterType="Map">
+        DELETE FROM user WHERE user in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

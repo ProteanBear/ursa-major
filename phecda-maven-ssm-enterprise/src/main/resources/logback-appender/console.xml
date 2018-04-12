@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<included>
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 输出格式化-->
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <!-- 字符串System.out(默认)或者System.err -->
+        <target>${log.target}</target>
+    </appender>
+</included>
