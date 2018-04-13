@@ -17,7 +17,8 @@
             location="
                 classpath:application.properties,
                 classpath:jdbc.properties,
-                classpath:pool.properties
+                classpath:pool.properties,
+                classpath:redis.properties
         "/>
 
     <!-- 扫描注解，除去web层注解，web层注解在mvc配置中扫描 -->
@@ -34,4 +35,7 @@
     <import resource="spring-pool.xml" />
     <!-- Spring整合MyBatis -->
     <import resource="spring-mybatis.xml" />
+
+    <!-- 扫描Configuration注解配置 -->
+    <context:annotation-config />
 </beans>
