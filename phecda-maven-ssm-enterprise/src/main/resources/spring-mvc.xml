@@ -12,12 +12,19 @@
             http://www.springframework.org/schema/mvc/spring-mvc.xsd
         ">
 
-    <!-- 对mvc注解支持 -->
+    <!-- 使用基于注释的适配器和映射器 -->
+    <bean id="objectMapper" class="xyz.proteanbear.phecda.rest.CustomJacksonObjectMapper" init-method="init"></bean>
     <mvc:annotation-driven>
+        <!-- 增加输出的JSON转换 -->
         <mvc:message-converters>
-            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper" ref="objectMapper" />
+            </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
+
+    <!-- 只把动态信息当做controller处理，忽略静态信息 -->
+    <mvc:default-servlet-handler/>
 
     <!-- 只扫描@controller注解 -->
     <context:component-scan base-package="${project-base-package}">

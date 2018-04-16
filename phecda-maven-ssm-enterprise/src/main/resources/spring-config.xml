@@ -18,7 +18,8 @@
                 classpath:application.properties,
                 classpath:jdbc.properties,
                 classpath:pool.properties,
-                classpath:redis.properties
+                classpath:redis.properties,
+                classpath:jackson.properties
         "/>
 
     <!-- 扫描注解，除去web层注解，web层注解在mvc配置中扫描 -->

@@ -32,6 +32,9 @@
         <!-- log -->
         <version-log>1.2.3</version-log>
 
+        <!-- servlet -->
+        <version-servlet>4.0.0</version-servlet>
+
         <!-- junit -->
         <version-junit>4.12</version-junit>
 
@@ -146,6 +149,15 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${version-log}</version>
+        </dependency>
+
+        <!-- Provided -->
+        <!-- Servlet Api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${version-servlet}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test -->
