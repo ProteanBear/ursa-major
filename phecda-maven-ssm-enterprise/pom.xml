@@ -57,6 +57,17 @@
         <project-page-404>error404.html</project-page-404>
         <project-page-405>error405.html</project-page-405>
         <project-page-500>error500.html</project-page-500>
+        <!-- 跨域设置:为空即为不支持跨域 -->
+        <!-- 允许访问的客户端域名，例如：http://web.xxx.com若为*，则表示从任意域都能访问，即不做任何限制 -->
+        <project-allow-origin></project-allow-origin>
+        <!-- 允许访问的方法名，多个方法名用逗号分割，例如：GET,POST,PUT,DELETE,OPTIONS -->
+        <project-allow-methods></project-allow-methods>
+        <!-- 是否允许请求带有验证信息，若要获取客户端域下的cookie时，需要将其设置为true -->
+        <project-allow-credentials></project-allow-credentials>
+        <!-- 允许服务端访问的客户端请求头，多个请求头用逗号分割，例如：Content-Type -->
+        <project-allow-headers></project-allow-headers>
+        <!-- 允许客户端访问的服务端响应头，多个响应头用逗号分割 -->
+        <project-expose-headers></project-expose-headers>
 
         <!-- 项目信息:适用于Spring配置 -->
         <!-- 基础包名 -->
