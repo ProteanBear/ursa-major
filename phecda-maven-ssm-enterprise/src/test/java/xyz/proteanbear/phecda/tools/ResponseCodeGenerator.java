@@ -31,7 +31,7 @@ public class ResponseCodeGenerator
     /**
      * 属性字段模板内容
      */
-    private String templateField=
+    private String templateField="\n"+
             "    /**\n"+
                     "     * ${NAME}:${VALUE}\n"+
                     "     */\n"+

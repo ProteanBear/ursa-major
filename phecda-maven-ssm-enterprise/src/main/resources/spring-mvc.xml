@@ -33,6 +33,9 @@
         <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
     </context:component-scan>
 
+    <!-- 开启Validator校验器 -->
+    <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor"/>
+
     <!-- JSP增加前后缀 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
@@ -43,7 +46,7 @@
     <!-- 国际化资源文件 -->
     <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
         <!-- 多语言文件路径 -->
-        <property name="basename" value="message.response_message"/>
+        <property name="basename" value="message.ResponseMessage"/>
         <property name="useCodeAsDefaultMessage" value="true"/>
     </bean>
 
