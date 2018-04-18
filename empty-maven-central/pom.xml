@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 自定义属性 -->
+    <properties>
+        <!-- Developer -->
+        <developer-url>https://github.com</developer-url>
+        <developer-name>ProteanBear</developer-name>
+        <developer-email>moru_1982@hotmail.com</developer-email>
+
+        <!-- jdk版本 -->
+        <version-jdk>1.8</version-jdk>
+        <!-- jar编译器 -->
+        <version-maven-complier>3.7.0</version-maven-complier>
+        <!-- Maven中心发布使用 -->
+        <version-sonatype>1.6.8</version-sonatype>
+        <version-maven-release>2.5.3</version-maven-release>
+        <version-maven-gpg>1.6</version-maven-gpg>
+        <version-maven-source>3.0.1</version-maven-source>
+        <version-maven-javadoc>3.0.0</version-maven-javadoc>
+    </properties>
+
+    <!-- 项目信息 -->
+    <groupId>xyz.proteanbear</groupId>
+    <artifactId>empty-maven-central</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!-- For Maven -->
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>${developer-url}/${developer-name}/${project.artifactId}</url>
+    <description>The development convenience kit.</description>
+
+    <!-- License -->
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <!-- Developer -->
+    <developers>
+        <developer>
+            <name>${developer-name}</name>
+            <email>${developer-email}</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <!-- SCM -->
+    <scm>
+        <connection>scm:git:${developer-url}/${developer-name}/${project.artifactId}.git</connection>
+        <developerConnection>scm:git:${developer-url}/${developer-name}/${project.artifactId}.git</developerConnection>
+        <url>${developer-url}/${developer-name}/${project.artifactId}</url>
+        <tag>v${project.version}</tag>
+    </scm>
+
+    <!-- Distribution -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <name>Maven Central Staging Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- 依赖仓库 -->
+    <repositories>
+        <!-- Maven中心仓库 -->
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- 依赖库 -->
+    <dependencies>
+    </dependencies>
+
+    <!-- Profile配置 -->
+    <profiles>
+        <!-- 环境变量：develop，默认 -->
+        <profile>
+            <id>envDevelop</id>
+            <properties>
+                <environment>develop</environment>
+            </properties>
+            <activation><activeByDefault>true</activeByDefault></activation>
+        </profile>
+        <!-- 环境变量：test -->
+        <profile>
+            <id>envTest</id>
+            <properties>
+                <environment>test</environment>
+            </properties>
+        </profile>
+        <!-- 环境变量：product -->
+        <profile>
+            <id>envProduct</id>
+            <properties>
+                <environment>product</environment>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- sonatype -->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${version-sonatype}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <!-- release -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${version-maven-release}</version>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+                    <!-- compiler -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${version-maven-complier}</version>
+                        <configuration>
+                            <source>${version-jdk}</source>
+                            <target>${version-jdk}</target>
+                        </configuration>
+                    </plugin>
+                    <!-- sign -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version-maven-gpg}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${version-maven-source}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${version-maven-javadoc}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- 构建 -->
+    <build>
+        <!-- 文件名 -->
+        <finalName>${artifactId}-${version}</finalName>
+        <!-- 存放目录 -->
+        <directory>${basedir}/target</directory>
+        <!-- 插件 -->
+        <plugins>
+            <!-- 编译器：UTF-8编码、libs外部jar库 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version-maven-complier}</version>
+                <configuration>
+                    <source>${version-jdk}</source>
+                    <target>${version-jdk}</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <extdirs>libs</extdirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+        </plugins>
+        <!-- 代码内部资源文件：xml -->
+        <resources>
+            <!-- 代码中的属性和配置文件 -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!-- 配置资源文件:公共 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+            <!-- 配置资源文件:当前环境 -->
+            <resource>
+                <directory>src/main/resources-${environment}</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
