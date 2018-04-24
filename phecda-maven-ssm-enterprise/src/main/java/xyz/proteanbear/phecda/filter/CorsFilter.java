@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/17
- * @since 1.0
+ * @since jdk1.8
  */
 public class CorsFilter extends OncePerRequestFilter
 {

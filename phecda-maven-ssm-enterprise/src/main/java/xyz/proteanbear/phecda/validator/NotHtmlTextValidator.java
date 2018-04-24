@@ -8,7 +8,7 @@ import javax.validation.ConstraintValidatorContext;
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/17
- * @since 1.0
+ * @since jdk1.8
  */
 public class NotHtmlTextValidator implements ConstraintValidator<NotHtmlText,String>
 {

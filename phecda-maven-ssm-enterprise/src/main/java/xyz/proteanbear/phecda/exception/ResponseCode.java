@@ -3,16 +3,11 @@ package xyz.proteanbear.phecda.exception;
 /**
  * 返回状态码字典（使用生成器生成）
  * @author ProteanBear
- * @version 1.0.0,2018/04/17
- * @since 1.0
+ * @version 1.0.0,2018/04/24
+ * @since jdk1.8
  */
 public class ResponseCode
 {
-
-    /**
-     * VALIDATOR_NOT_HTML_TEXT:内容中不能包含HTML特殊字符
-     */
-    public static final String VALIDATOR_NOT_HTML_TEXT="VALIDATOR_NOT_HTML_TEXT";
 
     /**
      * SUCCESS:成功
@@ -28,6 +23,11 @@ public class ResponseCode
      * BAD_REQUEST:参数解析错误
      */
     public static final String BAD_REQUEST="BAD_REQUEST";
+
+    /**
+     * PRIMARY_KEY_MUST_NOT_NULL:主键参数不能为空
+     */
+    public static final String PRIMARY_KEY_MUST_NOT_NULL="PRIMARY_KEY_MUST_NOT_NULL";
 
     /**
      * UNAUTHORIZED:未授权

@@ -37,7 +37,7 @@ import java.util.LinkedHashSet;
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/12
- * @since 1.0
+ * @since jdk1.8
  */
 @Configuration
 @PropertySource("classpath:redis.properties")

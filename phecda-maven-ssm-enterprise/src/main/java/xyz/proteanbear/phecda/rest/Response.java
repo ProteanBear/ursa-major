@@ -5,7 +5,7 @@ package xyz.proteanbear.phecda.rest;
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/13
- * @since 1.0
+ * @since jdk1.8
  */
 public class Response
 {
