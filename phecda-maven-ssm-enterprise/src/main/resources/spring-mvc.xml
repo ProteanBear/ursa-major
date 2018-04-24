@@ -12,6 +12,17 @@
             http://www.springframework.org/schema/mvc/spring-mvc.xsd
         ">
 
+    <!-- 读取配置文件 -->
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:application.properties</value>
+                <value>classpath:jackson.properties</value>
+            </list>
+        </property>
+    </bean>
+
     <!-- 使用基于注释的适配器和映射器 -->
     <bean id="objectMapper" class="xyz.proteanbear.phecda.rest.CustomJacksonObjectMapper" init-method="init"></bean>
     <mvc:annotation-driven>

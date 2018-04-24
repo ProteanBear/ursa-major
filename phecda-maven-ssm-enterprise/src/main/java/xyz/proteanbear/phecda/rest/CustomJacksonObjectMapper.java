@@ -19,9 +19,8 @@ import java.text.SimpleDateFormat;
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/16
- * @since 1.0
+ * @since jdk1.8
  */
-@PropertySource("classpath:jackson.properties")
 public class CustomJacksonObjectMapper extends ObjectMapper
 {
     /**
@@ -118,12 +117,6 @@ public class CustomJacksonObjectMapper extends ObjectMapper
     private boolean indentOutput;
 
     /**
-     * 将驼峰转为下划线
-     */
-    @Value("${jackson.camelCaseToLowerCaseWithUnderscores}")
-    private boolean camelCaseToLowerCaseWithUnderscores;
-
-    /**
      * 格式化日期
      */
     @Value("${jackson.dateFormat}")
@@ -160,18 +153,6 @@ public class CustomJacksonObjectMapper extends ObjectMapper
      */
     @Value("${jackson.writeCharArraysAsJsonArrays}")
     private boolean writeCharArraysAsJsonArrays;
-
-    /**
-     * 是否Map的带有null值的entry被序列化（true）
-     */
-    @Value("${jackson.writeNullMapValues}")
-    private boolean writeNullMapValues;
-
-    /**
-     * 容器空的属性（声明为Collection或者array的值）是否被序列化为空的JSON数组（true），否则强制输出
-     */
-    @Value("${jackson.writeEmptyJsonArrays}")
-    private boolean writeEmptyJsonArrays;
 
     /**
      * 初始化设置
