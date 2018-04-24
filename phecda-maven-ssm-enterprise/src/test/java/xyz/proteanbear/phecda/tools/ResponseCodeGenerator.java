@@ -133,7 +133,7 @@ public class ResponseCodeGenerator
                 +File.separator+"main"
                 +File.separator+"resources"
                 +File.separator+"message"
-                +File.separator+"response_message_"
+                +File.separator+"ResponseMessage_"
                 +Locale.getDefault().getLanguage()
                 +"_"+Locale.getDefault().getCountry()
                 +".properties";
