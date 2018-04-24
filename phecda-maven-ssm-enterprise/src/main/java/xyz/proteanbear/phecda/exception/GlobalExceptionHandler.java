@@ -4,24 +4,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.RequestContext;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import xyz.proteanbear.phecda.rest.Response;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
+import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * 全局异常处理器，捕捉后返回统一的数据结构
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/13
- * @since 1.0
+ * @since jdk1.8
  */
 @ControllerAdvice
+@ResponseBody
 public class GlobalExceptionHandler
 {
     //记录日志
@@ -32,6 +40,9 @@ public class GlobalExceptionHandler
 
     //对应返回信息的后缀
     private static final String messageSuffix="}";
+
+    //多语言文件名前缀
+    private static final String messageFilePrefix="message.ResponseMessage_";
 
     /**
      * 400 - Bad Request
@@ -45,7 +56,8 @@ public class GlobalExceptionHandler
     public Response httpMessageNotReadableException(
             HttpServletRequest request,HttpMessageNotReadableException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.BAD_REQUEST),ResponseCode.BAD_REQUEST);
+        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.BAD_REQUEST),
+                                ResponseCode.BAD_REQUEST);
     }
 
     /**
@@ -61,7 +73,8 @@ public class GlobalExceptionHandler
             HttpServletRequest request,
             HttpRequestMethodNotSupportedException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.METHOD_NOT_ALLOWED),ResponseCode.METHOD_NOT_ALLOWED);
+        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.METHOD_NOT_ALLOWED),
+                                ResponseCode.METHOD_NOT_ALLOWED);
     }
 
     /**
@@ -71,13 +84,14 @@ public class GlobalExceptionHandler
      * @param exception
      * @return
      */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     public Response httpMessageNotReadableException(
             HttpServletRequest request,
-            HttpRequestMethodNotSupportedException exception)
+            HttpMediaTypeNotSupportedException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.UNSUPPORTED_MEDIA_TYPE),ResponseCode.UNSUPPORTED_MEDIA_TYPE);
+        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.UNSUPPORTED_MEDIA_TYPE),
+                                ResponseCode.UNSUPPORTED_MEDIA_TYPE);
     }
 
     /**
@@ -124,10 +138,10 @@ public class GlobalExceptionHandler
     {
         String code=ResponseCode.INTERNAL_SERVER_ERROR;
         String message=exception.getMessage();
-        code=(message.startsWith(messagePrefix)&&message.endsWith(messageSuffix)
+        code=(message.startsWith(messagePrefix) && message.endsWith(messageSuffix)
                 ?message
-                    .replace(messagePrefix,"")
-                    .replace(messageSuffix,"")
+                .replace(messagePrefix,"")
+                .replace(messageSuffix,"")
                 :code);
         return exceptionHandler(request,new PhecdaException(exception,code),ResponseCode.INTERNAL_SERVER_ERROR);
     }
@@ -155,8 +169,10 @@ public class GlobalExceptionHandler
                     getMessageInLocale(
                             request,
                             phecdaException.getCode(),
-                            phecdaException.getParams()),
-                    null);
+                            phecdaException.getParams()
+                    ),
+                    null
+            );
         }
         return new Response(defaultStatus,exception.getMessage(),null);
     }
@@ -169,7 +185,17 @@ public class GlobalExceptionHandler
      */
     private String getMessageInLocale(HttpServletRequest request,String key,Object[] args)
     {
-        RequestContext requestContext=new RequestContext(request);
-        return requestContext.getMessage(key,args);
+        Locale locale=RequestContextUtils.getLocale(request);
+        ResourceBundle bundle=ResourceBundle
+                .getBundle(messageFilePrefix+locale,locale);
+        try
+        {
+            return MessageFormat.format(new String(bundle.getString(key).getBytes("ISO-8859-1"),"UTF-8"),args);
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            logger.error(e.getMessage());
+            return "Un supported encoding exception";
+        }
     }
 }
