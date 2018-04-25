@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Universal business implementation layer interface definition.
+ * 通用的默认业务层接口定义。
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/24
@@ -20,21 +20,21 @@ public interface DataService<
         Mapper extends DefaultDataMapper<Bean>>
 {
     /**
-     * @return Current data mapper implementation
+     * @return 当前的数据管理对象
      */
     Mapper getMapper();
 
     /**
-     * @return return default orderBy setting using when condition is not include it.
+     * @return list查询数据时未设置orderBy的情况下使用的默认排序
      */
     String getDefaultOrderBy();
 
     /**
-     * Query data list according to conditions
+     * 查询指定条件的数据列表
      *
-     * @param condition the conditions
-     * @return data list
-     * @throws Exception the sql exception
+     * @param condition 查询条件
+     * @return 数据列表
+     * @throws Exception SQL异常
      */
     default List<Bean> list(Map<String,Object> condition) throws Exception
     {
@@ -46,11 +46,11 @@ public interface DataService<
     }
 
     /**
-     * Query data total number according to conditions
+     * 查询指定条件下的数据总数
      *
-     * @param condition the conditions
-     * @return data total number
-     * @throws Exception the sql exception
+     * @param condition 执行条件
+     * @return 数据总数
+     * @throws Exception SQL异常
      */
     default Integer count(Map<String,Object> condition) throws Exception
     {
@@ -58,10 +58,10 @@ public interface DataService<
     }
 
     /**
-     * Save the data into the database.
+     * 插入一条新的数据到数据库中
      *
-     * @param data data object
-     * @throws Exception the sql exception
+     * @param data 数据对象
+     * @throws Exception SQL异常
      */
     @Transactional(rollbackFor=Exception.class)
     default Bean save(Bean data) throws Exception
@@ -71,11 +71,11 @@ public interface DataService<
     }
 
     /**
-     * Get data details.
+     * 获取一条数据的详情信息
      *
-     * @param id primary key
-     * @return data object
-     * @throws Exception the sql exception
+     * @param id 主键
+     * @return 数据详情信息
+     * @throws Exception SQL异常
      */
     default Bean get(Object id) throws Exception
     {
@@ -84,10 +84,10 @@ public interface DataService<
     }
 
     /**
-     * Remove data from database
+     * 删除指定主键的数据
      *
-     * @param ids primary key array
-     * @throws Exception
+     * @param ids 主键数组
+     * @throws Exception SQL异常
      */
     @Transactional(rollbackFor=Exception.class)
     default void remove(String... ids) throws Exception
@@ -96,10 +96,10 @@ public interface DataService<
     }
 
     /**
-     * Update data
+     * 修改一条数据的相关信息
      *
-     * @param data object
-     * @throws Exception the sql exception
+     * @param data 数据内容
+     * @throws Exception SQL异常
      */
     @Transactional(rollbackFor=Exception.class)
     default Bean update(Bean data) throws Exception

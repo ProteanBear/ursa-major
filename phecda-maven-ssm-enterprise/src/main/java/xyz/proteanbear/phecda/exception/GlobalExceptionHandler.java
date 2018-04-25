@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import xyz.proteanbear.phecda.rest.Response;
 
@@ -47,9 +46,9 @@ public class GlobalExceptionHandler
     /**
      * 400 - Bad Request
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -57,15 +56,16 @@ public class GlobalExceptionHandler
             HttpServletRequest request,HttpMessageNotReadableException exception)
     {
         return exceptionHandler(request,new PhecdaException(exception,ResponseCode.BAD_REQUEST),
-                                ResponseCode.BAD_REQUEST);
+                                ResponseCode.BAD_REQUEST
+        );
     }
 
     /**
      * 405 - Method Not Allowed
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
@@ -74,15 +74,16 @@ public class GlobalExceptionHandler
             HttpRequestMethodNotSupportedException exception)
     {
         return exceptionHandler(request,new PhecdaException(exception,ResponseCode.METHOD_NOT_ALLOWED),
-                                ResponseCode.METHOD_NOT_ALLOWED);
+                                ResponseCode.METHOD_NOT_ALLOWED
+        );
     }
 
     /**
      * 415 - Unsupported Media Type
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -91,15 +92,16 @@ public class GlobalExceptionHandler
             HttpMediaTypeNotSupportedException exception)
     {
         return exceptionHandler(request,new PhecdaException(exception,ResponseCode.UNSUPPORTED_MEDIA_TYPE),
-                                ResponseCode.UNSUPPORTED_MEDIA_TYPE);
+                                ResponseCode.UNSUPPORTED_MEDIA_TYPE
+        );
     }
 
     /**
      * 400 - Bad Request,Validation Exception
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -113,9 +115,9 @@ public class GlobalExceptionHandler
      * 处理Controller抛出的指定异常
      * 返回状态为500（服务端错误）
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(PhecdaException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -128,9 +130,9 @@ public class GlobalExceptionHandler
      * 处理Controller抛出的全部异常
      * 返回状态为500（服务端错误）
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request   web请求
+     * @param exception 异常信息
+     * @return 返回内容
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -149,9 +151,10 @@ public class GlobalExceptionHandler
     /**
      * 异常处理
      *
-     * @param request
-     * @param exception
-     * @return
+     * @param request       web请求
+     * @param exception     异常信息
+     * @param defaultStatus 默认使用的状态码
+     * @return 返回内容
      */
     private Response exceptionHandler(
             HttpServletRequest request,
@@ -180,7 +183,7 @@ public class GlobalExceptionHandler
     /**
      * 获取当前语言环境下的错误描述
      *
-     * @param request
+     * @param request web请求
      * @return
      */
     private String getMessageInLocale(HttpServletRequest request,String key,Object[] args)

@@ -262,9 +262,7 @@ public class SpringRedisConfiguration
     private String patternPrefix;
 
     /**
-     * Redis连接池配置
-     *
-     * @return
+     * @return Redis连接池配置
      */
     @Bean("redisPoolConfig")
     public JedisPoolConfig poolConfig()
@@ -294,21 +292,19 @@ public class SpringRedisConfiguration
     }
 
     /**
-     * 创建连接工厂
-     *
-     * @return
+     * @return 连接工厂
      */
     @Bean("redisConnectionFactory")
     public JedisConnectionFactory connectionFactory(
             @Qualifier("redisPoolConfig") JedisPoolConfig config)
     {
-        JedisConnectionFactory factory=null;
+        JedisConnectionFactory factory;
 
         //获取服务地址
         if(StringUtils.isEmpty(address))
         {
             logger.error("Null redis server address!");
-            return factory;
+            return null;
         }
         String[] addressArray=address.split(SPLIT_SERVER);
         String currentAddress, currentPort;
@@ -389,8 +385,8 @@ public class SpringRedisConfiguration
      * Redis命令执行器
      * key使用String序列化；value使用jdk序列化
      *
-     * @param connectionFactory
-     * @return
+     * @param connectionFactory 连接工厂
+     * @return 命令执行器（value使用jdk序列化）
      */
     @Bean("redisTemplate")
     public RedisTemplate<?,?> redisTemplate(
@@ -410,8 +406,8 @@ public class SpringRedisConfiguration
      * Redis命令执行器
      * key使用String序列化；value使用String序列化
      *
-     * @param connectionFactory
-     * @return
+     * @param connectionFactory 连接工厂
+     * @return 命令执行器（value使用字符串序列化）
      */
     @Bean("redisStringTemplate")
     public RedisTemplate<?,?> redisStringTemplate(
@@ -426,8 +422,8 @@ public class SpringRedisConfiguration
     /**
      * Redis数据缓存管理器
      *
-     * @param connectionFactory
-     * @return
+     * @param connectionFactory 连接工厂
+     * @return 数据缓存管理器
      */
     @Bean("redisCacheManager")
     public RedisCacheManager redisCacheManager(
@@ -442,7 +438,7 @@ public class SpringRedisConfiguration
         //生成配置
         RedisCacheConfiguration configuration=RedisCacheConfiguration
                 .defaultCacheConfig()
-                .entryTtl(ttl.longValue()==0?Duration.ZERO:Duration.ofMinutes(ttl))
+                .entryTtl(ttl==0?Duration.ZERO:Duration.ofMinutes(ttl))
                 .prefixKeysWith(keyPrefix);
         if(!cacheNullValues) configuration=configuration.disableCachingNullValues();
         if(!usePrefix) configuration=configuration.disableKeyPrefix();
@@ -461,8 +457,8 @@ public class SpringRedisConfiguration
      * 自定义的订阅消息接收器
      * 接收String的JSON格式消息内容
      *
-     * @param redisTemplate
-     * @return
+     * @param redisTemplate 命令执行器
+     * @return 订阅消息接收器
      */
     @Bean("redisMessageReceiver")
     public RedisMessageReceiver redisMessageReceiver(
@@ -475,8 +471,9 @@ public class SpringRedisConfiguration
     /**
      * Redis订阅消息监听器容器
      *
-     * @param connectionFactory
-     * @return
+     * @param connectionFactory    连接工厂
+     * @param redisMessageReceiver 消息接收器
+     * @return 订阅消息监听器容器
      */
     @Bean("redisMessageListenerContainer")
     public RedisMessageListenerContainer redisMessageListenerContainer(
@@ -493,7 +490,7 @@ public class SpringRedisConfiguration
 
         //添加统一的自定义消息接收器
         String channelPattern=patternPrefix+"*";
-        container.addMessageListener(redisMessageReceiver, new PatternTopic(channelPattern));
+        container.addMessageListener(redisMessageReceiver,new PatternTopic(channelPattern));
         logger.info("The redis subscribe is enabled,and the channel is - {}",channelPattern);
 
         return container;

@@ -15,7 +15,7 @@ public class NotHtmlTextValidator implements ConstraintValidator<NotHtmlText,Str
     /**
      * 初始化
      *
-     * @param constraintAnnotation
+     * @param constraintAnnotation 注解对象
      */
     @Override
     public void initialize(NotHtmlText constraintAnnotation)
@@ -25,9 +25,9 @@ public class NotHtmlTextValidator implements ConstraintValidator<NotHtmlText,Str
     /**
      * 校验是否包含HTML的尖括号
      *
-     * @param string
-     * @param constraintValidatorContext
-     * @return
+     * @param string                     字符串内容
+     * @param constraintValidatorContext 校验器上下文
+     * @return 如果不包含“/<”或“/>”返回true
      */
     @Override
     public boolean isValid(String string,ConstraintValidatorContext constraintValidatorContext)

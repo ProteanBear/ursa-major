@@ -22,11 +22,11 @@ public class CorsFilter extends OncePerRequestFilter
     /**
      * 执行过滤，设置跨域请求等头部信息
      *
-     * @param request
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
+     * @param request     web请求
+     * @param response    web返回
+     * @param filterChain 过滤器
+     * @throws ServletException Servlet异常
+     * @throws IOException      IO异常
      */
     @Override
     protected void doFilterInternal(
@@ -48,7 +48,7 @@ public class CorsFilter extends OncePerRequestFilter
             else
             {
                 List<String> allowOriginList=Arrays.asList(allowOrigin.split(","));
-                if(allowOriginList!=null && !allowOriginList.isEmpty())
+                if(!allowOriginList.isEmpty())
                 {
                     String currentOrigin=request.getHeader("Origin");
                     if(allowOriginList.contains(currentOrigin))
@@ -64,7 +64,7 @@ public class CorsFilter extends OncePerRequestFilter
         String allowMethods=getFilterConfig().getInitParameter("Access-Control-Allow-Methods");
         if(allowMethods!=null && !"".equals(allowMethods))
         {
-            response.setHeader("Access-Control-Allow-Methods", allowMethods);
+            response.setHeader("Access-Control-Allow-Methods",allowMethods);
         }
 
         //Access-Control-Allow-Credentials
@@ -72,7 +72,7 @@ public class CorsFilter extends OncePerRequestFilter
         String allowCredentials=getFilterConfig().getInitParameter("Access-Control-Allow-Credentials");
         if(allowCredentials!=null && !"".equals(allowCredentials))
         {
-            response.setHeader("Access-Control-Allow-Credentials", allowCredentials);
+            response.setHeader("Access-Control-Allow-Credentials",allowCredentials);
         }
 
         //Access-Control-Allow-Headers
@@ -80,7 +80,7 @@ public class CorsFilter extends OncePerRequestFilter
         String allowHeaders=getFilterConfig().getInitParameter("Access-Control-Allow-Headers");
         if(allowHeaders!=null && !"".equals(allowHeaders))
         {
-            response.setHeader("Access-Control-Allow-Methods", allowHeaders);
+            response.setHeader("Access-Control-Allow-Methods",allowHeaders);
         }
 
         //Access-Control-Expose-Headers
@@ -88,7 +88,7 @@ public class CorsFilter extends OncePerRequestFilter
         String exposeHeaders=getFilterConfig().getInitParameter("Access-Control-Expose-Headers");
         if(exposeHeaders!=null && !"".equals(exposeHeaders))
         {
-            response.setHeader("Access-Control-Expose-Headers", exposeHeaders);
+            response.setHeader("Access-Control-Expose-Headers",exposeHeaders);
         }
 
         filterChain.doFilter(request,response);

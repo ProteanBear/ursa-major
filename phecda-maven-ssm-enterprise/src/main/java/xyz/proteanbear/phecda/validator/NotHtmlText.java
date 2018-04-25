@@ -6,12 +6,17 @@ import java.lang.annotation.*;
 
 /**
  * 自定义Validator注解：不能包含HTML特殊字符
+ *
  * @author ProteanBear
  * @version 1.0.0,2018/04/17
  * @since jdk1.8
  */
 @Constraint(validatedBy=NotHtmlTextValidator.class)
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({
+                ElementType.METHOD,ElementType.FIELD,ElementType.ANNOTATION_TYPE,
+                ElementType.CONSTRUCTOR,ElementType.PARAMETER,
+                ElementType.TYPE_USE
+        })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Repeatable(NotHtmlText.List.class)
@@ -23,10 +28,14 @@ public @interface NotHtmlText
 
     Class<? extends Payload>[] payload() default {};
 
-    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+    @Target({
+                    ElementType.METHOD,ElementType.FIELD,ElementType.ANNOTATION_TYPE,
+                    ElementType.CONSTRUCTOR,ElementType.PARAMETER,ElementType.TYPE_USE
+            })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public @interface List {
+    public @interface List
+    {
         NotHtmlText[] value();
     }
 }

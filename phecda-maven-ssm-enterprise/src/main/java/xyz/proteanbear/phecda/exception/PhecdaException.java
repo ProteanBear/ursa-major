@@ -104,9 +104,9 @@ public class PhecdaException extends Exception
     /**
      * 构造
      *
-     * @param cause   错误抛出堆栈
-     * @param code    错误代码
-     * @param params  错误参数
+     * @param cause  错误抛出堆栈
+     * @param code   错误代码
+     * @param params 错误参数
      */
     public PhecdaException(Throwable cause,String code,Object... params)
     {
@@ -133,7 +133,7 @@ public class PhecdaException extends Exception
     /**
      * 设置属性
      *
-     * @param other
+     * @param other 异常
      */
     public void setPhecdaException(PhecdaException other)
     {

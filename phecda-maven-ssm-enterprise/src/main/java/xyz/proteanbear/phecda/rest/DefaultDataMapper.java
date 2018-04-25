@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Universal default data layer interface definition.
+ * 通用的默认数据管理对象接口定义，适用于MyBatis。
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/24
@@ -15,53 +15,53 @@ import java.util.Map;
 public interface DefaultDataMapper<Bean>
 {
     /**
-     * Query data list according to conditions
+     * 查询指定条件的数据列表
      *
-     * @param condition the conditions
-     * @return data list
-     * @throws Exception the sql exception
+     * @param condition 指定条件
+     * @return 数据列表
+     * @throws Exception SQL异常
      */
     List<Bean> list(@Param("condition") Map<String,Object> condition) throws Exception;
 
     /**
-     * Query data total number according to conditions
+     * 查询指定条件下的数据总数
      *
-     * @param condition the conditions
-     * @return data total number
-     * @throws Exception the sql exception
+     * @param condition 指定条件
+     * @return 数据总数
+     * @throws Exception SQL异常
      */
     Integer count(@Param("condition") Map<String,Object> condition) throws Exception;
 
     /**
-     * Save the data into the database.
+     * 插入一条新的数据到数据库中
      *
-     * @param data data object
-     * @throws Exception the sql exception
+     * @param data 数据信息
+     * @throws Exception SQL异常
      */
     void save(Bean data) throws Exception;
 
     /**
-     * Get data details.
+     * 获取一条数据的详情信息
      *
      * @param id primary key
-     * @return data object
-     * @throws Exception the sql exception
+     * @return 数据信息
+     * @throws Exception SQL异常
      */
     Bean get(Object id) throws Exception;
 
     /**
-     * Remove data from database
+     * 删除指定主键的数据
      *
-     * @param ids primary key array
-     * @throws Exception
+     * @param ids 主键数组
+     * @throws Exception SQL异常
      */
     void remove(@Param("ids") String... ids) throws Exception;
 
     /**
-     * Update data
+     * 修改一条数据的相关信息
      *
-     * @param data object
-     * @throws Exception the sql exception
+     * @param data 数据信息
+     * @throws Exception SQL异常
      */
     void update(Bean data) throws Exception;
 }

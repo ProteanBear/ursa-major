@@ -3,7 +3,7 @@ package xyz.proteanbear.phecda.rest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Universal default entity interface definition.
+ * 通用的默认实体类接口定义。
  *
  * @author ProteanBear
  * @version 1.0.0,2018/04/24
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public interface DefaultBean
 {
     /**
-     * @return data primary key value in this data object.
+     * @return 当前数据对象的主键值
      */
     @JsonIgnore
     Object getPrimaryKeyValue();

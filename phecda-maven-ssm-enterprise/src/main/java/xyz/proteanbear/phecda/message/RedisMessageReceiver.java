@@ -26,7 +26,7 @@ public class RedisMessageReceiver implements MessageListener
     /**
      * 构造
      *
-     * @param redisTemplate
+     * @param redisTemplate 命令执行器
      */
     public RedisMessageReceiver(RedisTemplate redisTemplate)
     {
@@ -36,16 +36,16 @@ public class RedisMessageReceiver implements MessageListener
     /**
      * 消息处理
      *
-     * @param message
-     * @param bytes
+     * @param message 消息
+     * @param bytes   字节
      */
     @Override
     public void onMessage(Message message,byte[] bytes)
     {
         //消息解析
-        Object data = redisTemplate.getKeySerializer()
+        Object data=redisTemplate.getKeySerializer()
                 .deserialize(message.getBody());
-        Object channel = redisTemplate.getKeySerializer()
+        Object channel=redisTemplate.getKeySerializer()
                 .deserialize(message.getChannel());
         logger.info("Receive the message from the channel({}),and the content is:{}",channel,data);
 

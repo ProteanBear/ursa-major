@@ -2,6 +2,7 @@ package xyz.proteanbear.phecda.exception;
 
 /**
  * 返回状态码字典（使用生成器生成）
+ *
  * @author ProteanBear
  * @version 1.0.0,2018/04/24
  * @since jdk1.8
