@@ -70,8 +70,10 @@ public class GlobalExceptionHandler
     public Response httpMessageNotReadableException(
             HttpServletRequest request,HttpMessageNotReadableException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.BAD_REQUEST),
-                                ResponseCode.BAD_REQUEST
+        return exceptionHandler(
+                request,
+                new PhecdaException(exception,ResponseCode.BAD_REQUEST),
+                ResponseCode.BAD_REQUEST
         );
     }
 
@@ -88,8 +90,10 @@ public class GlobalExceptionHandler
             HttpServletRequest request,
             HttpRequestMethodNotSupportedException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.METHOD_NOT_ALLOWED),
-                                ResponseCode.METHOD_NOT_ALLOWED
+        return exceptionHandler(
+                request,
+                new PhecdaException(exception,ResponseCode.METHOD_NOT_ALLOWED),
+                ResponseCode.METHOD_NOT_ALLOWED
         );
     }
 
@@ -106,8 +110,10 @@ public class GlobalExceptionHandler
             HttpServletRequest request,
             HttpMediaTypeNotSupportedException exception)
     {
-        return exceptionHandler(request,new PhecdaException(exception,ResponseCode.UNSUPPORTED_MEDIA_TYPE),
-                                ResponseCode.UNSUPPORTED_MEDIA_TYPE
+        return exceptionHandler(
+                request,
+                new PhecdaException(exception,ResponseCode.UNSUPPORTED_MEDIA_TYPE),
+                ResponseCode.UNSUPPORTED_MEDIA_TYPE
         );
     }
 

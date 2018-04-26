@@ -62,4 +62,6 @@
 
     <!-- 数据校验器 -->
     <import resource="spring-mvc-validator.xml"/>
+
+    <!-- 拦截器设置 -->
 </beans>
