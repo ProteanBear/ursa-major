@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.filter;
+package xyz.proteanbear.phecda;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 

@@ -1,7 +1,7 @@
 package xyz.proteanbear.demo;
 
 import org.springframework.stereotype.Repository;
-import xyz.proteanbear.phecda.rest.DefaultDataMapper;
+import xyz.proteanbear.phecda.DefaultDataMapper;
 
 /**
  * 数据层操作

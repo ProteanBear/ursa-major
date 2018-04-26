@@ -1,9 +1,7 @@
-package xyz.proteanbear.phecda.rest;
+package xyz.proteanbear.phecda;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import xyz.proteanbear.phecda.exception.PhecdaException;
-import xyz.proteanbear.phecda.exception.ResponseCode;
 
 import java.util.List;
 import java.util.Map;

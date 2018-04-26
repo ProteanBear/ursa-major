@@ -25,7 +25,7 @@
     </bean>
 
     <!-- 使用基于注释的适配器和映射器 -->
-    <bean id="objectMapper" class="xyz.proteanbear.phecda.rest.CustomJacksonObjectMapper" init-method="init"></bean>
+    <bean id="objectMapper" class="xyz.proteanbear.phecda.CustomJacksonObjectMapper" init-method="init"></bean>
     <mvc:annotation-driven>
         <!-- 增加输出的JSON转换 -->
         <mvc:message-converters>

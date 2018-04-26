@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.rest;
+package xyz.proteanbear.phecda;
 
 /**
  * 数据返回结构包装。

@@ -2,7 +2,7 @@ package xyz.proteanbear.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import xyz.proteanbear.phecda.rest.DataService;
+import xyz.proteanbear.phecda.DataService;
 
 /**
  *

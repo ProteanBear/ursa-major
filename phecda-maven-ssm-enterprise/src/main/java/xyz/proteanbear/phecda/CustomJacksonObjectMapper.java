@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.rest;
+package xyz.proteanbear.phecda;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;

@@ -1,7 +1,6 @@
-package xyz.proteanbear.phecda.rest;
+package xyz.proteanbear.phecda;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

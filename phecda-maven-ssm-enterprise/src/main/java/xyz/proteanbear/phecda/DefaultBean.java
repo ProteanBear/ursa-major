@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.rest;
+package xyz.proteanbear.phecda;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.exception;
+package xyz.proteanbear.phecda;
 
 /**
  * <p>系统异常<p/>

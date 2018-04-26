@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.exception;
+package xyz.proteanbear.phecda;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import xyz.proteanbear.phecda.rest.Response;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
 
 /**
  * 全局异常处理器，捕捉后返回统一的数据结构

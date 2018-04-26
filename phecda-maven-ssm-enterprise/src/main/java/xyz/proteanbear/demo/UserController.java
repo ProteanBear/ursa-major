@@ -6,10 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import xyz.proteanbear.phecda.rest.DataService;
-import xyz.proteanbear.phecda.rest.Page;
+import xyz.proteanbear.phecda.DataService;
+import xyz.proteanbear.phecda.Page;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Controller

@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.exception;
+package xyz.proteanbear.phecda;
 
 /**
  * 返回状态码字典（使用生成器生成）
