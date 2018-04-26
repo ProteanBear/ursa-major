@@ -54,12 +54,9 @@
         <property name="suffix" value=".jsp"/><!-- 后缀，自动拼接 -->
     </bean>
 
-    <!-- 国际化资源文件 -->
-    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-        <!-- 多语言文件路径 -->
-        <property name="basename" value="message.ResponseMessage"/>
-        <property name="useCodeAsDefaultMessage" value="true"/>
-    </bean>
+    <!-- 国际化多语言处理 -->
+    <!-- 配置SessionLocaleResolver用于将Locale对象存储于Session中供后续使用 -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
 
     <!-- 拦截器配置 -->
     <mvc:interceptors>

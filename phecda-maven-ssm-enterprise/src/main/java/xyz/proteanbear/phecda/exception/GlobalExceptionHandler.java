@@ -2,6 +2,8 @@ package xyz.proteanbear.phecda.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -12,13 +14,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import xyz.proteanbear.phecda.rest.Response;
+import xyz.proteanbear.phecda.tools.LocaleMessageUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
-import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  * 全局异常处理器，捕捉后返回统一的数据结构
@@ -31,17 +30,20 @@ import java.util.ResourceBundle;
 @ResponseBody
 public class GlobalExceptionHandler
 {
-    //记录日志
+    /**
+     * 记录日志
+     */
     private Logger logger=LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    //对应返回信息的前缀
+    /**
+     * 对应返回信息的前缀
+     */
     private static final String messagePrefix="{";
 
-    //对应返回信息的后缀
+    /**
+     * 对应返回信息的后缀
+     */
     private static final String messageSuffix="}";
-
-    //多语言文件名前缀
-    private static final String messageFilePrefix="message.ResponseMessage_";
 
     /**
      * 400 - Bad Request
@@ -169,7 +171,7 @@ public class GlobalExceptionHandler
             PhecdaException phecdaException=(PhecdaException)exception;
             return new Response(
                     phecdaException.getCode(),
-                    getMessageInLocale(
+                    LocaleMessageUtils.message(
                             request,
                             phecdaException.getCode(),
                             phecdaException.getParams()
@@ -178,27 +180,5 @@ public class GlobalExceptionHandler
             );
         }
         return new Response(defaultStatus,exception.getMessage(),null);
-    }
-
-    /**
-     * 获取当前语言环境下的错误描述
-     *
-     * @param request web请求
-     * @return
-     */
-    private String getMessageInLocale(HttpServletRequest request,String key,Object[] args)
-    {
-        Locale locale=RequestContextUtils.getLocale(request);
-        ResourceBundle bundle=ResourceBundle
-                .getBundle(messageFilePrefix+locale,locale);
-        try
-        {
-            return MessageFormat.format(new String(bundle.getString(key).getBytes("ISO-8859-1"),"UTF-8"),args);
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            logger.error(e.getMessage());
-            return "Un supported encoding exception";
-        }
     }
 }
