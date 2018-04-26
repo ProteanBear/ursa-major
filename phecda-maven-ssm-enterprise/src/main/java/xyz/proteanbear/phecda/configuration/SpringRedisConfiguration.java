@@ -23,7 +23,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.JedisPoolConfig;
-import xyz.proteanbear.phecda.message.RedisMessageReceiver;
+import xyz.proteanbear.phecda.communication.RedisMessageReceiver;
 
 import java.time.Duration;
 import java.util.Arrays;

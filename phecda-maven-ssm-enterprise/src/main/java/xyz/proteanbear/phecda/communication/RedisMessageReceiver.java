@@ -1,4 +1,4 @@
-package xyz.proteanbear.phecda.message;
+package xyz.proteanbear.phecda.communication;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

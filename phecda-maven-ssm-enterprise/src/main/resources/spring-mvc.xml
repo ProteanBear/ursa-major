@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC 基础配置 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
@@ -37,15 +38,17 @@
     <!-- 只把动态信息当做controller处理，忽略静态信息 -->
     <mvc:default-servlet-handler/>
 
+    <!--关闭自动使用 .* 后缀-->
+    <bean id="requestHandler" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
+        <property name="useSuffixPatternMatch" value="false"/>
+    </bean>
+
     <!-- 只扫描@controller注解 -->
     <context:component-scan base-package="${project-base-package}">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
         <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController" />
         <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
     </context:component-scan>
-
-    <!-- 开启Validator校验器 -->
-    <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor"/>
 
     <!-- JSP增加前后缀 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -55,14 +58,8 @@
     </bean>
 
     <!-- 国际化多语言处理 -->
-    <!-- 配置SessionLocaleResolver用于将Locale对象存储于Session中供后续使用 -->
-    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+    <import resource="spring-mvc-locale.xml"/>
 
-    <!-- 拦截器配置 -->
-    <mvc:interceptors>
-        <!-- 国际化环境切换 -->
-        <bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-            <property name="paramName" value="lang"/>
-        </bean>
-    </mvc:interceptors>
+    <!-- 数据校验器 -->
+    <import resource="spring-mvc-validator.xml"/>
 </beans>

@@ -3,9 +3,13 @@ package xyz.proteanbear.phecda.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import xyz.proteanbear.phecda.rest.Response;
-import xyz.proteanbear.phecda.tools.LocaleMessageUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
@@ -44,6 +47,18 @@ public class GlobalExceptionHandler
      * 对应返回信息的后缀
      */
     private static final String messageSuffix="}";
+
+    /**
+     * 当前属性描述替换内容
+     */
+    public static final String messageFieldReplace="${field}";
+
+    /**
+     * 国际化资源
+     */
+    @Autowired
+    @Qualifier("responseMessageResource")
+    private ReloadableResourceBundleMessageSource messageSource;
 
     /**
      * 400 - Bad Request
@@ -99,16 +114,15 @@ public class GlobalExceptionHandler
     }
 
     /**
-     * 400 - Bad Request,Validation Exception
+     * 400 - Bad Request,Bind Exception
      *
      * @param request   web请求
      * @param exception 异常信息
      * @return 返回内容
      */
-    @ExceptionHandler(ValidationException.class)
+    @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response validationException(
-            HttpServletRequest request,ValidationException exception)
+    public Response bindException(HttpServletRequest request,BindException exception)
     {
         return exceptionHandler(request,exception,ResponseCode.BAD_REQUEST);
     }
@@ -143,9 +157,7 @@ public class GlobalExceptionHandler
         String code=ResponseCode.INTERNAL_SERVER_ERROR;
         String message=exception.getMessage();
         code=(message.startsWith(messagePrefix) && message.endsWith(messageSuffix)
-                ?message
-                .replace(messagePrefix,"")
-                .replace(messageSuffix,"")
+                ?message.replace(messagePrefix,"").replace(messageSuffix,"")
                 :code);
         return exceptionHandler(request,new PhecdaException(exception,code),ResponseCode.INTERNAL_SERVER_ERROR);
     }
@@ -171,14 +183,50 @@ public class GlobalExceptionHandler
             PhecdaException phecdaException=(PhecdaException)exception;
             return new Response(
                     phecdaException.getCode(),
-                    LocaleMessageUtils.message(
-                            request,
+                    messageSource.getMessage(
                             phecdaException.getCode(),
-                            phecdaException.getParams()
+                            phecdaException.getParams(),
+                            RequestContextUtils.getLocale(request)
+                    ),
+                    null
+            );
+        }
+        //如果为校验器返回错误
+        else if(exception instanceof BindException)
+        {
+            BindException bindException=(BindException)exception;
+            return new Response(
+                    defaultStatus,
+                    translateValidatorMessage(
+                            request,
+                            bindException.getBindingResult()
                     ),
                     null
             );
         }
         return new Response(defaultStatus,exception.getMessage(),null);
+    }
+
+    /**
+     * 转换校验器生成的消息，替换当前属性名称
+     *
+     * @param bindingResult 错误结果
+     * @return 输出消息
+     */
+    private String translateValidatorMessage(HttpServletRequest request,BindingResult bindingResult)
+    {
+        FieldError fieldError=bindingResult.getFieldError();
+        String code=bindingResult.getTarget().getClass().getSimpleName()+"."+fieldError.getField();
+
+        //返回替换
+        return fieldError.getDefaultMessage().replace(
+                messageFieldReplace,
+                messageSource.getMessage(
+                        code,
+                        null,
+                        fieldError.getField(),
+                        RequestContextUtils.getLocale(request)
+                )
+        );
     }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC 国际化配置 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        ">
+
+    <!-- 输出消息的国际化配置文件 -->
+    <bean id="responseMessageResource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:message/response</value>
+                <value>classpath:message/bean</value>
+            </list>
+        </property>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="fileEncodings" value="ISO-8859-1" />
+        <property name="cacheSeconds" value="120"/>
+        <property name="useCodeAsDefaultMessage" value="false"/>
+    </bean>
+
+    <!-- 校验器使用的国际化配置文件 -->
+    <bean id="validatorMessageResource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="classpath:message/validation"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="fileEncodings" value="ISO-8859-1" />
+        <property name="cacheSeconds" value="120"/>
+        <property name="useCodeAsDefaultMessage" value="false"/>
+    </bean>
+
+    <!-- 配置SessionLocaleResolver用于将Locale对象存储于Session中供后续使用 -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+
+    <!-- 拦截器配置 -->
+    <mvc:interceptors>
+        <!-- 国际化环境切换 -->
+        <bean id="localeChangeInterceptor" class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="lang"/>
+        </bean>
+    </mvc:interceptors>
+</beans>
