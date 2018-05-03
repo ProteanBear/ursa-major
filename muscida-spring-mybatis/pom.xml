@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Custom properties -->
+    <properties>
+        <!-- jdk -->
+        <version-jdk>1.8</version-jdk>
+        <!-- jar complier -->
+        <version-maven-complier>3.7.0</version-maven-complier>
+
+        <!-- Muscida -->
+        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
+
+        <!-- Spring -->
+        <version-spring>5.0.5.RELEASE</version-spring>
+        <!-- Jackson -->
+        <version-jackson>2.9.5</version-jackson>
+        <!-- MyBatis -->
+        <version-mybatis>3.4.6</version-mybatis>
+        <version-mybatis-spring>1.3.2</version-mybatis-spring>
+    </properties>
+
+    <!-- project -->
+    <groupId>xyz.proteanbear</groupId>
+    <artifactId>muscida-spring-mybatis</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!-- dependencies repository -->
+    <repositories>
+        <!-- Maven Central -->
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- dependencies -->
+    <dependencies>
+        <!-- Muscida -->
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>muscida-spring-data</artifactId>
+            <version>${version-muscida}</version>
+        </dependency>
+
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${version-spring}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${version-spring}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version-jackson}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- MyBatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${version-mybatis}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>${version-mybatis-spring}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- Profile -->
+    <profiles>
+        <!-- environment：develop，Default -->
+        <profile>
+            <id>envDevelop</id>
+            <properties>
+                <environment>develop</environment>
+            </properties>
+            <activation><activeByDefault>true</activeByDefault></activation>
+        </profile>
+        <!-- environment：test -->
+        <profile>
+            <id>envTest</id>
+            <properties>
+                <environment>test</environment>
+            </properties>
+        </profile>
+        <!-- environment：product -->
+        <profile>
+            <id>envProduct</id>
+            <properties>
+                <environment>product</environment>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- Build -->
+    <build>
+        <!-- file name -->
+        <finalName>${artifactId}-${version}</finalName>
+        <!-- directory for saving -->
+        <directory>${basedir}/target</directory>
+        <!-- plugin -->
+        <plugins>
+            <!-- Compiler：UTF-8 encode、libs directory -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version-maven-complier}</version>
+                <configuration>
+                    <source>${version-jdk}</source>
+                    <target>${version-jdk}</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <extdirs>libs</extdirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+        </plugins>
+        <!-- Resource files -->
+        <resources>
+            <!-- Code internal resource files -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!-- file:public -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+            <!-- file:current profile -->
+            <resource>
+                <directory>src/main/resources-${environment}</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

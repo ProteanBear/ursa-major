@@ -43,15 +43,15 @@
         <include refid="select_left"/>
         <include refid="select_where"/>
         <if test="condition.orderBy != null and condition.orderBy != ''">
-            order by ${condition.orderBy}
+            order by #{condition.orderBy}
         </if>
         <if test="condition.startIndex != null and condition.startIndex != ''">
-            <![CDATA[ LIMIT ${condition.startIndex},${condition.size}]]>
+            <![CDATA[ LIMIT #{condition.startIndex},#{condition.size}]]>
         </if>
         ) u
         <include refid="select_left"/>
         <if test="condition.orderBy != null and condition.orderBy != ''">
-            order by ${condition.orderBy}
+            order by #{condition.orderBy}
         </if>
     </select>
     <select id="count" resultType="java.lang.Integer" parameterType="map">

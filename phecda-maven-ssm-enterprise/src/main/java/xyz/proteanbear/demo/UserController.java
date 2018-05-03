@@ -6,8 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import xyz.proteanbear.phecda.DataService;
-import xyz.proteanbear.phecda.Page;
+import xyz.proteanbear.muscida.Page;
+import xyz.proteanbear.muscida.DataService;
 
 import javax.validation.Valid;
 

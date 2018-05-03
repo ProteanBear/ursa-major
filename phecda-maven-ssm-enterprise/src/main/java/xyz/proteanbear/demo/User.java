@@ -1,6 +1,6 @@
 package xyz.proteanbear.demo;
 
-import xyz.proteanbear.phecda.DefaultBean;
+import xyz.proteanbear.muscida.DefaultBean;
 
 import java.util.Date;
 

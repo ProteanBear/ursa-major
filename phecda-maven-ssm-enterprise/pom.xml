@@ -15,8 +15,13 @@
         <!-- 工具执行 -->
         <version-maven-exec>1.6.0</version-maven-exec>
 
+        <!-- Muscida -->
+        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
+
         <!-- Spring -->
-        <version-spring>5.0.4.RELEASE</version-spring>
+        <version-spring>5.0.5.RELEASE</version-spring>
+        <!-- Aspectj -->
+        <version-aspectj>1.9.1</version-aspectj>
         <!-- Jackson -->
         <version-jackson>2.9.5</version-jackson>
         <!-- validator -->
@@ -85,7 +90,6 @@
 
     <!-- Web信息 -->
     <name>Phecda-Maven-SSM-Enterprise</name>
-    <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
     <!-- 依赖仓库 -->
@@ -121,6 +125,17 @@
             <artifactId>spring-context-support</artifactId>
             <version>${version-spring}</version>
         </dependency>
+        <!-- aop -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${version-spring}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${version-aspectj}</version>
+        </dependency>
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -144,6 +159,11 @@
             <artifactId>mybatis-spring</artifactId>
             <version>${version-mybatis-spring}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>muscida-spring-mybatis</artifactId>
+            <version>${version-muscida}</version>
+        </dependency>
         <!-- Redis -->
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -155,6 +175,11 @@
             <artifactId>jedis</artifactId>
             <version>${version-jedis}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>muscida-spring-redis</artifactId>
+            <version>${version-muscida}</version>
+        </dependency>
         <!-- Database driver -->
         <dependency>
             <groupId>${data-group-id}</groupId>
@@ -165,7 +190,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.1.9</version>
+            <version>${version-pool}</version>
         </dependency>
         <!-- log -->
         <dependency>
@@ -309,6 +334,9 @@
             <resource>
                 <directory>src/main/webapp</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Spring Mybatis Configuration for transaction -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+        ">
+
+    <!-- Introduce data source and Mybatis configuration -->
+    <bean class="xyz.proteanbear.muscida.DataSourceConfiguration"/>
+    <bean class="xyz.proteanbear.muscida.SpringMybatisConfiguration"/>
+
+    <!-- Set up a transaction strategy -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- Query class method is read-only -->
+            <tx:method name="query*" read-only="true" rollback-for="java.lang.Exception"/>
+            <tx:method name="find*" read-only="true" rollback-for="java.lang.Exception"/>
+            <tx:method name="list*" read-only="true" rollback-for="java.lang.Exception"/>
+            <tx:method name="count*" read-only="true" rollback-for="java.lang.Exception"/>
+            <tx:method name="get*" read-only="true" rollback-for="java.lang.Exception"/>
+
+            <!-- Perform operations -->
+            <tx:method name="create*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="save*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="remove*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+            <tx:method name="delete*" propagation="REQUIRED" rollback-for="java.lang.Exception"/>
+
+            <!-- Other use default -->
+            <tx:method name="*" />
+
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- Section configuration: custom dynamic data source aspect, transaction processor -->
+    <aop:config proxy-target-class="true">
+        <!-- Define entry points -->
+        <aop:pointcut id="dataSourcePointCut" expression="execution(* xyz.proteanbear.muscida.DataService.*(..))"/>
+        <!-- Use a configured transaction strategy -->
+        <aop:advisor advice-ref="txAdvice" order="2" pointcut-ref="dataSourcePointCut"/>
+        <!-- Custom dynamic data source processing -->
+        <aop:aspect ref="dataSourceAspect" order="1">
+            <aop:before method="before" pointcut-ref="dataSourcePointCut"/>
+        </aop:aspect>
+    </aop:config>
+</beans>

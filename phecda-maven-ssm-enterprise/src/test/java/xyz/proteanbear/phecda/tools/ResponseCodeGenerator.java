@@ -147,6 +147,7 @@ public class ResponseCodeGenerator
                 +File.separator+"xyz"
                 +File.separator+"proteanbear"
                 +File.separator+"phecda"
+                +File.separator+"mapping"
                 +File.separator+"ResponseCode"
                 +".java";
         System.out.println("获取ResponseCode类文件路径:"+classFilePath);

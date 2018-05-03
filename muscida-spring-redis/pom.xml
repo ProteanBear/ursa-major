@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Custom properties -->
+    <properties>
+        <!-- jdk -->
+        <version-jdk>1.8</version-jdk>
+        <!-- jar complier -->
+        <version-maven-complier>3.7.0</version-maven-complier>
+
+        <!-- Spring -->
+        <version-spring>5.0.5.RELEASE</version-spring>
+        <!-- Redis -->
+        <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
+        <version-jedis>2.9.0</version-jedis>
+
+        <!-- log -->
+        <version-log>1.7.25</version-log>
+    </properties>
+
+    <!-- project -->
+    <groupId>xyz.proteanbear</groupId>
+    <artifactId>muscida-spring-redis</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <!-- dependencies repository -->
+    <repositories>
+        <!-- Maven Central -->
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- dependencies -->
+    <dependencies>
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>${version-spring-redis}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${version-jedis}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${version-spring}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Log -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version-log}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- Profile -->
+    <profiles>
+        <!-- environment：develop，Default -->
+        <profile>
+            <id>envDevelop</id>
+            <properties>
+                <environment>develop</environment>
+            </properties>
+            <activation><activeByDefault>true</activeByDefault></activation>
+        </profile>
+        <!-- environment：test -->
+        <profile>
+            <id>envTest</id>
+            <properties>
+                <environment>test</environment>
+            </properties>
+        </profile>
+        <!-- environment：product -->
+        <profile>
+            <id>envProduct</id>
+            <properties>
+                <environment>product</environment>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- Build -->
+    <build>
+        <!-- file name -->
+        <finalName>${artifactId}-${version}</finalName>
+        <!-- directory for saving -->
+        <directory>${basedir}/target</directory>
+        <!-- plugin -->
+        <plugins>
+            <!-- Compiler：UTF-8 encode、libs directory -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version-maven-complier}</version>
+                <configuration>
+                    <source>${version-jdk}</source>
+                    <target>${version-jdk}</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArguments>
+                        <extdirs>libs</extdirs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+        </plugins>
+        <!-- Resource files -->
+        <resources>
+            <!-- Code internal resource files -->
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!-- file:public -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+            <!-- file:current profile -->
+            <resource>
+                <directory>src/main/resources-${environment}</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.yaml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

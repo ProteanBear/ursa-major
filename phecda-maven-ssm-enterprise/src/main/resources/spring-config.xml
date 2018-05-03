@@ -20,7 +20,8 @@
                 classpath:jdbc.properties,
                 classpath:pool.properties,
                 classpath:redis.properties,
-                classpath:jackson.properties
+                classpath:jackson.properties,
+                classpath:third-party.properties
         "/>
 
     <!-- 扫描注解，除去web层注解，web层注解在mvc配置中扫描 -->
@@ -33,11 +34,9 @@
     <!-- 开启AOP监听 只对当前配置文件有效 -->
     <!--<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true" />-->
 
-    <!-- 连接池:配置数据源 -->
-    <import resource="spring-pool.xml" />
-    <!-- Spring整合MyBatis -->
-    <import resource="spring-mybatis.xml" />
-
     <!-- 扫描Configuration注解配置 -->
     <context:annotation-config />
+
+    <!-- Spring整合MyBatis -->
+    <import resource="classpath*:spring-mybatis.xml" />
 </beans>
