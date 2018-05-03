@@ -30,3 +30,6 @@ build
 .gradle
 gradle
 gradlew*
+
+# temp #
+*.rdb
