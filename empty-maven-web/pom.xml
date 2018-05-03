@@ -166,6 +166,9 @@
             <resource>
                 <directory>src/main/webapp</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>
