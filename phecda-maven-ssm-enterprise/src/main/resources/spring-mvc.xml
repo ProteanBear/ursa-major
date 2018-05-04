@@ -26,7 +26,7 @@
     </bean>
 
     <!-- 使用基于注释的适配器和映射器 -->
-    <bean id="objectMapper" class="xyz.proteanbear.muscida.CustomJacksonObjectMapper" init-method="init"></bean>
+    <bean id="objectMapper" class="xyz.proteanbear.muscida.CustomJacksonObjectMapper" init-method="init"/>
     <mvc:annotation-driven>
         <!-- 增加输出的JSON转换 -->
         <mvc:message-converters>
@@ -60,10 +60,9 @@
     </bean>
 
     <!-- 国际化多语言处理 -->
-    <import resource="spring-mvc-locale.xml"/>
+    <import resource="classpath*:spring-mvc-locale.xml"/>
 
     <!-- 数据校验器 -->
-    <import resource="spring-mvc-validator.xml"/>
+    <import resource="classpath*:spring-mvc-validator.xml"/>
 
-    <!-- 拦截器设置 -->
 </beans>

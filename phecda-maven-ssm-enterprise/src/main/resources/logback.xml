@@ -7,13 +7,13 @@
 <configuration scan="true" scanPeriod="300 seconds"
                debug="false" packagingData="false">
     <!-- 载入属性文件 -->
-    <property resource="log.properties"></property>
+    <property resource="log.properties"/>
 
     <!-- 设置上下文名称，用于区分不同应用程序的记录 -->
     <contextName>${project.name}</contextName>
 
     <!-- 日志路径及名称 -->
-    <property name="LOG_FILE_NAME" value="${log.file.path}/${project.name}/${log.file.name}"></property>
+    <property name="LOG_FILE_NAME" value="${log.file.path}/${project.name}/${log.file.name}"/>
 
     <!-- 载入写日志配置组件 -->
     <include resource="logback-appender/console.xml" />

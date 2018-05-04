@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ValidationException;
 
 /**
  * Global exception handler that returns a unified data structure after capture.
@@ -127,6 +128,20 @@ public class GlobalExceptionHandler
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Response bindException(HttpServletRequest request,BindException exception)
+    {
+        return exceptionHandler(request,exception,"BAD_REQUEST");
+    }
+
+    /**
+     * 400 - Bad Request,Validation Exception
+     *
+     * @param request   web request
+     * @param exception the exception object
+     * @return Response object
+     */
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response validationException(HttpServletRequest request,ValidationException exception)
     {
         return exceptionHandler(request,exception,"BAD_REQUEST");
     }

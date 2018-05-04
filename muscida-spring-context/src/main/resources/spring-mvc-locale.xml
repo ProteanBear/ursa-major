@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC International configuration -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        ">
+
+    <!-- Output message internationalization configuration file -->
+    <bean id="responseMessageResource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>${message.response.baseName}</value>
+                <value>${message.bean.baseName}</value>
+            </list>
+        </property>
+        <property name="defaultEncoding" value="${message.defaultEncoding}"/>
+        <property name="fileEncodings" value="${message.fileEncodings}" />
+        <property name="cacheSeconds" value="${message.cacheSeconds}"/>
+        <property name="useCodeAsDefaultMessage" value="false"/>
+    </bean>
+
+    <!-- Configure SessionLocaleResolver to store Locale objects in Session for subsequent use -->
+    <bean class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+
+    <!-- Interceptor -->
+    <mvc:interceptors>
+        <!-- Internationalized environment switching -->
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="lang"/>
+        </bean>
+    </mvc:interceptors>
+</beans>

@@ -2,15 +2,12 @@
 <!-- Spring 基础配置 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans
             http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/context
             http://www.springframework.org/schema/context/spring-context.xsd
-            http://www.springframework.org/schema/aop
-            http://www.springframework.org/schema/aop/spring-aop.xsd
         ">
 
     <!-- 读取配置文件 -->
@@ -31,12 +28,9 @@
         <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
     </context:component-scan>
 
-    <!-- 开启AOP监听 只对当前配置文件有效 -->
-    <!--<aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true" />-->
-
-    <!-- 扫描Configuration注解配置 -->
-    <context:annotation-config />
-
     <!-- Spring整合MyBatis -->
     <import resource="classpath*:spring-mybatis.xml" />
+
+    <!-- Spring整合Redis -->
+    <bean class="xyz.proteanbear.muscida.SpringRedisConfiguration"/>
 </beans>

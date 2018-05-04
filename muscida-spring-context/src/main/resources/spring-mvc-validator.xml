@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC Validation Configuration -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        ">
+
+    <!-- Support Validator -->
+    <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor"/>
+
+    <!-- Internal message resource used by a validator -->
+    <bean id="validatorMessageResource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="${message.validation.baseName}"/>
+        <property name="defaultEncoding" value="${message.defaultEncoding}"/>
+        <property name="fileEncodings" value="${message.fileEncodings}" />
+        <property name="cacheSeconds" value="${message.cacheSeconds}"/>
+        <property name="useCodeAsDefaultMessage" value="false"/>
+    </bean>
+
+    <!-- Config validator factory -->
+    <bean id="validatorFactory" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <!-- Validator -->
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+        <!-- International configuration support -->
+        <!-- If you do not add the default to using the ValidationMessages.properties under the classpath -->
+        <property name="validationMessageSource" ref="validatorMessageResource"/>
+    </bean>
+
+    <!-- Annotation driven -->
+    <mvc:annotation-driven validator="validatorFactory"/>
+
+    <!-- Interceptor -->
+    <mvc:interceptors>
+        <!-- Request Parameter Validator -->
+        <!-- Support common parameter validation -->
+        <bean class="xyz.proteanbear.muscida.interceptor.RequestParameterValidator">
+            <property name="validatorFactory" ref="validatorFactory"/>
+        </bean>
+    </mvc:interceptors>
+</beans>
