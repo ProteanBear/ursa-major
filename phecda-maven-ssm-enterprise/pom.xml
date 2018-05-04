@@ -249,6 +249,30 @@
                 <environment>product</environment>
             </properties>
         </profile>
+        <!-- 代码执行 -->
+        <!-- ResponseCode：生成器，便于开发调用返回的错误状态值 -->
+        <!-- 命令：mvn test -P response-code -->
+        <profile>
+            <id>response-code</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${version-maven-exec}</version>
+                        <executions>
+                            <execution>
+                                <phase>test</phase>
+                                <goals><goal>java</goal></goals>
+                                <configuration>
+                                    <mainClass>xyz.proteanbear.muscida.generator.ResponseCodeGenerator</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <!-- 构建 -->
