@@ -1,0 +1,52 @@
+package ${TO_PACKAGE};
+
+import xyz.proteanbear.muscida.DefaultBean;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * Bean for ${TABLE_NAME}
+ *
+ * @author ProteanBear
+ * @version 1.0.0,${DATE_CURRENT}
+ * @since jdk1.8
+ */
+public class ${TABLE_NAME.camel} implements DefaultBean,Serializable
+{
+    {%TEMPLATE_FIELD:
+
+    /**
+     * ${FIELD_NAME.camel.firstLower}:${FIELD_COMMENT}
+     */
+    private ${FIELD_TYPE.javaType} ${FIELD_NAME.camel.firstLower};
+    %}
+
+    /**
+     * @return the primary key value of the current data object
+     */
+    @Override
+    public Object getPrimaryKeyValue()
+    {
+        return get${PRIMARY_KEY.camel}();
+    }
+
+    {%TEMPLATE_METHOD:
+    /**
+     * @return ${FIELD_COMMENT}
+     */
+    public String get${FIELD_NAME.camel}()
+    {
+        return ${FIELD_NAME.camel.firstLower};
+    }
+
+    /**
+     * @param ${FIELD_NAME.camel.firstLower} ${FIELD_COMMENT}
+     */
+    public void set${FIELD_NAME.camel}(String ${FIELD_NAME.camel.firstLower})
+    {
+        this.${FIELD_NAME.camel.firstLower}=${FIELD_NAME.camel.firstLower};
+    }
+
+    %}
+}

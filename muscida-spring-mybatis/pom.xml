@@ -50,6 +50,11 @@
             <artifactId>muscida-spring-data</artifactId>
             <version>${version-muscida}</version>
         </dependency>
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>muscida-metadata</artifactId>
+            <version>${version-muscida}</version>
+        </dependency>
 
         <!-- Spring -->
         <dependency>

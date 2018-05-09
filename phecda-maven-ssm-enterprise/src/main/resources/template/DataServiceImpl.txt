@@ -1,30 +1,30 @@
-package xyz.proteanbear.demo;
-
+package ${TO_PACKAGE};
+                    
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import xyz.proteanbear.muscida.DataService;
 
 /**
- * Business service implement for
+ * Business service implement for ${TABLE_NAME.camel}
  *
  * @author ProteanBear
  * @version 1.0.0,${DATE_CURRENT}
  * @since jdk1.8
  */
-@Service("userService")
-public class UserServiceImpl implements DataService<User,UserMapper>
+@Service("${TABLE_NAME.camel.firstLower}Service")
+public class ${TABLE_NAME.camel}ServiceImpl implements DataService<${TABLE_NAME.camel},${TABLE_NAME.camel}Mapper>
 {
     /**
      * Data mapper
      */
     @Autowired
-    private UserMapper mapper;
+    private ${TABLE_NAME.camel}Mapper mapper;
 
     /**
      * @return data mapper
      */
     @Override
-    public UserMapper getMapper()
+    public ${TABLE_NAME.camel}Mapper getMapper()
     {
         return mapper;
     }
@@ -35,6 +35,6 @@ public class UserServiceImpl implements DataService<User,UserMapper>
     @Override
     public String getDefaultOrderBy()
     {
-        return "user asc";
+        return "${PRIMARY_KEY} desc";
     }
 }

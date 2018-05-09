@@ -1,0 +1,16 @@
+package ${TO_PACKAGE};
+                    
+import org.springframework.stereotype.Repository;
+import xyz.proteanbear.muscida.DefaultDataMapper;
+
+/**
+ * Mapper for ${TABLE_NAME}
+ *
+ * @author ProteanBear
+ * @version 1.0.0,${DATE_CURRENT}
+ * @since jdk1.8
+ */
+@Repository
+public interface ${TABLE_NAME.camel}Mapper extends DefaultDataMapper<${TABLE_NAME.camel}>
+{
+}

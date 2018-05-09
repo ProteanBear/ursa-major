@@ -2,32 +2,48 @@ package xyz.proteanbear.demo;
 
 import xyz.proteanbear.muscida.DefaultBean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Mysql库中的user表对应Bean
+ * Bean for
+ *
  * @author ProteanBear
+ * @version 1.0.0,${DATE_CURRENT}
+ * @since jdk1.8
  */
-public class User implements DefaultBean
+public class User implements DefaultBean,Serializable
 {
-    //终端位置
+    /**
+     *
+     */
     private String host;
+
     //用户名
     private String user;
     //密码最后更新时间
     private Date   passwordLastChanged;
 
+    /**
+     * @return the primary key value of the current data object
+     */
     @Override
     public Object getPrimaryKeyValue()
     {
         return getUser();
     }
 
+    /**
+     * @return
+     */
     public String getHost()
     {
         return host;
     }
 
+    /**
+     * @param host
+     */
     public void setHost(String host)
     {
         this.host=host;

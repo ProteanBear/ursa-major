@@ -46,8 +46,6 @@
 
         <!-- junit -->
         <version-junit>4.12</version-junit>
-        <!-- ibeetl:Template Engine -->
-        <version-beetl>2.8.0</version-beetl>
 
         <!-- 项目信息:适用于web.xml -->
         <!-- 显示名称 -->
@@ -216,13 +214,6 @@
             <version>${version-junit}</version>
             <scope>test</scope>
         </dependency>
-        <!-- ibeetl:Template Engine -->
-        <dependency>
-            <groupId>com.ibeetl</groupId>
-            <artifactId>beetl</artifactId>
-            <version>${version-beetl}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <!-- Profile配置 -->
@@ -342,6 +333,9 @@
                     <include>**/*.xml</include>
                     <include>**/*.yaml</include>
                 </includes>
+                <excludes>
+                    <exclude>**/*.txt</exclude>
+                </excludes>
                 <filtering>true</filtering>
             </resource>
             <!-- 配置资源文件:当前环境 -->

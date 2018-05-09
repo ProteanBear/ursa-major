@@ -10,6 +10,7 @@ import xyz.proteanbear.muscida.Page;
 import xyz.proteanbear.muscida.DataService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @Controller
 @RequestMapping("/demo")
