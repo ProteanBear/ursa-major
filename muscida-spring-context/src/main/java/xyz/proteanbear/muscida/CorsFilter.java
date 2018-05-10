@@ -83,7 +83,7 @@ public class CorsFilter extends OncePerRequestFilter
         String allowHeaders=getFilterConfig().getInitParameter("Access-Control-Allow-Headers");
         if(allowHeaders!=null && !"".equals(allowHeaders))
         {
-            response.setHeader("Access-Control-Allow-Methods",allowHeaders);
+            response.setHeader("Access-Control-Allow-Headers",allowHeaders);
         }
 
         //Access-Control-Expose-Headers
