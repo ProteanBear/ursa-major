@@ -194,36 +194,30 @@ public class GlobalExceptionHandler
             Exception exception,
             String defaultStatus)
     {
-        //Print error message
-        logger.error(exception.getMessage(),exception);
+        String message=exception.getMessage();
         //If the system error is specified error code
         if(exception instanceof ResponseException)
         {
             ResponseException ResponseException=(ResponseException)exception;
-            return new Response(
+            message=messageSource.getMessage(
                     ResponseException.getCode(),
-                    messageSource.getMessage(
-                            ResponseException.getCode(),
-                            ResponseException.getParams(),
-                            RequestContextUtils.getLocale(request)
-                    ),
-                    null
+                    ResponseException.getParams(),
+                    RequestContextUtils.getLocale(request)
             );
+            defaultStatus=ResponseException.getCode();
         }
         //If you return an error for the validator
         else if(exception instanceof BindException)
         {
             BindException bindException=(BindException)exception;
-            return new Response(
-                    defaultStatus,
-                    translateValidatorMessage(
-                            request,
-                            bindException.getBindingResult()
-                    ),
-                    null
+            message=translateValidatorMessage(
+                    request,
+                    bindException.getBindingResult()
             );
         }
-        return new Response(defaultStatus,exception.getMessage(),null);
+        //Print error exception
+        logger.error(message,exception);
+        return new Response(defaultStatus,message,null);
     }
 
     /**

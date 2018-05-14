@@ -48,6 +48,12 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
     private ReloadableResourceBundleMessageSource messageSource;
 
     /**
+     * Authority account handler
+     */
+    @Autowired
+    private Authority.AccountHandler accountHandler;
+
+    /**
      * Turn on support
      *
      * @param methodParameter the method parameter
@@ -80,6 +86,23 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
             ServerHttpRequest serverHttpRequest,
             ServerHttpResponse serverHttpResponse)
     {
+        //Store the data for the method with authority annotation AutoStore
+        if(methodParameter.hasMethodAnnotation(Authority.AutoStore.class))
+        {
+            if(accountHandler==null)
+            {
+                logger.error("Account handler object is null!");
+            }
+            else if(!(data instanceof Authority.Account))
+            {
+                logger.warn("Return data is not a instance of the class Authority.Account!Data is not stored!");
+            }
+            else
+            {
+                accountHandler.store((Authority.Account)data);
+            }
+        }
+
         //Has not been packaged
         if(!(data instanceof Response))
         {
@@ -101,7 +124,8 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
         {
             if(logger.isDebugEnabled())
             {
-                logger.debug("Return content:{}",objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data));
+                logger.debug("Return content:{}",
+                             objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data));
             }
         }
         catch(JsonProcessingException e)

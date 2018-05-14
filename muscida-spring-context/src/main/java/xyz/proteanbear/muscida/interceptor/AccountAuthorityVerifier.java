@@ -62,8 +62,18 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
         HandlerMethod method=(HandlerMethod)handler;
         if(!method.hasMethodAnnotation(Authority.Set.class))
         {
-            logger.warn("Have not a authority annotation!Use default setting:",publicRestful?"All allow!":"All Reject!");
-            return result;
+            logger.warn(
+                    "Have not a authority annotation!Use default setting:{}",
+                    publicRestful?"All allow!":"All Reject!"
+            );
+            if(publicRestful)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception("{NOT_LOGIN_ACCESS}");
+            }
         }
 
         //Handle @Authority.Set annotation
@@ -72,7 +82,10 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
         if(logger.isDebugEnabled())
         {
             RequestMapping requestMapping=method.getMethodAnnotation(RequestMapping.class);
-            logger.debug("Get method {}'s annotation @authority of a url '{}',and setting is:{}",method.getMethod().getName(),getLogContent(requestMapping.value()),authority);
+            logger.debug(
+                    "Get method {}'s annotation @authority of a url '{}',and setting is:{}",
+                    method.getMethod().getName(),getLogContent(requestMapping.value()),authority
+            );
         }
 
         //If not must login
@@ -83,27 +96,41 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
         Class accountClass=account.getClass();
         //Check account class
         result=false;
-        for(Class curClass:authority.accountClass())
+        for(Class curClass : authority.accountClass())
         {
             if(curClass.isAssignableFrom(accountClass))
             {
                 //Only allow accountClass access
-                if(authority.allow()){result=true;break;}
+                if(authority.allow())
+                {
+                    result=true;
+                    break;
+                }
                 //Not allow accountClass access
-                else throw new Exception(authority.message());
+                else
+                {
+                    throw new Exception(authority.message());
+                }
             }
         }
         //Check account class name
         if(!result)
         {
-            for(String curClass:authority.accountClassName())
+            for(String curClass : authority.accountClassName())
             {
                 if(curClass.equalsIgnoreCase(accountClass.getSimpleName()))
                 {
                     //Only allow accountClass access
-                    if(authority.allow()){result=true;break;}
+                    if(authority.allow())
+                    {
+                        result=true;
+                        break;
+                    }
                     //Not allow accountClass access
-                    else throw new Exception(authority.message());
+                    else
+                    {
+                        throw new Exception(authority.message());
+                    }
                 }
             }
         }

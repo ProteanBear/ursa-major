@@ -2,6 +2,7 @@ package xyz.proteanbear.muscida;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.lang.annotation.*;
 
 /**
  * User's functional authority processing, including annotations and interfaces;
@@ -16,12 +17,15 @@ public class Authority
     /**
      * An annotation on the method in the Controller, indicating the login user rights required for the call
      */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
     public @interface Set
     {
         /**
          * @return Error message
          */
-        String message() default "{xyz.proteanbear.muscida.authority}";
+        String message() default "{NOT_LOGIN_ACCESS}";
 
         /**
          * @return Whether you must log in, the default return true
@@ -48,6 +52,15 @@ public class Authority
          */
         String customData() default "";
     }
+
+    /**
+     * An annotation on the method in the Controller；
+     * Automatically call accountHandler to store account information
+     */
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public @interface AutoStore{}
 
     /**
      * Account interface and extend from Serializable
