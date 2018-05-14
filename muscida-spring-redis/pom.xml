@@ -11,11 +11,17 @@
         <!-- jar complier -->
         <version-maven-complier>3.7.0</version-maven-complier>
 
+        <!-- Muscida -->
+        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
         <!-- Spring -->
         <version-spring>5.0.5.RELEASE</version-spring>
+        <!-- Servlet -->
+        <version-servlet>4.0.0</version-servlet>
         <!-- Redis -->
         <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
         <version-jedis>2.9.0</version-jedis>
+        <!-- Jackson -->
+        <version-jackson>2.9.5</version-jackson>
 
         <!-- log -->
         <version-log>1.7.25</version-log>
@@ -42,6 +48,13 @@
 
     <!-- dependencies -->
     <dependencies>
+        <!-- Muscida -->
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>muscida-spring-context</artifactId>
+            <version>${version-muscida}</version>
+        </dependency>
+
         <!-- Redis -->
         <dependency>
             <groupId>org.springframework.data</groupId>
@@ -61,6 +74,20 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${version-spring}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Servlet Api -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${version-servlet}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version-jackson}</version>
             <scope>provided</scope>
         </dependency>
         <!-- Log -->

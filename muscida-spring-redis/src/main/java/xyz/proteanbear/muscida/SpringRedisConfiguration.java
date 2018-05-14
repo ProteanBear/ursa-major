@@ -1,7 +1,9 @@
 package xyz.proteanbear.muscida;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -429,13 +431,53 @@ public class SpringRedisConfiguration
      * @return command executor (value string serialization)
      */
     @Bean("redisStringTemplate")
-    public RedisTemplate<?,?> redisStringTemplate(
+    public StringRedisTemplate redisStringTemplate(
             @Qualifier("redisConnectionFactory") JedisConnectionFactory connectionFactory)
     {
-        RedisTemplate<?,?> template=new StringRedisTemplate();
+        StringRedisTemplate template=new StringRedisTemplate();
         template.setConnectionFactory(connectionFactory);
         template.setEnableTransactionSupport(enableTransactionSupport);
         return template;
+    }
+
+    /**
+     * Redis command executor using stringRedisTemplate
+     *
+     * @param redisTemplate redis template
+     * @return command executor (value serialized using jdk)
+     */
+    @Bean("redisExecutor")
+    public RedisExecutor redisExecutor(
+            @Value("redis.store.prefix") String keyPrefix,
+            @Qualifier("redisTemplate") RedisTemplate redisTemplate)
+    {
+        RedisExecutor executor=new RedisExecutor.DefaultImpl();
+        executor.setRedisTemplate(redisTemplate);
+        executor.setPrefix(keyPrefix);
+        return executor;
+    }
+
+    /**
+     * Redis command executor
+     * Key using String serialization; value using String serialization
+     *
+     * @param redisTemplate redis template
+     * @return command executor (value string serialization)
+     */
+    @Bean("redisStringExecutor")
+    public RedisExecutor redisStringExecutor(
+            @Value("redis.store.prefix") String keyPrefix,
+            @Qualifier("redisStringTemplate") StringRedisTemplate redisTemplate)
+    {
+        RedisExecutor executor=new RedisExecutor.JsonImpl();
+        ((RedisExecutor.JsonImpl)executor).setStringRedisTemplate(redisTemplate);
+        executor.setPrefix(keyPrefix);
+
+        CustomJacksonObjectMapper objectMapper=new CustomJacksonObjectMapper();
+        objectMapper.init();
+        ((RedisExecutor.JsonImpl)executor).setObjectMapper(objectMapper);
+
+        return executor;
     }
 
     /**
@@ -476,6 +518,7 @@ public class SpringRedisConfiguration
      * Custom subscription message receiver
      * Receive String JSON message content
      *  
+     *
      * @param redisTemplate command executor
      * @return subscription message receiver
      */
@@ -490,7 +533,7 @@ public class SpringRedisConfiguration
     /**
      * Redis subscription message listener container
      *
-     * @param connectionFactory connection factory
+     * @param connectionFactory    connection factory
      * @param redisMessageReceiver message sink
      * @return subscription message listener container
      */

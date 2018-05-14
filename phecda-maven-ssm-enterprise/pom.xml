@@ -70,7 +70,7 @@
         <!-- 是否允许请求带有验证信息，若要获取客户端域下的cookie时，需要将其设置为true -->
         <project-allow-credentials></project-allow-credentials>
         <!-- 允许服务端访问的客户端请求头，多个请求头用逗号分割，例如：Content-Type -->
-        <project-allow-headers></project-allow-headers>
+        <project-allow-headers>Content-Type,Token</project-allow-headers>
         <!-- 允许客户端访问的服务端响应头，多个响应头用逗号分割 -->
         <project-expose-headers></project-expose-headers>
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SpringMVC 配置：安全权限 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        ">
+
+    <!-- 账户权限处理器 -->
+    <bean id="accountHandler" class="xyz.proteanbear.muscida.RedisAuthorityAccountHandler">
+        <!-- 保存token使用的字段名（同时用于客户端和服务端保存） -->
+        <property name="tokenKey" value="${redis.store.tokenKey}"/>
+        <!-- 设定命令执行器 -->
+        <property name="redisExecutor" ref="redisStringExecutor" />
+        <!-- 用户Token保存的超时时间 -->
+        <property name="expireTime" value="${redis.store.expireTime}"/>
+        <!-- 超时时间的单位,包括有SECONDS/MINUTES/HOURS/DAYS -->
+        <property name="timeUnit" value="${redis.store.expireTimeUnit}"/>
+    </bean>
+
+    <!-- 拦截器 -->
+    <mvc:interceptors>
+        <!-- 接口账户权限判断 -->
+        <bean class="xyz.proteanbear.muscida.interceptor.AccountAuthorityVerifier">
+            <!-- 接口模式配置：是否为开放接口，即是否必须登录才能访问 -->
+            <!-- 默认为否，即需@Authority.Set注解中特殊标注才能不登录访问 -->
+            <property name="publicRestful" value="${restful.public}"/>
+            <!-- 账户管理器，使用Redis处理 -->
+            <property name="accountHandler" ref="accountHandler"/>
+        </bean>
+    </mvc:interceptors>
+
+</beans>

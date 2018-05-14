@@ -65,4 +65,7 @@
     <!-- 数据校验器 -->
     <import resource="classpath*:spring-mvc-validator.xml"/>
 
+    <!-- 安全权限 -->
+    <import resource="classpath:spring-mvc-security.xml" />
+
 </beans>

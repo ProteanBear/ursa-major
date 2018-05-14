@@ -13,7 +13,7 @@
 
         <!-- Spring -->
         <version-spring>5.0.5.RELEASE</version-spring>
-        <!-- servlet -->
+        <!-- Servlet -->
         <version-servlet>4.0.0</version-servlet>
         <!-- Jackson -->
         <version-jackson>2.9.5</version-jackson>
