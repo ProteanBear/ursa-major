@@ -26,6 +26,11 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
     private static final Logger logger=LoggerFactory.getLogger(AccountAuthorityVerifier.class);
 
     /**
+     * Error
+     */
+    public static final String ERROR_NOT_LOGIN="{NOT_LOGIN_ACCESS})";
+
+    /**
      * If set to true, the system only performs privilege verification on interface calls with annotations;
      * If set to false, the system will only perform no privilege verification on the interface with annotations;
      */
@@ -72,7 +77,7 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
             }
             else
             {
-                throw new Exception("{NOT_LOGIN_ACCESS}");
+                throw new Exception(ERROR_NOT_LOGIN);
             }
         }
 
@@ -93,6 +98,7 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
 
         //if must login
         Authority.Account account=accountHandler.get(request);
+        if(account==null) throw new Exception(ERROR_NOT_LOGIN);
         Class accountClass=account.getClass();
         //Check account class
         result=false;
@@ -139,6 +145,8 @@ public class AccountAuthorityVerifier implements HandlerInterceptor
 
         //Handle result
         if(!result) throw new Exception(authority.message());
+
+        //
 
         return true;
     }

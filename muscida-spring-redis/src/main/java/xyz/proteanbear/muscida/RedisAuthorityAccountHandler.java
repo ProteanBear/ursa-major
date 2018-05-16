@@ -1,7 +1,10 @@
 package xyz.proteanbear.muscida;
 
+import xyz.proteanbear.muscida.utils.ClassAndObjectUtils;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,27 +46,28 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
     @Override
     public Authority.Account get(HttpServletRequest request)
     {
-        //Get the token from the web request header
-        String token=request.getHeader(tokenKey);
+        //Token
+        String token=getParameterFrom(request,tokenKey);
 
-        //If token is null,get from cookie
-        if(null==token || "".equals(token))
+        //Token Type
+        String className=getParameterFrom(request,getStoreTypeKey());
+        Class classType=null;
+        try
         {
-            for(Cookie cookie : request.getCookies())
-            {
-                if(tokenKey.equalsIgnoreCase(cookie.getName()))
-                {
-                    token=cookie.getValue();
-                    break;
-                }
-            }
+            classType=Class.forName(className);
         }
-
-        //If token is null
-        if(token==null) return null;
+        catch(ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        if(classType==null) return null;
 
         //Get the account object by using the token
-        return redisExecutor.get(getStoreTokenKey(token),Authority.Account.class);
+        Object result=redisExecutor.get(getStoreTokenKey(token),classType);
+        return result==null?null
+                :(ClassAndObjectUtils.isImplement(classType,Authority.Account.class)
+                ?((Authority.Account)result)
+                :null);
     }
 
     /**
@@ -72,12 +76,21 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
      * @param account current account object
      */
     @Override
-    public String store(Authority.Account account)
+    public void store(HttpServletResponse response,Authority.Account account)
     {
         assert null!=account;
         String token=account.customToken();
-        if(token!=null) redisExecutor.set(getStoreTokenKey(token),account,expireTime,timeUnit);
-        return token;
+        if(token!=null)
+        {
+            //Redis
+            redisExecutor.set(getStoreTokenKey(token),account,expireTime,timeUnit);
+            //Cookie
+            response.addCookie(new Cookie(tokenKey,token));
+            response.addCookie(new Cookie(getStoreTypeKey(),account.getClass().getName()));
+            //Header
+            response.addHeader(tokenKey,token);
+            response.addHeader(getStoreTypeKey(),account.getClass().getName());
+        }
     }
 
     /**
@@ -119,5 +132,48 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
     private String getStoreTokenKey(String token)
     {
         return tokenKey+"_"+token;
+    }
+
+    /**
+     * @return token store object type key
+     */
+    private String getStoreTypeKey()
+    {
+        return tokenKey+"_type";
+    }
+
+    /**
+     * Get the parameter value named paramName from http request.
+     * From header/cookie/parameter
+     *
+     * @param request   web http request
+     * @param paramName parameter name
+     * @return the parameter value
+     */
+    private String getParameterFrom(HttpServletRequest request,String paramName)
+    {
+        //Get the value from the web request header
+        String result=request.getHeader(paramName);
+
+        //If value is null,get from cookie
+        if(null==result || "".equals(result))
+        {
+            for(Cookie cookie : request.getCookies())
+            {
+                if(paramName.equalsIgnoreCase(cookie.getName()))
+                {
+                    result=cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        //If value is null,get from request parameter
+        if(null==result || "".equals(result))
+        {
+            result=request.getParameter(paramName);
+        }
+
+        return result;
     }
 }

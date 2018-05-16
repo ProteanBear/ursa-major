@@ -33,4 +33,7 @@
 
     <!-- Spring整合Redis -->
     <bean class="xyz.proteanbear.muscida.SpringRedisConfiguration"/>
+
+    <!-- Spring整合Libra(基于Quartz的任务执行封装) -->
+    <bean class="xyz.proteanbear.libra.configuration.LibraQuartzConfiguration"/>
 </beans>

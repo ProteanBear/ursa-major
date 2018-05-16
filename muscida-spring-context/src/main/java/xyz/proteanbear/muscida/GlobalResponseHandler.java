@@ -13,11 +13,15 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import xyz.proteanbear.muscida.utils.ClassAndObjectUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Global return processor, return to unified JSON data structure after capture.
@@ -87,19 +91,23 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
             ServerHttpResponse serverHttpResponse)
     {
         //Store the data for the method with authority annotation AutoStore
-        if(methodParameter.hasMethodAnnotation(Authority.AutoStore.class))
+        if(methodParameter.hasMethodAnnotation(Authority.Set.class))
         {
-            if(accountHandler==null)
+            Authority.Set authoritySetting=methodParameter.getMethodAnnotation(Authority.Set.class);
+            if(authoritySetting.autoStore())
             {
-                logger.error("Account handler object is null!");
-            }
-            else if(!(data instanceof Authority.Account))
-            {
-                logger.warn("Return data is not a instance of the class Authority.Account!Data is not stored!");
-            }
-            else
-            {
-                accountHandler.store((Authority.Account)data);
+                if(accountHandler==null)
+                {
+                    logger.error("Account handler object is null!");
+                }
+                else if(!ClassAndObjectUtils.isImplement(data,Authority.Account.class))
+                {
+                    logger.warn("Return data is not a instance of the class Authority.Account!Data is not stored!");
+                }
+                else
+                {
+                    accountHandler.store(((ServletServerHttpResponse)serverHttpResponse).getServletResponse(),(Authority.Account)data);
+                }
             }
         }
 

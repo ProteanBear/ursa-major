@@ -1,5 +1,6 @@
 package xyz.proteanbear.demo;
 
+import xyz.proteanbear.muscida.Authority;
 import xyz.proteanbear.muscida.DefaultBean;
 
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.Date;
  * @version 1.0.0,${DATE_CURRENT}
  * @since jdk1.8
  */
-public class User implements DefaultBean,Serializable
+public class User implements DefaultBean,Authority.Account,Serializable
 {
     /**
      *

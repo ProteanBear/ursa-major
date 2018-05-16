@@ -39,6 +39,15 @@ public interface RedisCommandExecutor
     void setPrefix(String prefix);
 
     /**
+     * serialize the value to byte array
+     *
+     * @param value        object
+     * @param bySerializer redis serializer
+     * @return byte array
+     */
+    byte[] serializeValue(Object value,RedisSerializer bySerializer);
+
+    /**
      * deserialize the value byte array
      *
      * @param value        must not be empty.
@@ -203,7 +212,7 @@ public interface RedisCommandExecutor
             return (boolean)redisTemplate.execute(
                     (RedisCallback<Boolean>)connection -> connection.set(
                             redisTemplate.getKeySerializer().serialize(getPrefix()+key),
-                            redisTemplate.getValueSerializer().serialize(value),
+                            serializeValue(value,redisTemplate.getValueSerializer()),
                             expireTime==-1
                                     ?Expiration.persistent()
                                     :Expiration.from(expireTime,timeUnit),
@@ -524,7 +533,7 @@ public interface RedisCommandExecutor
         /**
          * Delete given hash fields.
          *
-         * @param key   must not be null.
+         * @param key    must not be null.
          * @param fields must not be empty.
          * @return null when used in pipeline / transaction.
          */
@@ -544,7 +553,7 @@ public interface RedisCommandExecutor
             }
 
             return (long)redisTemplate.execute(
-                    (RedisCallback<Long>)(connection)->
+                    (RedisCallback<Long>)(connection) ->
                             connection.hDel(
                                     keySerializer.serialize(key),byteFields)
             );
@@ -567,10 +576,11 @@ public interface RedisCommandExecutor
             RedisSerializer hashKeySerializer=redisTemplate.getHashKeySerializer();
 
             return (boolean)redisTemplate.execute(
-                    (RedisCallback<Boolean>)(connection)->
+                    (RedisCallback<Boolean>)(connection) ->
                             connection.hExists(
                                     keySerializer.serialize(getPrefix()+key),
-                                    hashKeySerializer.serialize(field))
+                                    hashKeySerializer.serialize(field)
+                            )
             );
         }
 
@@ -625,7 +635,7 @@ public interface RedisCommandExecutor
             fields.forEach((field,value) -> {
                 fieldMap.put(
                         hashKeySerializer.serialize(field),
-                        hashValueSerializer.serialize(value)
+                        serializeValue(value,hashValueSerializer)
                 );
             });
 
@@ -646,6 +656,6 @@ public interface RedisCommandExecutor
      */
     interface ListCommand extends RedisCommandExecutor
     {
-        long listAdd(String key,Object...values);
+        long listAdd(String key,Object... values);
     }
 }

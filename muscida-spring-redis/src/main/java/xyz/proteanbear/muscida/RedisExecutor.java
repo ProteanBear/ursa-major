@@ -75,6 +75,18 @@ public interface RedisExecutor extends RedisCommandExecutor.StringCommand,
         }
 
         /**
+         * serialize the value to byte array
+         *
+         * @param value        object
+         * @param bySerializer redis serializer
+         * @return byte array
+         */
+        public byte[] serializeValue(Object value,RedisSerializer bySerializer)
+        {
+            return bySerializer.serialize(value);
+        }
+
+        /**
          * deserialize the value byte array
          *
          * @param value        must not be empty.
@@ -115,6 +127,28 @@ public interface RedisExecutor extends RedisCommandExecutor.StringCommand,
         public void setObjectMapper(ObjectMapper objectMapper)
         {
             this.objectMapper=objectMapper;
+        }
+
+        /**
+         * serialize the value to byte array
+         *
+         * @param value        object
+         * @param bySerializer redis serializer
+         * @return byte array
+         */
+        public byte[] serializeValue(Object value,RedisSerializer bySerializer)
+        {
+            if(value==null) return null;
+
+            try
+            {
+                return bySerializer.serialize(objectMapper.writeValueAsString(value));
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         /**

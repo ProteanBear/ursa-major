@@ -448,7 +448,7 @@ public class SpringRedisConfiguration
      */
     @Bean("redisExecutor")
     public RedisExecutor redisExecutor(
-            @Value("redis.store.prefix") String keyPrefix,
+            @Value("${redis.store.prefix}") String keyPrefix,
             @Qualifier("redisTemplate") RedisTemplate redisTemplate)
     {
         RedisExecutor executor=new RedisExecutor.DefaultImpl();
@@ -466,7 +466,7 @@ public class SpringRedisConfiguration
      */
     @Bean("redisStringExecutor")
     public RedisExecutor redisStringExecutor(
-            @Value("redis.store.prefix") String keyPrefix,
+            @Value("${redis.store.prefix}") String keyPrefix,
             @Qualifier("redisStringTemplate") StringRedisTemplate redisTemplate)
     {
         RedisExecutor executor=new RedisExecutor.JsonImpl();

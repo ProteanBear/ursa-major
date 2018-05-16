@@ -32,6 +32,8 @@
         <!-- Redis -->
         <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
         <version-jedis>2.9.0</version-jedis>
+        <!-- libra：基于Quartz的定时任务引擎 -->
+        <version-libra>1.2.0</version-libra>
         <!-- data -->
         <!-- 使用的数据库 -->
         <data-group-id>mysql</data-group-id>
@@ -189,6 +191,12 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>${version-pool}</version>
+        </dependency>
+        <!-- Libra(based on quartz) -->
+        <dependency>
+            <groupId>xyz.proteanbear</groupId>
+            <artifactId>libra</artifactId>
+            <version>1.2.0</version>
         </dependency>
         <!-- log -->
         <dependency>

@@ -1,8 +1,10 @@
 package xyz.proteanbear.muscida;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.Serializable;
 import java.lang.annotation.*;
+import java.util.UUID;
 
 /**
  * User's functional authority processing, including annotations and interfaces;
@@ -38,6 +40,11 @@ public class Authority
         boolean allow() default false;
 
         /**
+         * @return If this is a interface for user login,you can set it true and return user object will be stored automatic.
+         */
+        boolean autoStore() default false;
+
+        /**
          * @return Related account class array
          */
         Class[] accountClass() default {};
@@ -52,15 +59,6 @@ public class Authority
          */
         String customData() default "";
     }
-
-    /**
-     * An annotation on the method in the Controller；
-     * Automatically call accountHandler to store account information
-     */
-    @Target({ElementType.METHOD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    public @interface AutoStore{}
 
     /**
      * Account interface and extend from Serializable
@@ -79,11 +77,11 @@ public class Authority
         }
 
         /**
-         * @return custom token generate method
+         * @return Custom token generate method.Default token is uuid
          */
         default String customToken()
         {
-            return null;
+            return String.valueOf(UUID.randomUUID()).replaceAll("-","");
         }
     }
 
@@ -104,8 +102,7 @@ public class Authority
          * Store the account object
          *
          * @param account current account object
-         * @return return the token string of account
          */
-        String store(Account account);
+        void store(HttpServletResponse response,Account account);
     }
 }
