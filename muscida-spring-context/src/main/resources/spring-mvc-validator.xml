@@ -31,9 +31,6 @@
         <property name="validationMessageSource" ref="validatorMessageResource"/>
     </bean>
 
-    <!-- Annotation driven -->
-    <mvc:annotation-driven validator="validatorFactory"/>
-
     <!-- Interceptor -->
     <mvc:interceptors>
         <!-- Request Parameter Validator -->

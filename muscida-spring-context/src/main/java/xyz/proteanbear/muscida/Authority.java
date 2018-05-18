@@ -45,6 +45,11 @@ public class Authority
         boolean autoStore() default false;
 
         /**
+         * @return If this is a interface for user logout,you can set it true and remove the user object stored automatic.
+         */
+        boolean autoRemove() default false;
+
+        /**
          * @return Related account class array
          */
         Class[] accountClass() default {};
@@ -83,6 +88,16 @@ public class Authority
         {
             return String.valueOf(UUID.randomUUID()).replaceAll("-","");
         }
+
+        /**
+         * @param toClass class
+         * @param <T>     class
+         * @return bean object
+         */
+        default <T> T getBean(Class<T> toClass)
+        {
+            return this.getClass().isAssignableFrom(toClass)?((T)this):null;
+        }
     }
 
     /**
@@ -99,10 +114,40 @@ public class Authority
         Account get(HttpServletRequest request);
 
         /**
+         * Get the account object through token string
+         *
+         * @param fromToken token string
+         * @param forClass  class name
+         * @return current account object
+         */
+        Account get(String fromToken,String forClass);
+
+        /**
+         * @param request web request
+         * @return token string
+         */
+        String token(HttpServletRequest request);
+
+        /**
+         * @param request web request
+         * @return account object type string
+         */
+        String type(HttpServletRequest request);
+
+        /**
          * Store the account object
          *
-         * @param account current account object
+         * @param response response
+         * @param account  current account object
          */
         void store(HttpServletResponse response,Account account);
+
+        /**
+         * Remove the account object
+         *
+         * @param request  web request
+         * @param response response
+         */
+        void remove(HttpServletRequest request,HttpServletResponse response);
     }
 }

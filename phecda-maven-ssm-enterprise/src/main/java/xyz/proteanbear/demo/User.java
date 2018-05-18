@@ -1,5 +1,6 @@
 package xyz.proteanbear.demo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import xyz.proteanbear.muscida.Authority;
 import xyz.proteanbear.muscida.DefaultBean;
 

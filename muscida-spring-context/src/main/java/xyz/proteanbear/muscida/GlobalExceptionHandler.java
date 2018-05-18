@@ -119,6 +119,27 @@ public class GlobalExceptionHandler
     }
 
     /**
+     * 400 - Bad Request,illegal argument
+     *
+     * @param request   web request
+     * @param exception the exception object
+     * @return Response object
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response illegalArgumentException(
+            HttpServletRequest request,
+            IllegalArgumentException exception)
+    {
+        String code="BAD_REQUEST";
+        String message=exception.getMessage();
+        code=(message.startsWith(messagePrefix) && message.endsWith(messageSuffix)
+                ?message.replace(messagePrefix,"").replace(messageSuffix,"")
+                :code);
+        return exceptionHandler(request,new ResponseException(exception,code),"BAD_REQUEST");
+    }
+
+    /**
      * 400 - Bad Request,Bind Exception
      *
      * @param request   web request

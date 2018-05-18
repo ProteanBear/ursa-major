@@ -25,12 +25,40 @@
         </property>
     </bean>
 
+    <!-- 国际化多语言处理 -->
+    <import resource="classpath*:spring-mvc-locale.xml"/>
+
+    <!-- 数据校验器 -->
+    <import resource="classpath*:spring-mvc-validator.xml"/>
+
+    <!-- 安全权限 -->
+    <import resource="classpath:spring-mvc-security.xml" />
+
     <!-- 使用基于注释的适配器和映射器 -->
     <bean id="objectMapper" class="xyz.proteanbear.muscida.CustomJacksonObjectMapper" init-method="init"/>
-    <mvc:annotation-driven>
+
+    <!-- 注册中心配置自定义转换器 -->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <!-- 输入日期格式字符串转Date -->
+                <bean id="stringToDateConverter" class="xyz.proteanbear.muscida.converter.StringToDateConverter">
+                    <property name="datePattern" value="${request.parameter.dateFormat}"/>
+                </bean>
+                <!-- 登录用户对象默认绑定 -->
+                <bean id="bindLoginAccountConverter" class="xyz.proteanbear.muscida.converter.BindLoginAccountConverter">
+                    <property name="accountHandler" ref="accountHandler"/>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <!-- 校验工厂及转换器配置 -->
+    <mvc:annotation-driven validator="validatorFactory" conversion-service="conversionService">
         <!-- 增加输出的JSON转换 -->
-        <mvc:message-converters>
-            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <mvc:message-converters register-defaults="true">
+            <!-- 输出JSON -->
+            <bean id="jackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="objectMapper" ref="objectMapper" />
             </bean>
         </mvc:message-converters>
@@ -58,14 +86,5 @@
         <property name="prefix" value="/WEB-INF/jsp/"/><!-- 前缀 -->
         <property name="suffix" value=".jsp"/><!-- 后缀，自动拼接 -->
     </bean>
-
-    <!-- 国际化多语言处理 -->
-    <import resource="classpath*:spring-mvc-locale.xml"/>
-
-    <!-- 数据校验器 -->
-    <import resource="classpath*:spring-mvc-validator.xml"/>
-
-    <!-- 安全权限 -->
-    <import resource="classpath:spring-mvc-security.xml" />
 
 </beans>

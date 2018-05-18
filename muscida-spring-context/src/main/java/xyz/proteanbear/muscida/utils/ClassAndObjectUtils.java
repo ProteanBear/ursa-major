@@ -33,6 +33,12 @@ public class ClassAndObjectUtils
     {
         assert null!=targetClass;
         assert null!=interfaceClass;
+
+        if(targetClass.isInterface())
+        {
+            return targetClass.isAssignableFrom(interfaceClass);
+        }
+
         Class[] classes=targetClass.getInterfaces();
         boolean result=false;
         for(Class aClass : classes)
@@ -70,11 +76,42 @@ public class ClassAndObjectUtils
     {
         assert null!=targetClass;
         assert null!=interfaceClassName;
+
+        if(targetClass.isInterface())
+        {
+            return interfaceClassName.equalsIgnoreCase(targetClass.getSimpleName());
+        }
+
         Class[] classes=targetClass.getInterfaces();
         boolean result=false;
         for(Class aClass : classes)
         {
             if(interfaceClassName.equalsIgnoreCase(aClass.getSimpleName()))
+            {
+                result=true;
+                break;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Whether a class in the package
+     *
+     * @param targetClass  class
+     * @param packageNames package name eg. java.util
+     * @return If class is in the package,return true
+     */
+    public static boolean inPackage(Class targetClass,String... packageNames)
+    {
+        assert null!=targetClass;
+        assert null!=packageNames;
+
+        boolean result=false;
+        String targetPackage=targetClass.getPackage().getName();
+        for(String packageName : packageNames)
+        {
+            if(packageName.equalsIgnoreCase(targetPackage))
             {
                 result=true;
                 break;

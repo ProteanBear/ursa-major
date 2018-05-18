@@ -17,6 +17,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import org.springframework.web.servlet.support.RequestContextUtils;
+import xyz.proteanbear.muscida.interceptor.AccountAuthorityVerifier;
 import xyz.proteanbear.muscida.utils.ClassAndObjectUtils;
 
 import javax.servlet.http.Cookie;
@@ -94,6 +95,10 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
         if(methodParameter.hasMethodAnnotation(Authority.Set.class))
         {
             Authority.Set authoritySetting=methodParameter.getMethodAnnotation(Authority.Set.class);
+            HttpServletRequest request=((ServletServerHttpRequest)serverHttpRequest).getServletRequest();
+            HttpServletResponse response=((ServletServerHttpResponse)serverHttpResponse).getServletResponse();
+
+            //Store the token and account object
             if(authoritySetting.autoStore())
             {
                 if(accountHandler==null)
@@ -106,8 +111,18 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
                 }
                 else
                 {
-                    accountHandler.store(((ServletServerHttpResponse)serverHttpResponse).getServletResponse(),(Authority.Account)data);
+                    boolean isLogin=(Boolean)request.getAttribute(AccountAuthorityVerifier.ATTRIBUTE_IS_LOGIN);
+                    if(!isLogin)
+                    {
+                        accountHandler.store(response,(Authority.Account)data);
+                    }
                 }
+            }
+
+            //Remove the token and account object
+            if(authoritySetting.autoRemove())
+            {
+                accountHandler.remove(request,response);
             }
         }
 

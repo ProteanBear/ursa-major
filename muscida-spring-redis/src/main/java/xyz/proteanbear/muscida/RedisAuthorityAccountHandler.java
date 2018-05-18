@@ -51,10 +51,28 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
 
         //Token Type
         String className=getParameterFrom(request,getStoreTypeKey());
+
+        //Get
+        return get(token,className);
+    }
+
+    /**
+     * Get the account object through token string
+     *
+     * @param fromToken token string
+     * @param forClass  class name
+     * @return current account object
+     */
+    @Override
+    public Authority.Account get(String fromToken,String forClass)
+    {
+        if(fromToken==null||"".equals(fromToken)) return null;
+        if(forClass==null||"".equals(forClass)) return null;
+
         Class classType=null;
         try
         {
-            classType=Class.forName(className);
+            classType=Class.forName(forClass);
         }
         catch(ClassNotFoundException e)
         {
@@ -63,11 +81,31 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
         if(classType==null) return null;
 
         //Get the account object by using the token
-        Object result=redisExecutor.get(getStoreTokenKey(token),classType);
+        Object result=redisExecutor.get(getStoreTokenKey(fromToken),classType);
         return result==null?null
                 :(ClassAndObjectUtils.isImplement(classType,Authority.Account.class)
                 ?((Authority.Account)result)
                 :null);
+    }
+
+    /**
+     * @param request web request
+     * @return token string
+     */
+    @Override
+    public String token(HttpServletRequest request)
+    {
+        return getParameterFrom(request,tokenKey);
+    }
+
+    /**
+     * @param request web request
+     * @return account object type string
+     */
+    @Override
+    public String type(HttpServletRequest request)
+    {
+        return getParameterFrom(request,getStoreTypeKey());
     }
 
     /**
@@ -90,6 +128,30 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
             //Header
             response.addHeader(tokenKey,token);
             response.addHeader(getStoreTypeKey(),account.getClass().getName());
+        }
+    }
+
+    /**
+     * Remove the account object
+     *
+     * @param request  web request
+     * @param response web response
+     */
+    @Override
+    public void remove(HttpServletRequest request,HttpServletResponse response)
+    {
+        //Token
+        String token=getParameterFrom(request,tokenKey);
+        if(null!=token && !"".equals(token))
+        {
+            //Remove Header
+            response.setHeader(tokenKey,null);
+            response.addHeader(getStoreTypeKey(),null);
+            //Remove Cookie
+            response.addCookie(new Cookie(tokenKey,null));
+            response.addCookie(new Cookie(getStoreTypeKey(),null));
+            //Remove from redis
+            redisExecutor.delete(getStoreTokenKey(token));
         }
     }
 
