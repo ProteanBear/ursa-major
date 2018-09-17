@@ -12,7 +12,7 @@
         <version-maven-complier>3.7.0</version-maven-complier>
 
         <!-- Spring -->
-        <version-spring>5.0.5.RELEASE</version-spring>
+        <version-spring>5.0.6.RELEASE</version-spring>
         <!-- Aspectj -->
         <version-aspectj>1.9.1</version-aspectj>
         <!-- Database pool -->
