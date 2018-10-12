@@ -90,7 +90,7 @@ task envTest{
         println "运行环境为:${project['environment']}"
     }
 }
-//生成环境
+//生产环境
 task envProduct{
     doLast{
         environment="product"
