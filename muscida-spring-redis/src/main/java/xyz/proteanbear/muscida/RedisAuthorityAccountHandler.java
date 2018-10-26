@@ -220,12 +220,15 @@ public class RedisAuthorityAccountHandler implements Authority.AccountHandler
         //If value is null,get from cookie
         if(null==result || "".equals(result))
         {
-            for(Cookie cookie : request.getCookies())
+            if(request.getCookies()!=null)
             {
-                if(paramName.equalsIgnoreCase(cookie.getName()))
+                for(Cookie cookie : request.getCookies())
                 {
-                    result=cookie.getValue();
-                    break;
+                    if(paramName.equalsIgnoreCase(cookie.getName()))
+                    {
+                        result=cookie.getValue();
+                        break;
+                    }
                 }
             }
         }
