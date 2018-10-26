@@ -59,6 +59,12 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
     private Authority.AccountHandler accountHandler;
 
     /**
+     * Response wrapper：If empty, use the default implementation.
+     */
+    @Autowired
+    private ResponseWrapper responseWrapper;
+
+    /**
      * Turn on support
      *
      * @param methodParameter the method parameter
@@ -127,18 +133,20 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
         }
 
         //Has not been packaged
-        if(!(data instanceof Response))
+        responseWrapper=(responseWrapper==null)
+                ?(new ResponseWrapper.Default())
+                :responseWrapper;
+        if(!(responseWrapper.isObjectAfterWrap(data)))
         {
             //Use Response for output packaging
             HttpServletRequest request=((ServletServerHttpRequest)serverHttpRequest).getServletRequest();
-            data=new Response(
-                    "SUCCESS",
+            data=responseWrapper.wrap(
                     messageSource.getMessage(
                             "SUCCESS",
                             null,
                             RequestContextUtils.getLocale(request)
-                    ),
-                    data
+                    )
+                    ,data
             );
         }
 
@@ -147,8 +155,10 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object>
         {
             if(logger.isDebugEnabled())
             {
-                logger.debug("Return content:{}",
-                             objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data));
+                logger.debug(
+                        "Return content:{}",
+                        objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data)
+                );
             }
         }
         catch(JsonProcessingException e)

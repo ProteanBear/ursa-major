@@ -21,7 +21,7 @@ public class UserController
     private DataService<User,UserMapper> service;
 
     @RequestMapping(value="/user",method=RequestMethod.GET)
-    @Authority.Set(allow=true,accountClass=User.class)
+    @Authority.Set(mustLogin=false,allow=false,accountClass=User.class)
     public Page list(@Valid Page page)
             throws Exception
     {

@@ -87,4 +87,6 @@
         <property name="suffix" value=".jsp"/><!-- 后缀，自动拼接 -->
     </bean>
 
+    <!-- 配置自定义的返回包装器实现 -->
+    <bean id="responseWrapper" class="xyz.proteanbear.demo.CustomResponseWrapper" />
 </beans>

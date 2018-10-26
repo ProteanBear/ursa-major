@@ -60,15 +60,22 @@ public class GlobalExceptionHandler
     private ReloadableResourceBundleMessageSource messageSource;
 
     /**
+     * Response wrapper：If empty, use the default implementation.
+     */
+    @Autowired
+    @Qualifier("responseWrapper")
+    private ResponseWrapper responseWrapper;
+
+    /**
      * 400 - Bad Request
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response httpMessageNotReadableException(
+    public Object httpMessageNotReadableException(
             HttpServletRequest request,HttpMessageNotReadableException exception)
     {
         return exceptionHandler(
@@ -83,11 +90,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    public Response httpRequestMethodNotSupportedException(
+    public Object httpRequestMethodNotSupportedException(
             HttpServletRequest request,
             HttpRequestMethodNotSupportedException exception)
     {
@@ -103,11 +110,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-    public Response httpMessageNotReadableException(
+    public Object httpMessageNotReadableException(
             HttpServletRequest request,
             HttpMediaTypeNotSupportedException exception)
     {
@@ -123,11 +130,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response illegalArgumentException(
+    public Object illegalArgumentException(
             HttpServletRequest request,
             IllegalArgumentException exception)
     {
@@ -144,11 +151,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response bindException(HttpServletRequest request,BindException exception)
+    public Object bindException(HttpServletRequest request,BindException exception)
     {
         return exceptionHandler(request,exception,"BAD_REQUEST");
     }
@@ -158,11 +165,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Response validationException(HttpServletRequest request,ValidationException exception)
+    public Object validationException(HttpServletRequest request,ValidationException exception)
     {
         return exceptionHandler(request,exception,"BAD_REQUEST");
     }
@@ -173,11 +180,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(ResponseException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Response ResponseException(HttpServletRequest request,ResponseException exception)
+    public Object ResponseException(HttpServletRequest request,ResponseException exception)
     {
         return exceptionHandler(request,exception,"INTERNAL_SERVER_ERROR");
     }
@@ -188,11 +195,11 @@ public class GlobalExceptionHandler
      *
      * @param request   web request
      * @param exception the exception object
-     * @return Response object
+     * @return object response object after wrapped
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Response exception(HttpServletRequest request,Exception exception)
+    public Object exception(HttpServletRequest request,Exception exception)
     {
         String code="INTERNAL_SERVER_ERROR";
         String message=exception.getMessage();
@@ -208,9 +215,9 @@ public class GlobalExceptionHandler
      * @param request       web request
      * @param exception     the exception object
      * @param defaultStatus the default response code
-     * @return Response object
+     * @return object response object after wrapped
      */
-    private Response exceptionHandler(
+    private Object exceptionHandler(
             HttpServletRequest request,
             Exception exception,
             String defaultStatus)
@@ -238,7 +245,10 @@ public class GlobalExceptionHandler
         }
         //Print error exception
         logger.error(message,exception);
-        return new Response(defaultStatus,message,null);
+        responseWrapper=(responseWrapper==null)
+                ?(new ResponseWrapper.Default())
+                :responseWrapper;
+        return responseWrapper.wrap(defaultStatus,message);
     }
 
     /**
