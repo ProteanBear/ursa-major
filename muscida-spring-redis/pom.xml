@@ -19,7 +19,7 @@
         <version-servlet>4.0.1</version-servlet>
         <!-- Redis -->
         <version-spring-redis>2.1.6.RELEASE</version-spring-redis>
-        <version-jedis>3.0.1</version-jedis>
+        <version-jedis>2.9.3</version-jedis>
         <!-- Jackson -->
         <version-jackson>2.9.8</version-jackson>
 

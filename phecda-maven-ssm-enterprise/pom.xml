@@ -16,22 +16,22 @@
         <version-maven-exec>1.6.0</version-maven-exec>
 
         <!-- Muscida -->
-        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
+        <version-muscida>0.1.0-alpha-SNAPSHOT</version-muscida>
 
         <!-- Spring -->
-        <version-spring>5.0.6.RELEASE</version-spring>
+        <version-spring>5.1.6.RELEASE</version-spring>
         <!-- Aspectj -->
-        <version-aspectj>1.9.1</version-aspectj>
+        <version-aspectj>1.9.3</version-aspectj>
         <!-- Jackson -->
-        <version-jackson>2.9.5</version-jackson>
+        <version-jackson>2.9.8</version-jackson>
         <!-- validator -->
-        <version-validator>6.0.9.Final</version-validator>
+        <version-validator>6.0.16.Final</version-validator>
         <!-- MyBatis -->
-        <version-mybatis>3.4.6</version-mybatis>
-        <version-mybatis-spring>1.3.2</version-mybatis-spring>
+        <version-mybatis>3.5.1</version-mybatis>
+        <version-mybatis-spring>2.0.1</version-mybatis-spring>
         <!-- Redis -->
-        <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
-        <version-jedis>2.9.0</version-jedis>
+        <version-spring-redis>2.1.6.RELEASE</version-spring-redis>
+        <version-jedis>2.9.3</version-jedis>
         <!-- libra：基于Quartz的定时任务引擎 -->
         <version-libra>1.2.0</version-libra>
         <!-- data -->
@@ -39,15 +39,15 @@
         <data-group-id>mysql</data-group-id>
         <data-artifact-id>mysql-connector-java</data-artifact-id>
         <version-driver>8.0.11</version-driver>
-        <version-pool>1.1.9</version-pool>
+        <version-pool>1.1.16</version-pool>
         <!-- log -->
         <version-log>1.2.3</version-log>
 
         <!-- servlet -->
-        <version-servlet>4.0.0</version-servlet>
+        <version-servlet>4.0.1</version-servlet>
 
         <!-- junit -->
-        <version-junit>4.12</version-junit>
+        <version-junit>5.4.2</version-junit>
 
         <!-- 项目信息:适用于web.xml -->
         <!-- 显示名称 -->
@@ -202,7 +202,7 @@
         <dependency>
             <groupId>xyz.proteanbear</groupId>
             <artifactId>libra</artifactId>
-            <version>1.2.0</version>
+            <version>${version-libra}</version>
         </dependency>
         <!-- log -->
         <dependency>
@@ -223,8 +223,8 @@
         <!-- Test -->
         <!-- junit -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${version-junit}</version>
             <scope>test</scope>
         </dependency>
