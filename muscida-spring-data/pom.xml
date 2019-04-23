@@ -12,22 +12,22 @@
         <version-maven-complier>3.7.0</version-maven-complier>
 
         <!-- Spring -->
-        <version-spring>5.0.6.RELEASE</version-spring>
+        <version-spring>5.1.6.RELEASE</version-spring>
         <!-- Aspectj -->
-        <version-aspectj>1.9.1</version-aspectj>
+        <version-aspectj>1.9.3</version-aspectj>
         <!-- Database pool -->
-        <version-pool>1.1.9</version-pool>
+        <version-pool>1.1.16</version-pool>
         <!-- Muscida -->
-        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
+        <version-muscida>0.1.0-alpha-SNAPSHOT</version-muscida>
 
         <!-- log -->
-        <version-log>1.7.25</version-log>
+        <version-log>1.7.26</version-log>
     </properties>
 
     <!-- project -->
     <groupId>xyz.proteanbear</groupId>
     <artifactId>muscida-spring-data</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-alpha-SNAPSHOT</version>
 
     <!-- dependencies repository -->
     <repositories>

@@ -12,25 +12,25 @@
         <version-maven-complier>3.7.0</version-maven-complier>
 
         <!-- Muscida -->
-        <version-muscida>1.0.0-SNAPSHOT</version-muscida>
+        <version-muscida>0.1.0-alpha-SNAPSHOT</version-muscida>
         <!-- Spring -->
-        <version-spring>5.0.6.RELEASE</version-spring>
+        <version-spring>5.1.6.RELEASE</version-spring>
         <!-- Servlet -->
-        <version-servlet>4.0.0</version-servlet>
+        <version-servlet>4.0.1</version-servlet>
         <!-- Redis -->
-        <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
-        <version-jedis>2.9.0</version-jedis>
+        <version-spring-redis>2.1.6.RELEASE</version-spring-redis>
+        <version-jedis>3.0.1</version-jedis>
         <!-- Jackson -->
-        <version-jackson>2.9.5</version-jackson>
+        <version-jackson>2.9.8</version-jackson>
 
         <!-- log -->
-        <version-log>1.7.25</version-log>
+        <version-log>1.7.26</version-log>
     </properties>
 
     <!-- project -->
     <groupId>xyz.proteanbear</groupId>
     <artifactId>muscida-spring-redis</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-alpha-SNAPSHOT</version>
 
     <!-- dependencies repository -->
     <repositories>
