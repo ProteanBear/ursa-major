@@ -1,4 +1,0 @@
-REACT_APP_SERVER_DOMAIN_MOCK=http://localhost:3001/
-REACT_APP_SERVER_DOMAIN=http://yzwj.care4u.cn/medical/
-REACT_APP_SERVER_RESOURCE_ROOT=http://yzwj.care4u.cn/upload/resources/recorder/
-REACT_APP_USE_MOCK=false
