@@ -1,0 +1,96 @@
+import './Container.css';
+
+import React from 'react';
+import {withRouter, RouteComponentProps} from 'react-router-dom';
+import { Layout, Menu, Button, Avatar, Dropdown, Icon,message } from 'antd';
+import ImageViewer from './ImageViewer';
+
+/**
+ * 公共组件：顶部栏，包括logo、菜单和登录状态判断；
+ */
+class ContainerWithHeader extends React.Component<RouteComponentProps>{
+    readonly state:{
+    }={
+        
+    }
+
+    /**
+     * 顶部退出登录处理：请求服务后，清除本地缓存，跳转到登录页
+     */
+    logout=()=>{
+        this.props.history.replace("/");
+    };
+
+    /**
+     * 通用布局容器
+     */
+    render(){
+        const {Header,Content,Footer}=Layout;
+        const selectedKey="switch";
+        const isLogin=false;
+        const menu=(
+            <Menu>
+                <Menu.Item onClick={this.logout}>
+                    <Icon type="logout"/> 退出
+                </Menu.Item>
+            </Menu>
+        );
+
+        return (
+            <Layout className="layout">
+                <Header>
+                    <div className="header-container">
+                        <div className="header-logo">{process.env.REACT_APP_NAME}</div>
+                        {isLogin?(
+                                <Dropdown overlay={menu} placement="bottomLeft">
+                                    <Button className="header-login-button" type="link">
+                                        <Avatar icon="user"/> 机构名称
+                                    </Button>
+                                </Dropdown>
+                            ):(
+                                <Button className="header-login-button"
+                                    type="link" onClick={this.logout}>
+                                    <Avatar icon="user"/> 机构登录
+                                </Button>
+                            )
+                        }
+                        {isLogin?(
+                            <Menu theme="dark" mode="horizontal" 
+                                defaultSelectedKeys={[selectedKey]}
+                                style={{lineHeight:'64px'}}
+                                >
+                                <Menu.Item key="switch">信息维护</Menu.Item>
+                            </Menu>
+                        ):(
+                            <Menu theme="dark" mode="horizontal" 
+                                defaultSelectedKeys={[selectedKey]}
+                                style={{lineHeight:'64px'}}
+                                >
+                            <Menu.Item key="switch">执业申请</Menu.Item>
+                        </Menu>
+                        )
+                        }
+                    </div>
+                </Header>
+                <Content className="content-container">
+                    {this.props.children}
+                </Content>
+                <Footer className="footer-container"></Footer>
+
+                {/* 图片查看器 */}
+                <ImageViewer />
+            </Layout>
+        );
+    }
+
+    /**
+     * 载入全部后，设置消息提示样式
+     */
+    componentDidMount(){
+        message.config({
+            top:70,
+            maxCount:3
+        });
+    }
+}
+export default withRouter(ContainerWithHeader);

@@ -1,0 +1,174 @@
+import React, { ChangeEvent } from 'react';
+import { Form, Row, Col, DatePicker, Icon, Input, AutoComplete, Button, Select } from 'antd';
+import { DictionaryData,DictionaryLoader } from '../app/DictionaryLoader';
+import { ApplyContentManagerResume } from '../app/Model';
+import { SelectValue } from 'antd/lib/select';
+import moment from 'moment';
+
+type ApplyFormResumeProps={
+    resumes:Array<ApplyContentManagerResume>,
+    onChange(resumes:Array<ApplyContentManagerResume>):void,
+    disabled:boolean
+}
+
+/**
+ * 申请表单：工作履历
+ */
+export default class ApplyFormResume extends React.Component<ApplyFormResumeProps>{
+    readonly state:{
+        jobs:Array<DictionaryData>,
+        resumes:Array<ApplyContentManagerResume>
+    }={
+        jobs:DictionaryLoader.instance.job(),
+        resumes:this.props.resumes
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Option}=Select;
+        const {jobs}=this.state;
+
+        const autoCompleteChildren=jobs.map(
+            data=><Option key={String(data.label)}>{data.label}</Option>
+        );
+
+        return (
+            <Form className="form-ul-group" layout="inline" labelCol={{span:0}} wrapperCol={{span:24}}>
+                {this.props.resumes.map((resume,index)=>{
+                    const {time}=resume;
+                    const timeArray=time.split("~");
+                    const timeStart=timeArray[0],timeEnd=(timeArray.length>1)?timeArray[1]:"";
+                    return (
+                    <Row key={`resume-${index}`}>
+                        <Col span={6}>
+                            <Form.Item>
+                                <DatePicker.RangePicker allowClear={false}
+                                    placeholder={["开始日期","结束日期"]}
+                                    onChange={(dates,dateStrings)=>{
+                                        resume.time=dateStrings[0]+"~"+dateStrings[1];
+                                        this.resumeChange(index,resume);
+                                    }}
+                                    value={timeArray.length>1?[
+                                        moment(timeStart),
+                                        moment(timeEnd)
+                                    ]:undefined}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={1}><span className="divider" style={{marginTop:4}}>--</span></Col>
+                        <Col span={8}>
+                            <Form.Item>
+                                <Input placeholder="工作的机构名称" value={resume.unit}
+                                    onChange={(event:ChangeEvent<HTMLInputElement>)=>{
+                                        resume.unit=event.target.value;
+                                        this.resumeChange(index,resume);
+                                    }}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={1}><span className="divider" style={{marginTop:4}}>--</span></Col>
+                        <Col span={4}>
+                            <Form.Item>
+                                <AutoComplete value={resume.position}
+                                        placeholder="工作职务"
+                                        onSearch={this.handleSearch}
+                                        disabled={this.props.disabled}
+                                        onChange={(value:SelectValue)=>{
+                                            resume.position=(value as string);
+                                            this.resumeChange(index,resume);
+                                        }}
+                                        onSelect={(value:SelectValue)=>{
+                                            resume.position=(value as string);
+                                            this.resumeChange(index,resume);
+                                        }}
+                                >
+                                    {autoCompleteChildren}
+                                </AutoComplete>
+                            </Form.Item>
+                        </Col>
+                        <Col span={4}>
+                            <Button type="link" 
+                                    onClick={()=>this.removeResume(index)}
+                                    disabled={this.props.disabled}
+                            >
+                                <Icon
+                                    className="dynamic-delete-button"
+                                    type="minus-circle-o"
+                                />
+                            </Button>
+                        </Col>
+                    </Row>
+                )})}
+                <Row>
+                    <Col span={20}>
+                        <Form.Item>
+                            <Button type="dashed"
+                                onClick={this.addNewResume}
+                                disabled={this.props.disabled}
+                            >
+                                <Icon type="plus" /> 添加工作经历
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        );
+    }
+
+    /**
+     * 过滤提示职务名称
+     */
+    handleSearch = (value:string) => {
+        const dictionaryJob=DictionaryLoader.instance.job();
+        const {jobs}=this.state;
+        jobs.splice(0,jobs.length);
+        dictionaryJob.forEach((dict:DictionaryData)=>{
+            if(dict.label&&(String(dict.label).indexOf(value)!==-1)){
+                jobs.push(dict);
+            }
+        });
+        this.setState({
+            ...this.state,
+            jobs:jobs
+        });
+    }
+
+    /**
+     * 添加一条新的履历信息
+     */
+    addNewResume=()=>{
+        const {resumes}=this.state;
+        resumes.push({
+            time:"",
+            unit:"",
+            position:""
+        });
+        this.setState({...this.state,resumes:resumes});
+
+        this.props.onChange(resumes);
+    }
+
+    /**
+     * 删除一个新添加的履历
+     */
+    removeResume=(index:number)=>{
+        const {resumes}=this.state;
+        resumes.splice(index,1);
+        this.setState({...this.state,resumes:resumes});
+
+        this.props.onChange(resumes);
+    }
+
+    /**
+     * 履历信息修改
+     */
+    resumeChange=(index:number,resume:ApplyContentManagerResume)=>{
+        const {resumes}=this.state;
+        resumes[index]=resume;
+        this.setState({...this.state,resumes:resumes});
+
+        this.props.onChange(resumes);
+    }
+}

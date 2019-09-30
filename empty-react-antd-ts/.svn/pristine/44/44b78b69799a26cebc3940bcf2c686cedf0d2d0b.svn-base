@@ -1,0 +1,132 @@
+import './login.css';
+import React from 'react';
+import {Link, RouteComponentProps, withRouter} from 'react-router-dom';
+
+import { Typography,Tabs, Form, Input,Icon,Checkbox, Button } from 'antd';
+import { DataCache } from '../app/DataCache';
+import { LoginStatus } from '../app/Model';
+import { LoginChecker } from '../app/LoginChecker';
+
+/**
+ * 登录页面：
+ * 进入页面通过本地存储Token及接口判断是否已经登录，已经登录则跳转到机构首页；
+ * 未登录的情况下，获取本地存储的上次编辑情况，跳转到上次编辑申请位置；
+ * 上述情况都没有，则停留在本页。
+ */
+class Login extends React.Component<RouteComponentProps,LoginStatus>{
+    /**
+     * 登录检查器
+     */
+    private loginChecker=new LoginChecker();
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Title}=Typography;
+        const {TabPane}=Tabs;
+        const iconStyle={ color: 'rgba(0,0,0,.25)' }
+        return (
+            <div className="background">
+                <section className="login-container">
+                    <Title>{process.env.REACT_APP_NAME}</Title>
+                    <Tabs defaultActiveKey="accountLogin" >
+                        <TabPane tab="账户密码登录" key="accountLogin">
+                            <Form>
+                                <Form.Item>
+                                    <Input 
+                                        prefix={<Icon type="user" style={iconStyle} />}
+                                        placeholder="机构账户" 
+                                    />
+                                </Form.Item>
+                                <Form.Item>
+                                    <Input 
+                                        prefix={<Icon type="lock" style={iconStyle} />}
+                                        type="password"
+                                        placeholder="登录密码" 
+                                    />
+                                </Form.Item>
+                                <Form.Item>
+                                    <Checkbox className="auto-login" checked>自动登录</Checkbox>
+                                    <Link className="apply" to="/public">执业申请</Link>
+                                </Form.Item>
+                                <Form.Item>
+                                    <Button disabled
+                                        type="primary" onClick={this.login}
+                                        htmlType="button" className="button-submit">
+                                        登 录
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </TabPane>
+                        <TabPane tab="手机号登录" key="phoneLogin">
+                            <Form>
+                                <Form.Item>
+                                    <Input 
+                                        prefix={<Icon type="user" style={iconStyle} />}
+                                        placeholder="手机号码" 
+                                    />
+                                </Form.Item>
+                                <Form.Item className="form-item-inline">
+                                    <Input className="input-verify-code"
+                                        prefix={<Icon type="lock" style={iconStyle} />}
+                                        placeholder="验证码" 
+                                    />
+                                    <Button disabled
+                                        htmlType="button" className="container-verify">
+                                        获取验证码</Button>
+                                </Form.Item>
+                                <Form.Item>
+                                    <Checkbox className="auto-login" checked>自动登录</Checkbox>
+                                    <Link className="apply" to="/public">执业申请</Link>
+                                </Form.Item>
+                                <Form.Item>
+                                    <Button disabled
+                                        type="primary" onClick={this.login}
+                                        htmlType="button" className="button-submit">
+                                        登 录
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+                        </TabPane>
+                    </Tabs>
+                </section>
+            </div>
+        );
+    }
+
+    /**
+     * 组件载入前检查是否已经登陆，以及上次编辑的状态
+     */
+    async componentWillMount(){
+        this.props.history.push("/public");
+
+        const {isLogin}=await this.loginChecker.loginUser();
+        //已登录：跳转到机构首页
+        if(isLogin){
+            this.toUrlOrganizationIndex();
+            return;
+        }
+
+        //未登录：检查是否有编辑申请
+        const editInfor=DataCache.instance.edit();
+        if(!editInfor) return;
+        const {serialNumber,step}=editInfor;
+        if(!serialNumber) return;
+        this.props.history.push(step.routePath(serialNumber));
+    }
+
+    /**
+     * 进入机构首页
+     */
+    private toUrlOrganizationIndex=()=>{
+        this.props.history.replace("/protected/organization");
+    }
+
+    /**
+     * 用户登录处理
+     */
+    login=()=>{
+    }
+}
+export default withRouter(Login);

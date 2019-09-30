@@ -1,0 +1,5 @@
+{
+    "/webapi/login/checkToken":"/success-null",
+    "/login\\?account=error":"/login-error",
+    "/login\\?account=*":"/login-right"
+}

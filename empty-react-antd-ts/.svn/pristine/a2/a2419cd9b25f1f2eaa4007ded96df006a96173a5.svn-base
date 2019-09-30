@@ -1,0 +1,170 @@
+import React from 'react';
+import { ApplyContentStaffTech } from '../app/Model';
+import { PageConfig } from '../app/Request';
+import { SpinProps } from 'antd/lib/spin';
+import { Empty, Layout, List, Result, Button, Descriptions, Typography, Tag, Carousel } from 'antd';
+import { PaginationConfig } from 'antd/lib/table';
+import { DictionaryLoader } from '../app/DictionaryLoader';
+import ApplyUtils from '../utils/ApplyUtils';
+import ImageViewer from './ImageViewer';
+
+type ApplyDetailInforStaffTechProps={
+    /**数据 */
+    data?:Array<ApplyContentStaffTech>;
+    /**分页配置 */
+    page:PageConfig;
+    /**是否载入中 */
+    loading:boolean;
+    /**是否载入错误 */
+    loadedError:boolean;
+    /**换页处理 */
+    onPageChange(key:string,page?:number):void;
+}
+
+/**
+ * 申请详情中的申请资料中的医技人员列表
+ */
+export default class ApplyDetailInforStaffTech extends React.Component<ApplyDetailInforStaffTechProps>{
+    readonly state:{}={}
+
+    private currentKey="techs";
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Content}=Layout;
+        const {Paragraph,Title}=Typography;
+        const {loading,loadedError,data}=this.props;
+        const loadingProps:SpinProps={tip:"载入中...",size:"default"};
+        const empty=(<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />);
+        const dictionary=DictionaryLoader.instance;
+        let indexArray=new Array(this.props.page.size);
+        for(let i=0;i<indexArray.length;i++) indexArray[i]=1;
+
+        return (
+            <Content>
+                <List itemLayout="vertical"
+                    loading={loading?loadingProps:false}
+                    locale={loadedError
+                        ?{emptyText:this.jsxErrorResult("数据载入出现错误！",()=>{this.props.onPageChange(this.currentKey)})}
+                        :{emptyText:empty}
+                    }
+                    dataSource={data}
+                    renderItem={(item,index)=>(
+                        <List.Item id={`apply-detail-tech-${index}`}
+                            extra={
+                                <div className="descriptions-carousel">
+                                    <Carousel>
+                                    {
+                                        ApplyUtils.concatStaffImages(
+                                                item.idcardImg,item.qualificationImg
+                                            ).split(",").map((src)=>(
+                                            <img 
+                                                data-image-index={indexArray[index]++}  
+                                                onClick={event=>{this.onPreviewImages(event,index)}}
+                                                src={src} className="image-to-view"
+                                                alt={`人员姓名：${item.name}；
+                                                    身份证号码：${item.idcard}；
+                                                    执业证号：${item.qualificationCode||"暂无"}`
+                                                }
+                                            />
+                                        ))
+                                    }
+                                    </Carousel>
+                                </div>
+                            }
+                        >
+                            <List.Item.Meta 
+                                avatar={
+                                    <img data-image-index={0} 
+                                        onClick={event=>{this.onPreviewImages(event,index)}} 
+                                        src={item.img} style={{width:64,height:"auto",maxHeight:128}}
+                                        className="image-to-view"
+                                        alt={`人员姓名：${item.name}；
+                                            身份证号码：${item.idcard}；
+                                            执业证号：${item.qualificationCode||"暂无"}`
+                                        }
+                                    />
+                                }
+                                title={
+                                    <Paragraph>
+                                        <Title level={4}>{item.name}</Title>
+                                        <Tag color="geekblue">
+                                            {dictionary.jobLabel(item.position)}
+                                        </Tag>
+                                        <Tag color="volcano">
+                                            {dictionary.jobLabel(item.title)}
+                                        </Tag>
+                                    </Paragraph>
+                                }
+                                description={
+                                    <Descriptions className="description-list-item">
+                                        <Descriptions.Item label="科室">{item.dept}</Descriptions.Item>
+                                        <Descriptions.Item label="性别">{item.sex}</Descriptions.Item>
+                                        <Descriptions.Item label="学历">{dictionary.educationLabel(item.education)||"暂无"}</Descriptions.Item>
+                                        <Descriptions.Item label="毕业院校" span={3}>{item.school}</Descriptions.Item>
+                                        <Descriptions.Item label="身份证号">{item.idcard}</Descriptions.Item>
+                                        <Descriptions.Item label="执业证号">{item.qualificationCode||"暂无"}</Descriptions.Item>
+                                    </Descriptions>
+                                }
+                            />
+                        </List.Item>
+                    )}
+                    pagination={this.paginationConfig(this.props.page)}
+                /> 
+            </Content>
+        );
+    }
+
+    /**
+     * 返回错误显示信息
+     */
+    jsxErrorResult=(descrition:string,onClick:(()=>void))=>(
+        <Result
+            status="error"
+            title="载入失败"
+            subTitle={descrition}
+            extra={[
+                <Button type="primary" icon="redo" onClick={onClick}>
+                    重新载入
+                </Button>
+            ]}
+        />
+    )
+
+    /**
+     * 生成List使用的分页配置
+     */
+    paginationConfig=(page:PageConfig):PaginationConfig=>{
+        return {
+            position:"bottom",
+            total:page.total,
+            current:page.index,
+            pageSize:page.size,
+            simple:true,
+            className:"to-do-list-page",
+            onChange:toPage=>this.props.onPageChange(this.currentKey,toPage),
+        }
+    }
+
+    /**
+     * 预览相关图片
+     */
+    onPreviewImages=(event:React.MouseEvent<HTMLDivElement>,index:number)=>{
+        const target=event.target as HTMLDivElement;
+        const container=document.querySelector(`#apply-detail-tech-${index}`);
+        if(container){
+            const imgs=container.querySelectorAll<HTMLImageElement>
+                (".ant-list-item-meta img.image-to-view,.slick-slide:not(.slick-cloned) img.image-to-view");
+            const imageList:Array<HTMLImageElement>=[];
+            imgs.forEach(img=>{
+                imageList.push(img)
+            });
+            const selectedIndex=Number(
+                target.dataset["imageIndex"]||"0"
+            );
+            ImageViewer.view(imageList,selectedIndex);
+        }
+    }
+}

@@ -1,0 +1,566 @@
+import React from 'react';
+import { AppComponentProps, ApplyContentOrganization, ApplyStep, PageError500, ApplyInspectContent, ApplyContentEquipment } from '../../app/Model';
+import { Form, Breadcrumb, Icon, Typography, Divider, notification, Modal, Row, Col, Upload, Button, Alert, message } from 'antd';
+import { UploadFile, UploadProps } from 'antd/lib/upload/interface';
+import Container, { ContainerLoading } from '../../components/Container';
+import { ApplySectionPrompt, ApplySectionLicenseStep } from '../../components/ApplyHeader';
+import { HttpRequest } from '../../app/Request';
+import ApplyUtils from '../../utils/ApplyUtils';
+import InteractionUtils from '../../utils/InteractionUtils';
+import ImageViewer from '../../components/ImageViewer';
+import ApplyFormEquipment from '../../components/ApplyFormEquipment';
+
+/**
+ * 许可资料补充页面
+ */
+class LicenseSupplement extends React.Component<AppComponentProps>{
+    readonly state:{
+        /**申请单号 */
+        serialNumber:string;
+        /**保存按钮是否请求中 */
+        loading:boolean;
+        /**提交按钮是否请求中 */
+        submiting:boolean;
+        /**是否已经保存 */
+        saved:boolean;
+        /**文件上传验证错误 */
+        hasFileValidateError:boolean;
+        /**申请内容 */
+        data?:ApplyContentOrganization;
+        /**上传文件列表 */
+        fileList:{
+            [key:string]:Array<UploadFile>
+        };
+        /**上传是否成功 */
+        uploadSuccess:{
+            [key:string]:boolean
+        };
+        /**上传的数量限制 */
+        uploadLimit:{
+            [key:string]:number
+        };
+        /**弹出信息提示 */
+        alert:{
+            show:boolean,
+            title:string,
+            description:string
+        };
+    }={
+        serialNumber:this.props.match.params.id,
+        loading:false,
+        submiting:false,
+        saved:true,
+        hasFileValidateError:false,
+        fileList:{
+            "waste":[],
+            "sewage":[],
+            "disinfection":[],
+        },
+        uploadSuccess:{
+            "waste":true,
+            "sewage":true,
+            "disinfection":true,
+        },
+        uploadLimit:{
+            "waste":1,
+            "sewage":1,
+            "disinfection":1,
+        },
+        alert:{show:false,title:"",description:""},
+    }
+
+    /**
+     * 上传组件配置：文档
+     */
+    private readonly uploadFileConfig:UploadProps={
+        accept:".doc,.docx,.pdf",
+        multiple:true,
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        //未载入数据时
+        if(!this.state.data){
+            return (
+                <ContainerLoading />
+            );
+        }
+
+        const {Title}=Typography;
+        
+        return (
+            <Container needLogin={false}>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>许可</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4} className="title-with-underline">许可申请</Title>
+
+                {/* 顶部 */}
+                <ApplySectionPrompt serialNumber={this.state.serialNumber} 
+                    deadline={this.state.data.effectiveTimeStr} />
+                <ApplySectionLicenseStep {...ApplyStep.LICENSE_RESULT} />
+                <Divider><span className="title-inner">补充资料</span></Divider>
+
+                {/* 表单：设备清单 */}
+                <Row>
+                    <Col span={20} offset={3}>
+                        <h4 className="title-form-sub">设备清单</h4>
+                        <ApplyFormEquipment 
+                            onChange={this.equipmentChangeHandler}
+                            equiptments={this.state.data.equipments} 
+                            disabled={this.state.loading}
+                        />
+                    </Col>
+                </Row>
+
+                {/* 上传内容 */}
+                <Row>
+                    <Col span={20} offset={3}>
+                        <h4 className="title-form-sub">上传内容</h4>
+                        <Form labelCol={{span:8}} wrapperCol={{span:16}}>
+                            <Row>
+                                <Col span={12}>
+                                    <Form.Item 
+                                        label="消毒供应设施配置" className="must-upload"
+                                        validateStatus={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.disinfection?"":"error")
+                                                :(this.state.fileList.disinfection.length>0?"":"error")
+                                        }
+                                        help={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.disinfection?"支持扩展名：.doc .docx .pdf":"文件上传失败！")
+                                                :(this.state.fileList.disinfection.length>0?"支持扩展名：.doc .docx .pdf":"必须上传此文件！")
+                                        }
+                                    >
+                                        <Upload {...this.uploadFileConfig}
+                                            name="disinfection"
+                                            customRequest={(fileObject:object)=>{
+                                                this.uploadFileOrPhoto(fileObject,"disinfection");
+                                            }}
+                                            onRemove={(file:UploadFile)=>{
+                                                this.uploadFileOrPhotoRemove(file,"disinfection")
+                                            }}
+                                            fileList={this.state.fileList.disinfection}
+                                            disabled={this.state.loading}
+                                        >
+                                            {this.state.uploadLimit.disinfection>this.state.fileList.disinfection.length
+                                                ?(<Button disabled={this.state.loading}><Icon type="upload"/>上传文件</Button>)
+                                                :null}
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={11} offset={1}>
+                                    <Form.Item 
+                                        label="医疗废弃物处理方案" className="must-upload"
+                                        validateStatus={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.waste?"":"error")
+                                                :(this.state.fileList.waste.length>0?"":"error")
+                                        }
+                                        help={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.waste?"支持扩展名：.doc .docx .pdf":"文件上传失败！")
+                                                :(this.state.fileList.waste.length>0?"支持扩展名：.doc .docx .pdf":"必须上传此文件！")
+                                        }
+                                    >
+                                        <Upload {...this.uploadFileConfig}
+                                            name="waste"
+                                            customRequest={(fileObject:object)=>{
+                                                this.uploadFileOrPhoto(fileObject,"waste");
+                                            }}
+                                            onRemove={(file:UploadFile)=>{
+                                                this.uploadFileOrPhotoRemove(file,"waste")
+                                            }}
+                                            fileList={this.state.fileList.waste}
+                                            disabled={this.state.loading}
+                                        >
+                                            {this.state.uploadLimit.waste>this.state.fileList.waste.length
+                                                ?(<Button disabled={this.state.loading}><Icon type="upload"/>上传文件</Button>)
+                                                :null}
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>
+                                    <Form.Item 
+                                        label="污水处理方案" className="must-upload"
+                                        validateStatus={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.sewage?"":"error")
+                                                :(this.state.fileList.sewage.length>0?"":"error")
+                                        }
+                                        help={
+                                            !this.state.hasFileValidateError
+                                                ?(this.state.uploadSuccess.sewage?"支持扩展名：.doc .docx .pdf":"文件上传失败！")
+                                                :(this.state.fileList.sewage.length>0?"支持扩展名：.doc .docx .pdf":"必须上传此文件！")
+                                        }
+                                    >
+                                        <Upload {...this.uploadFileConfig}
+                                            name="sewage"
+                                            customRequest={(fileObject:object)=>{
+                                                this.uploadFileOrPhoto(fileObject,"sewage");
+                                            }}
+                                            onRemove={(file:UploadFile)=>{
+                                                this.uploadFileOrPhotoRemove(file,"sewage")
+                                            }}
+                                            fileList={this.state.fileList.sewage}
+                                            disabled={this.state.loading}
+                                        >
+                                            {this.state.uploadLimit.sewage>this.state.fileList.sewage.length
+                                                ?(<Button disabled={this.state.loading}><Icon type="upload"/>上传文件</Button>)
+                                                :null}
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Col>
+                </Row>
+
+                {/* 提示信息 */}
+                {(this.state.alert.show)?(
+                    <Col span={12} offset={6} style={{marginTop:10}}>
+                        <Alert 
+                            message={this.state.alert.title}
+                            description={this.state.alert.description}
+                            type="error" showIcon
+                        />
+                    </Col>
+                ):null}
+                
+                {/* 按钮 */}
+                <Col span={24} className="section-buttons">
+                    <Button type="primary"
+                        onClick={this.saveButNotSubmit}
+                        loading={this.state.loading}
+                        disabled={this.state.submiting}
+                    >
+                        保存但不提交
+                    </Button>
+                    <Button type="danger" 
+                        onClick={this.saveAndSubmitConfirm}
+                        loading={this.state.submiting}
+                        disabled={this.state.loading}
+                    >
+                        保存并提交申请
+                    </Button>
+                </Col>
+            </Container>
+        );
+    }
+
+    /**
+     * 组件完成后请求获取申请信息
+     */
+    async componentDidMount(){
+        // 获取申请内容
+        const applyResponse=await ((new HttpRequest()).get<ApplyContentOrganization>(
+                `webapi/apply/getRecordInfo?applyNo=${this.state.serialNumber}`
+            ));
+
+        // 失败跳转500
+        if(!applyResponse.success||!applyResponse.data){
+            this.props.history.push(PageError500);
+            return;
+        }
+
+        // 不可补充资料审核结果
+        const {applyStatus}=applyResponse.data;
+        if(!ApplyUtils.canSupplement(applyStatus)){
+            this.props.history.push(ApplyStep.LICENSE_RESULT.routePath(this.state.serialNumber));
+            return;
+        }
+
+        // 处理文件路径拆分
+        let {waste,sewage,disinfection}=this.state.fileList;
+        waste=ApplyUtils.urlStringToUploadArray(
+            waste,applyResponse.data.medicalWasteAgreement
+        );
+        sewage=ApplyUtils.urlStringToUploadArray(
+            sewage,applyResponse.data.sewage
+        );
+        disinfection=ApplyUtils.urlStringToUploadArray(
+            disinfection,applyResponse.data.disinfection
+        );
+
+        // 设置显示
+        this.setState({
+            ...this.state,
+            data:applyResponse.data,
+            fileList:{
+                waste:waste,
+                sewage:sewage,
+                disinfection:disinfection,
+            },
+        });
+
+        // 添加窗口关闭监听
+        InteractionUtils.addWindowCloseListener((event:Event)=>{
+            if(this.state.saved)    event.preventDefault();
+            else                    event.returnValue=true;
+        });
+
+        // 审核被驳回，获取驳回理由
+        if(ApplyUtils.needLoadReject(applyStatus)){
+            const rejectArrayResponse=await ((new HttpRequest()).get<Array<ApplyInspectContent>>(
+                `webapi/apply/auditOpinion?applyNo=${this.state.serialNumber}`
+            ));
+
+            // 失败
+            if(!rejectArrayResponse.success||!rejectArrayResponse.data){
+                return;
+            }
+
+            // 找到最新的拒绝内容
+            let rejectContent:ApplyInspectContent|null=null;
+            for(let l=rejectArrayResponse.data.length,i=l-1;i>-1;i--){
+                const current=rejectArrayResponse.data[i];
+                if(ApplyUtils.inspectIsReject(current.status)){
+                    rejectContent=current;
+                    break;
+                }
+            }
+
+            //通知显示拒绝理由
+            if(!rejectContent) return;
+            notification["warning"]({
+                message:"补充资料被驳回！",
+                description:rejectContent.opinion
+            });
+        }
+    }
+
+    /**
+     * 卸载时删除窗口关闭监听
+     */
+    componentWillUnmount(){
+        InteractionUtils.removeWindowCloseListener();
+    }
+
+    /**
+     * 输入信息修改，设置是否保存为false
+     */
+    inputOnChange=()=>{
+        this.setState({
+            ...this.state,
+            saved:false
+        });
+    }
+
+    /**
+     * 提供给子组件进行调用，修改机构中的设备信息列表
+     */
+    equipmentChangeHandler=(equipments:Array<ApplyContentEquipment>)=>{
+        if(!this.state.data) return;
+        
+        this.setState({
+            ...this.state,
+            saved:false,
+            data:{
+                ...this.state.data,
+                equipments:equipments
+            }
+        });
+    }
+
+    /**
+     * 上传文件或者图片
+     */
+    uploadFileOrPhoto=async (fileObject:object,key:string)=>{
+        // 上传文件或图片
+        const option=fileObject as {file:File};
+        const uploadResponse=await (new HttpRequest())
+            .upload<{url:string},{applyNo:string}>
+            (
+                `webapi/comm/uploadFile`,
+                option.file,
+                "file",
+                {applyNo:this.state.serialNumber}
+            );
+        const {uploadSuccess}=this.state;
+        uploadSuccess[key]=(uploadResponse.success&&(uploadResponse.data!==null));
+        
+        //上传失败显示
+        if(!uploadSuccess[key]||!uploadResponse.data){
+            this.setState({
+                ...this.state,
+                uploadSuccess:uploadSuccess
+            });
+            return;
+        }
+
+        //上传成功，设置已上传列表
+        const {fileList}=this.state;
+        fileList[key].push({
+            uid:String(fileList[key].length),
+            name:option.file.name,
+            size:0,
+            type:"",
+            url:uploadResponse.data.url
+        });
+        this.setState({
+            ...this.state,
+            uploadSuccess:uploadSuccess,
+            saved:false,
+            fileList:fileList
+        });
+    }
+
+    /**
+     * 全屏查看上传的图片
+     */
+    uploadPhotoPreview=(uploadFile:UploadFile,key:string)=>{
+        // 获取全部上传的图片元素
+        const row=document.querySelector<HTMLDivElement>(`.${key}-photos`);
+        if(!row) return;
+        const imgArray=row.querySelectorAll<HTMLImageElement>
+            (".ant-upload-list-item-image");
+        const imageList:Array<HTMLImageElement>=[];
+
+        let currentIndex=0;
+        imgArray.forEach((img,index)=>{
+            imageList.push(img);
+            currentIndex=(index===Number(uploadFile.uid)?index:currentIndex);
+        });
+
+        ImageViewer.view(imageList,currentIndex);
+    }
+
+    /**
+     * 删除上传的文件或图片
+     */
+    uploadFileOrPhotoRemove=(file:UploadFile,key:string)=>{
+        const {confirm}=Modal;
+        const {fileList}=this.state;
+        confirm({
+            title: '确定要删除当前上传的图片么？',
+            okText: '继续删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk:()=>{
+                fileList[key].splice(fileList[key].findIndex(item=>item.uid===file.uid),1);
+                this.setState({
+                    ...this.state,
+                    saved:false,
+                    fileList:fileList
+                });
+            },
+        });
+    }
+
+    /**
+     * 保存但不提交
+     */
+    saveButNotSubmit=async ()=>{
+        if(!this.state.data) return;
+        // 发起保存请求
+        this.setState({...this.state,loading:true});
+        const {data,fileList}=this.state;
+        data.medicalWasteAgreement=ApplyUtils.uploadArrayToUrlString(
+            fileList.waste
+        );
+        data.sewage=ApplyUtils.uploadArrayToUrlString(
+            fileList.sewage
+        );
+        data.disinfection=ApplyUtils.uploadArrayToUrlString(
+            fileList.disinfection
+        );
+        const saveResponse=await ((new HttpRequest()).post<any>(
+                "webapi/apply/saveRecordInfo",
+                {...data,applyNo:this.state.serialNumber},
+            ));
+
+        //请求失败显示错误信息
+        if(!saveResponse.success){
+            this.setState({
+                ...this.state,
+                loading:false,
+                alert:{
+                    show:true,
+                    title:"保存失败",
+                    description:saveResponse.message
+                }
+            });
+            return;
+        }
+
+        this.setState({
+            ...this.state,
+            loading:false,
+            saved:true,
+            alert:{
+                ...this.state.alert,
+                show:false
+            }
+        });
+        message.success("保存成功！");
+    }
+
+    /**
+     * 保存并提交提示
+     */
+    saveAndSubmitConfirm=async ()=>{
+        if(!this.state.data) return;
+
+        const {saveAndSubmit}=this;
+        Modal.confirm({
+            title: "确定要提交补充资料么?",
+            content:"提交后补充资料内容将无法修改！",
+            okText:"继续提交",
+            cancelText:"取消",
+            onOk() {
+                setTimeout(()=>saveAndSubmit(),300);
+            },
+        });
+    }
+
+    /**
+     * 保存并提交
+     */
+    saveAndSubmit=async ()=>{
+        if(!this.state.data) return;
+        // 发起保存请求
+        this.setState({...this.state,submiting:true});
+        const {data,fileList}=this.state;
+        data.medicalWasteAgreement=ApplyUtils.uploadArrayToUrlString(
+            fileList.waste
+        );
+        data.sewage=ApplyUtils.uploadArrayToUrlString(
+            fileList.sewage
+        );
+        data.disinfection=ApplyUtils.uploadArrayToUrlString(
+            fileList.disinfection
+        );
+        const saveResponse=await ((new HttpRequest()).post<any>(
+                "webapi/apply/submitAdditionalInfo",
+                {...data,applyNo:this.state.serialNumber},
+            ));
+
+        //请求失败显示错误信息
+        if(!saveResponse.success){
+            this.setState({
+                ...this.state,
+                submiting:false,
+                alert:{
+                    show:true,
+                    title:"提交失败",
+                    description:saveResponse.message
+                }
+            });
+            return;
+        }
+
+        //成功后转入下一步
+        this.setState({...this.state,submiting:false});
+        notification.destroy();
+        InteractionUtils.scrollToTop();
+        this.props.history.push(ApplyStep.LICENSE_RESULT.routePath(this.state.serialNumber));
+    }
+}
+export default Form.create({name:"licenseSupplement"})(LicenseSupplement);

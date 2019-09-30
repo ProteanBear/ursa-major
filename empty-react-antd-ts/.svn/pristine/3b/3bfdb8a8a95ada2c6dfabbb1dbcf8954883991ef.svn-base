@@ -1,0 +1,29 @@
+{
+    "name": "@types/photoswipe",
+    "version": "4.0.29",
+    "description": "TypeScript definitions for PhotoSwipe",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Xiaohan Zhang",
+            "url": "https://github.com/hellochar",
+            "githubUsername": "hellochar"
+        },
+        {
+            "name": "PikachuEXE",
+            "url": "https://github.com/PikachuEXE",
+            "githubUsername": "PikachuEXE"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/photoswipe"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "4490344336927b09ae885981a5d3f75259270e34fc9fe88d870e973e95a720c2",
+    "typeScriptVersion": "2.0"
+}

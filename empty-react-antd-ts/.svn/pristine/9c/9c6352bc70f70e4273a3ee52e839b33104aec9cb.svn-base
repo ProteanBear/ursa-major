@@ -1,0 +1,178 @@
+import './Container.css';
+
+import React from 'react';
+import {withRouter, RouteComponentProps, Link} from 'react-router-dom';
+import { Layout, Menu, Button, Avatar, Dropdown, Icon,message, notification, Spin, ConfigProvider } from 'antd';
+import zhCN from 'antd/es/locale/zh_CN';
+import ImageViewer from './ImageViewer';
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+import { LoginStatus } from '../app/Model';
+import { LoginChecker } from '../app/LoginChecker';
+import { HttpRequest } from '../app/Request';
+import { DataCache } from '../app/DataCache';
+moment.locale('zh-cn');
+
+type ContainerWithHeaderProps=RouteComponentProps&{
+    /**当前页面是否必须登录 */
+    needLogin:boolean;
+    /**选中顶部菜单 */
+    selectKey?:string;
+}
+
+/**
+ * 公共组件：顶部栏，包括logo、菜单和登录状态判断；
+ */
+class ContainerWithHeader extends React.Component<ContainerWithHeaderProps>{
+    readonly state:{
+        /**当前的登录情况 */
+        loginStatus?:LoginStatus;
+    }={
+        
+    }
+
+    /**
+     * 登录检查器
+     */
+    private loginChecker=new LoginChecker();
+
+    /**
+     * 通用布局容器
+     */
+    render(){
+        const {Header,Content,Footer}=Layout;
+        const {loginStatus}=this.state;
+        const isLogin=loginStatus?loginStatus.isLogin:false;
+        const menu=(
+            <Menu>
+                <Menu.Item onClick={this.logout}>
+                    <Icon type="logout"/> 退出
+                </Menu.Item>
+            </Menu>
+        );
+
+        return (
+            <ConfigProvider locale={zhCN}>
+                <Layout className="layout">
+                    <Header>
+                        <div className="header-container">
+                            <div className="header-logo">{process.env.REACT_APP_NAME}</div>
+                            {isLogin?(
+                                    <Dropdown overlay={menu} placement="bottomLeft">
+                                        <Button className="header-login-button" type="link">
+                                            <Avatar icon="user"/> {
+                                                this.state.loginStatus
+                                                    &&this.state.loginStatus.data?this.state.loginStatus.data.userName:""
+                                            }
+                                        </Button>
+                                    </Dropdown>
+                                ):(
+                                    <Button
+                                        className="header-login-button"
+                                        type="link" onClick={this.logout}>
+                                        <Avatar icon="user"/> 机构登录
+                                    </Button>
+                                )
+                            }
+                            {isLogin?(
+                                    <Menu theme="dark" mode="horizontal" 
+                                        style={{lineHeight:'64px'}}
+                                        selectedKeys={this.props.selectKey?[this.props.selectKey]:undefined}
+                                        >
+                                        <Menu.Item key="organization"
+                                            onClick={()=>{this.toPage("/protected/organization")}}
+                                        >
+                                            首页
+                                        </Menu.Item>
+                                        <Menu.SubMenu title="信息维护" key="apply">
+                                            <Menu.Item key="apply:nameChange"
+                                                onClick={this.developing}
+                                            >
+                                                机构名称变更
+                                            </Menu.Item>
+                                            <Menu.Item key="apply:staffChange"
+                                            >
+                                                <Link to="/protected/organization/staff">医护人员维护</Link>
+                                            </Menu.Item>
+                                        </Menu.SubMenu>
+                                    </Menu>
+                                ):null
+                            }
+                        </div>
+                    </Header>
+                    <Content className="content-container">
+                        {this.props.children}
+                    </Content>
+                    <Footer className="footer-container" style={{textAlign:"center"}}>
+                        {`copyright@成都金控数据服务有限公司.System Version：${process.env.REACT_APP_VERSION}`}
+                    </Footer>
+
+                    {/* 图片查看器 */}
+                    <ImageViewer />
+                </Layout>
+            </ConfigProvider>
+        );
+    }
+
+    /**
+     * 载入全部后，设置消息提示样式
+     */
+    async componentDidMount(){
+        message.config({
+            maxCount:3
+        });
+        notification.config({
+            placement:"bottomRight",
+            duration:0
+        });
+
+        const loginStatus=await this.loginChecker.loginUser();
+        // 未登录并且必须登录，返回登录页面
+        if(!loginStatus.isLogin&&this.props.needLogin){
+            this.props.history.replace("/");
+            return;
+        }
+        this.setState({
+            ...this.state,
+            loginStatus:loginStatus
+        })
+    }
+
+    /**
+     * 顶部退出登录处理：请求服务后，清除本地缓存，跳转到登录页
+     */
+    logout=async ()=>{
+        // 请求服务
+        await (new HttpRequest()).get<any>("web/audit/user/logout");
+        // 清除本地缓存
+        DataCache.instance.tokenClear();
+        // 跳转到登录页
+        this.props.history.replace("/");
+    };
+
+    /**
+     * 跳转到指定功能
+     */
+    toPage=(path:string)=>{
+        this.props.history.push(path);
+    }
+
+    developing=()=>{
+        message.warning("此功能正在开发中！");
+    }
+}
+const Container=withRouter(ContainerWithHeader);
+export default Container;
+
+/**
+ * 载入中
+ */
+export class ContainerLoading extends React.Component{
+    render(){
+        return (
+            <Container needLogin={false}>
+                <Spin className="page-loading" size="large" tip="正在载入……"></Spin>
+            </Container>
+        )
+    }
+}

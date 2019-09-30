@@ -1,0 +1,32 @@
+/**
+ * 交互通用方法
+ */
+export default class InteractionUtils{
+    /**
+     * 设置屏幕到顶部
+     */
+    static scrollToTop(){
+        window.scrollTo(0,0);
+    }
+
+    /**
+     * 窗口关闭事件
+     */
+    private static windowCloseListener:EventListener;
+
+    /**
+     * 添加窗口关闭事件
+     * @param listener 监听方法
+     */
+    static addWindowCloseListener(listener:EventListener){
+        this.windowCloseListener=listener;
+        window.addEventListener("beforeunload",this.windowCloseListener);
+    }
+
+    /**
+     * 删除窗口关闭事件
+     */
+    static removeWindowCloseListener(){
+        window.removeEventListener("beforeunload",this.windowCloseListener);
+    }
+}

@@ -1,0 +1,71 @@
+import React from 'react';
+import Container from '../../components/Container';
+import { Row, Col, Button, message } from 'antd';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+
+// 错误页面：404
+export class Error404 extends React.Component{
+    render(){
+        return (
+            <Container>
+                <Row>
+                    <Col span={14} className="error error-404">&nbsp;</Col>
+                    <Col span={10}>
+                        <h1 className="error-title">404</h1>
+                        <p className="error-description">抱歉，您访问的页面或服务地址不存在！</p>
+                        <Button type="primary"><Link to="/">返回首页</Link></Button>
+                    </Col>
+                </Row>
+            </Container>
+        );
+    }
+    componentWillMount(){
+        message.destroy();
+    }
+}
+
+// 错误页面：403
+export class Error403 extends React.Component{
+    render(){
+        return (
+            <Container>
+                <Row>
+                    <Col span={14} className="error error-403">&nbsp;</Col>
+                    <Col span={10}>
+                        <h1 className="error-title">403</h1>
+                        <p className="error-description">抱歉，您无权访问此地址！</p>
+                        <Button type="primary"><Link to="/">返回首页</Link></Button>
+                    </Col>
+                </Row>
+            </Container>
+        );
+    }
+    componentWillMount(){
+        message.destroy();
+    }
+}
+
+// 错误页面：500
+class Error500 extends React.Component<RouteComponentProps>{
+    render(){
+        return (
+            <Container>
+                <Row>
+                    <Col span={14} className="error error-500">&nbsp;</Col>
+                    <Col span={10}>
+                        <h1 className="error-title">500</h1>
+                        <p className="error-description">抱歉，服务器出错了！</p>
+                        <Button type="primary" onClick={this.reloadPrevPage}>重新访问</Button>
+                    </Col>
+                </Row>
+            </Container>
+        );
+    }
+    componentWillMount(){
+        message.destroy();
+    }
+    reloadPrevPage=()=>{
+        this.props.history.goBack();
+    }
+}
+export default withRouter(Error500);

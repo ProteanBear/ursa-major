@@ -1,0 +1,7 @@
+{
+    "/webapi/login/checkToken":"/success-null",
+    "/webapi/apply/applyNo\\?applyType=0":"/apply-record-create",
+    "/webapi/apply/applyNo\\?applyType=1":"/apply-license-create",
+    "/webapi/apply/existApplyNo\\?applyNo=1":"/apply-exist-not",
+    "/webapi/apply/existApplyNo\\?applyNo=*":"/apply-exist-has"
+}

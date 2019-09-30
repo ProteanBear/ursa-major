@@ -1,0 +1,297 @@
+import React, {ChangeEvent, MouseEvent, KeyboardEvent } from 'react';
+import Container from '../../components/Container';
+import { Breadcrumb,Icon,Typography, Button, Form, Input,Tooltip,Card, Col, Empty, Modal, Result } from 'antd';
+import { withRouter} from 'react-router-dom';
+import { HttpResponse, HttpRequest } from '../../app/Request';
+import { AppComponentProps, ApplyType, ApplyContent, ApplyStep, ApplyContentExist} from '../../app/Model';
+import { DataCache } from '../../app/DataCache';
+import ImageViewer from '../../components/ImageViewer';
+import ResourceUtils from '../../utils/ResourceUtils';
+
+/**
+ * 执业申请：业务选择页面
+ */
+class Switch extends React.Component<AppComponentProps>{
+    /**
+     * 状态设置：
+     * inputSerialNumber（填写的申请单号）
+     * modalVisible:错误提示框是否显示
+     */
+    readonly state:{
+        inputSerialNumber:string,
+        modalVisible:boolean,
+        modalErrorMessage:string,
+        loading:{
+            continueEdit:boolean,
+            applyRecord:boolean,
+            applyLicense:boolean
+        },
+        serialNumberExist:boolean
+    }={
+        inputSerialNumber:"",
+        modalVisible:false,
+        modalErrorMessage:"",
+        loading:{
+            continueEdit:false,
+            applyRecord:false,
+            applyLicense:false
+        },
+        serialNumberExist:true
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Title,Paragraph,Text}=Typography;
+        const {Meta}=Card;
+
+        return (
+            <Container needLogin={false}>
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>选择办理业务类型</span></Breadcrumb.Item>
+                </Breadcrumb>
+
+                <Title level={4} className="title-with-underline">继续填写上次的申请</Title>
+                <Form layout="inline" style={{marginTop:16}}>
+                    <Form.Item 
+                        label={
+                            <span>
+                                申请单号&nbsp;
+                                <Tooltip title="申请时提供的申请单号！">
+                                    <Icon type="info-circle" />
+                                </Tooltip>
+                            </span>
+                        }
+                        hasFeedback
+                        validateStatus={this.state.loading.continueEdit?"validating":(this.state.serialNumberExist?"":"error")}
+                        help={this.state.serialNumberExist?"":"填写的申请单号不存在！"}
+                    >
+                        <Input placeholder="请输入" style={{width:"300px"}}
+                            value={this.state.inputSerialNumber}
+                            onChange={this.applyContinueEditOnChange}
+                            onKeyPress={this.applyContinueEditFromInputEnter}
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" 
+                            onClick={this.applyContinueEdit}
+                            disabled={""===this.state.inputSerialNumber}
+                            loading={this.state.loading.continueEdit}
+                        >{this.state.loading.continueEdit?"正在获取":"继续填写"}</Button>
+                    </Form.Item>
+                </Form>
+                    
+                <Title level={4} className="title-with-underline">或创建新的申请</Title>
+                <Col span={12}>
+                    <Card hoverable
+                        style={{ width: 300,margin:"10px auto"}}
+                        cover={
+                            <img alt="" src={require("../../resources/record.png")} 
+                                onClick={(event)=>{ImageViewer.view([event.target as HTMLImageElement],0)}}
+                            />
+                        }
+                        actions={[
+                            <Button type="primary" 
+                                loading={this.state.loading.applyRecord}
+                                onClick={this.applyCreateRecord}
+                            >{this.state.loading.applyRecord?"正在处理":"申请备案"}</Button>
+                        ]}
+                    >
+                        <Meta title="备案" description="适合机构要改成中医诊所、养老机构内部设置诊所、卫生所（室）、医务室、护理站" />
+                        <Button type="link" icon="eye" style={{padding:0}}
+                            onClick={()=>{ResourceUtils.download("record_guild.html")}}
+                        >
+                            查看《办事指南》
+                        </Button>
+                    </Card>
+                </Col>
+                <Col span={12}>
+                    <Card hoverable
+                        style={{ width: 300,margin:"10px auto"}}
+                        cover={
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无图片" style={{height:515}} />
+                        }
+                        actions={[
+                            <Button type="primary"
+                                loading={this.state.loading.applyLicense}
+                                onClick={this.applyCreateLicense}
+                            >{this.state.loading.applyLicense?"正在处理":"申请许可"}</Button>
+                        ]}
+                    >
+                        <Meta title="许可" description="适合机构：二级及二级以上机构" />
+                        <Button type="link" icon="eye" style={{padding:0}}
+                            onClick={()=>{ResourceUtils.download("license_guild.html")}}
+                        >
+                            查看《办事指南》
+                        </Button>
+                    </Card>
+                </Col>
+                <Col span={18} offset={3} className="section-prompt">
+                    <Paragraph style={{textAlign:"justify"}}>
+                        <p><b style={{fontSize:16}}>说明</b>：</p>
+                        <Text type="secondary">1.本系统是机构线上申请办理医疗机构相关注册、变更、撤销等功能系统，提交资料通过审核环节后下发
+电子证并加盖电子签章和线下纸质证书具有同样的法律效应，并可通过官方渠道查询。</Text><br/>
+                        <Text type="secondary">2.机构提交的资料和图片应当保持清晰，对于审核不通过的资料请机构按照整改要求再次提交，请牢记自己的填写单号。</Text><br/>
+                        <Text type="secondary">3.机构提交承诺书后会生成一个填写单号，机构可通过单号继续完善未提交信息。需要牢记申请号便于后续
+申请和继续申请，该单号缓存信息有效期为30天，超过后未提交资料自动清除，请注意申请时间。</Text><br/>
+                    </Paragraph>
+                </Col>
+
+                {/* 错误提示框 */}
+                <Modal
+                    title=""
+                    visible={this.state.modalVisible}
+                    footer={null}
+                    onCancel={()=>{this.setState({modalVisible:false})}}
+                    >
+                    <Result
+                        status="error"
+                        title="操作失败"
+                        subTitle={this.state.modalErrorMessage}
+                    ></Result>
+                </Modal>
+            </Container>
+        );
+    }
+
+    /**
+     * 继续填写单号内容变化时，判断是否内容为空
+     */
+    applyContinueEditOnChange=(e:ChangeEvent<HTMLInputElement>)=>{
+        this.setState({
+            inputSerialNumber:e.target.value
+        });
+    }
+
+    /**
+     * 录入单号回车事件
+     */
+    applyContinueEditFromInputEnter=(event:KeyboardEvent)=>{
+        if(this.state.inputSerialNumber===""){
+            this.setState({serialNumberExist:true});
+            return;
+        }
+        if(!event||event.key!=="Enter") return;
+        this.applyContinueEdit();
+    }
+
+    /**
+     * 继续编写申请内容
+     */
+    applyContinueEdit=async ()=>{
+        //请求中
+        this.setState({loading:{continueEdit:true}});
+        const serialNumber=this.state.inputSerialNumber;
+
+        const applyExist:HttpResponse<ApplyContentExist>=
+            await ((new HttpRequest()).get<ApplyContentExist>(
+                `webapi/apply/existApplyNo?applyNo=${serialNumber}`
+            ));
+        //获取出错
+        if(!applyExist.success){
+            this.setState({
+                modalVisible:true,
+                modalErrorMessage:applyExist.message,
+                loading:{
+                    continueEdit:false
+                }
+            });
+        }
+
+        const exist=applyExist.data&&applyExist.data.exist;
+        this.setState({
+            loading:{
+                continueEdit:false,
+            },
+            serialNumberExist:exist
+        });
+
+        //存在，进入编辑页面
+        if(exist&&applyExist.data){
+            const applyType=ApplyType.create(applyExist.data.applyType);
+            const defaultRoute=applyType===ApplyType.RECORD
+                ?ApplyStep.RECORD_COMMITMENT.routePath(serialNumber)
+                :ApplyStep.LICENSE_COMMITMENT.routePath(serialNumber);
+            //如果在审核中，进入结果页面
+            if(applyExist.data.commit){
+                this.props.history.push(defaultRoute);
+            }
+            //如果在编写中，进入编辑步骤页面
+            else{
+                const applyEditCached=DataCache.instance.edit(serialNumber);
+                this.props.history.push(applyEditCached
+                    ?applyEditCached.step.routePath(serialNumber)
+                    :defaultRoute
+                );
+            }
+        }
+    }
+
+    /**
+     * 点击图片全屏查看流程图
+     */
+    viewImage=(event:MouseEvent<HTMLImageElement>)=>{
+        const img=(event.target as HTMLImageElement);
+        ImageViewer.view([img],0);
+    }
+
+    /**
+     * 创建备案申请
+     */
+    applyCreateRecord=async ()=>{
+        // 请求中
+        this.setState({loading:{applyRecord:true}});
+        
+        //获取申请单号
+        try{
+            const {applyNo}=await this.requestCreateApply(ApplyType.RECORD);
+            this.setState({loading:{applyRecord:false}});
+            this.props.history.push(ApplyStep.RECORD_COMMITMENT.routePath(applyNo));
+        }
+        catch(error){}
+    }
+
+    /**
+     * 创建许可申请
+     */
+    applyCreateLicense=async ()=>{
+        // 请求中
+        this.setState({loading:{applyLicense:true}});
+        
+        //获取申请单号
+        try{
+            const {applyNo}=await this.requestCreateApply(ApplyType.LICENSE);
+            this.props.history.push(ApplyStep.LICENSE_COMMITMENT.routePath(applyNo));
+        }
+        catch(error){}
+    }
+
+    /**
+     * 发起请求创建申请单
+     */
+    private requestCreateApply=async (type:ApplyType):Promise<ApplyContent>=>{
+        const createdApply:HttpResponse<ApplyContent>=
+            await ((new HttpRequest()).get<ApplyContent>(
+                `webapi/apply/applyNo?applyType=${type.key}`
+            ));
+        //创建失败
+        if(!createdApply.success){
+            this.setState({
+                modalVisible:true,
+                modalErrorMessage:createdApply.message,
+                loading:{
+                    continueEdit:false,
+                    applyRecord:false,
+                    applyLicense:false
+                }
+            });
+            throw new Error(createdApply.message);
+        }
+        return new Promise<ApplyContent>(
+            (resolve, reject)=>resolve(createdApply.data)
+        );
+    }
+}
+export default withRouter((Form.create({name:"pageSwitch"})(Switch)) as any);

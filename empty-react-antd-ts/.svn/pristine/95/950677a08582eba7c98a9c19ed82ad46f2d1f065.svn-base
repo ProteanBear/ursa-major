@@ -1,0 +1,113 @@
+import './login.css';
+import React from 'react';
+import { RouteComponentProps, withRouter} from 'react-router-dom';
+
+import { Typography,Tabs} from 'antd';
+import { DataCache} from '../app/DataCache';
+import { LoginChecker } from '../app/LoginChecker';
+import LoginForAccount from '../components/LoginForAccount';
+import LoginForPhone from '../components/LoginForPhone';
+
+/**
+ * 登录页面：
+ * 进入页面通过本地存储Token及接口判断是否已经登录，已经登录则跳转到机构首页；
+ * 未登录的情况下，获取本地存储的上次编辑情况，跳转到上次编辑申请位置；
+ * 上述情况都没有，则停留在本页。
+ */
+class Login extends React.Component<RouteComponentProps>{
+    readonly state:{
+        /**图形验证码Base64编码 */
+        imageBase64?:string|undefined;
+        /**图片载入错误 */
+        imageLoadError:boolean;
+        /**请求中 */
+        requesting:boolean;
+        /**是否自动登录 */
+        autoLogin:boolean;
+        /**短信验证码获取中 */
+        smsLoading:boolean;
+        /**短信验证码下次可获取时间 */
+        smsNextTime:number;
+        /**提交数据 */
+        data:{
+            [key:string]:string
+        }
+        /**错误状态 */
+        error:{
+            [key:string]:string|null
+        }
+    }={
+        imageLoadError:false,
+        requesting:false,
+        autoLogin:true,
+        smsLoading:false,
+        smsNextTime:60,
+        data:{
+            username:"",
+            password:"",
+            imgToken:"",
+            imgCode:"",
+            phone:"",
+            code:"",
+            codeToken:""
+        },
+        error:{
+            username:null,
+            password:null,
+            imgCode:null,
+            phone:null,
+            code:null,
+        }
+    }
+
+    /**
+     * 登录检查器
+     */
+    private loginChecker=new LoginChecker();
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Title}=Typography;
+        const {TabPane}=Tabs;
+        return (
+            <div className="background">
+                <section className="login-container">
+                    <Title>{process.env.REACT_APP_NAME}</Title>
+                    <Tabs defaultActiveKey="accountLogin" >
+                        <TabPane tab="账户密码登录" key="accountLogin">
+                            <LoginForAccount />
+                        </TabPane>
+                        <TabPane tab="手机号登录" key="phoneLogin">
+                            <LoginForPhone />
+                        </TabPane>
+                    </Tabs>
+                </section>
+            </div>
+        );
+    }
+
+    /**
+     * 组件载入前检查是否已经登陆，以及上次编辑的状态
+     */
+    async componentWillMount(){
+        const {isLogin}=await this.loginChecker.loginUser();
+        //已登录：跳转到机构首页
+        if(isLogin){
+            this.props.history.replace("/protected/organization");
+            return;
+        }
+
+        //未登录：检查是否有编辑申请
+        const editInfor=DataCache.instance.edit();
+        if(editInfor){
+            const {serialNumber,step}=editInfor;
+            if(serialNumber){
+                this.props.history.push(step.routePath(serialNumber));
+                return;
+            }
+        }
+    }
+}
+export default withRouter(Login);

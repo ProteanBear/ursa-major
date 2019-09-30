@@ -1,0 +1,822 @@
+import React from 'react';
+import { Form, Col, Input, Radio, Select, Cascader, Upload, Icon, Row, Button, Modal } from 'antd';
+import { FormComponentProps } from 'antd/lib/form';
+import { DictionaryLoader, DictionaryData } from '../app/DictionaryLoader';
+import ApplyFormResume from './ApplyFormResume';
+import { ApplyContentManager, ApplyContentManagerResume, FormValidateResult } from '../app/Model';
+import { UploadFile, UploadProps } from 'antd/lib/upload/interface';
+import ApplyUtils from '../utils/ApplyUtils';
+import { HttpRequest } from '../app/Request';
+import ImageViewer from './ImageViewer';
+import ResourceUtils from '../utils/ResourceUtils';
+
+type ApplyFormPrincipalProps=FormComponentProps&{
+    /**当前的申请单号 */
+    serialNumber:string;
+    /**管理人员信息 */
+    manager:ApplyContentManager;
+    /**是否禁止输入 */
+    disabled:boolean;
+    /**内容修改时处理 */
+    onChange():void;
+    /**是否显示签字表 */
+    displaySign?:boolean;
+}
+
+/**
+ * 申请公用表单：负责人相关信息
+ */
+class ApplyFormPrincipal extends React.Component<ApplyFormPrincipalProps>{
+    readonly state:{
+        /**记录当前的数据信息 */
+        data:ApplyContentManager;
+        /**文件上传验证错误 */
+        hasFileValidateError:boolean;
+        /**上传文件中 */
+        uploading:{
+            [key:string]:boolean
+        };
+        /**上传文件列表 */
+        fileList:{
+            [key:string]:Array<UploadFile>
+        };
+        /**上传是否成功 */
+        uploadSuccess:{
+            [key:string]:boolean
+        };
+        /**上传的数量限制 */
+        uploadLimit:{
+            [key:string]:number
+        }
+    }={
+        data:this.props.manager,
+        hasFileValidateError:false,
+        uploading:{
+            "practice":false,
+            "signature":false,
+            "identityFront":false,
+            "identityBack":false,
+            "qualification":false,
+            "photo":false
+        },
+        fileList:{
+            "practice":[],
+            "signature":[],
+            "identityFront":[],
+            "identityBack":[],
+            "qualification":[],
+            "photo":[]
+        },
+        uploadSuccess:{
+            "practice":true,
+            "signature":true,
+            "identityFront":true,
+            "identityBack":true,
+            "qualification":true,
+            "photo":true,
+        },
+        uploadLimit:{
+            "practice":20,
+            "signature":1,
+            "identityFront":1,
+            "identityBack":1,
+            "qualification":20,
+            "photo":1
+        },
+    }
+
+    /**
+     * 上传组件配置：图片
+     */
+    private readonly uploadPhotoConfig:UploadProps={
+        accept:".jpg,.png",
+        listType:"picture-card",
+        className:"avatar-uploader",
+        showUploadList:true,
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {getFieldDecorator} = this.props.form;
+        const {Option}=Select;
+
+        const {data}=this.state;
+        const education=DictionaryLoader.instance.education();
+        const nation=DictionaryLoader.instance.nation();
+        const politics=DictionaryLoader.instance.politics();
+        const job=DictionaryLoader.instance.job();
+
+        return (
+            <Form layout="vertical">
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="姓名">{
+                            getFieldDecorator("name",{
+                                initialValue:data.name,
+                                rules:[
+                                    {required:true,message:"姓名不能为空！"},
+                                    {max:20,message:"姓名不能超过20个字！"}
+                                ]
+                            })(
+                                <Input placeholder="请输入"
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={15} offset={1}>
+                        <Form.Item label="性别">{
+                            getFieldDecorator("sex",{
+                                initialValue:(""===data.sex?"男":data.sex),
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Radio.Group 
+                                    disabled={this.props.disabled} 
+                                    onChange={this.props.onChange}
+                                >
+                                    <Radio value="男">男</Radio>
+                                    <Radio value="女">女</Radio>
+                                </Radio.Group>
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="身份证号">{
+                            getFieldDecorator("idcard",{
+                                initialValue:data.idcard,
+                                rules:[
+                                    {required:true,message:"身份证号码不能为空！"},
+                                    {pattern:/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,message:"身份证号格式错误！"}
+                                ]
+                            })(
+                                <Input placeholder="请输入"
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="学历">{
+                            getFieldDecorator("education",{
+                                initialValue:data.education,
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Select showSearch
+                                    placeholder="请选择" 
+                                    optionFilterProp="children" 
+                                    filterOption={(input, option:React.ReactElement) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                >
+                                    {education.map((data:DictionaryData,index:number)=>{
+                                        return (<Option key={data.value}>{data.label}</Option>);
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="毕业专业">{
+                            getFieldDecorator("specialty",{
+                                initialValue:data.specialty,
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Input placeholder="请输入" 
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="籍贯">{
+                            getFieldDecorator("nativePlace",{
+                                initialValue:data.nativePlace,
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Input placeholder="请输入"
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="政治面貌">{
+                            getFieldDecorator("political",{
+                                initialValue:data.political,
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Select showSearch
+                                    placeholder="请选择"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option:React.ReactElement) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                >
+                                    {politics.map((data:DictionaryData,index:number)=>{
+                                        return (<Option key={data.value}>{data.label}</Option>);
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="民族">{
+                            getFieldDecorator("nation",{
+                                initialValue:data.nation,
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Select showSearch
+                                    placeholder="请选择"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option:React.ReactElement) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                >
+                                    {nation.map((data:DictionaryData,index:number)=>{
+                                        return (<Option key={data.value}>{data.label}</Option>);
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="职务职称">{
+                            getFieldDecorator("positionAndTitle",{
+                                initialValue:(""===data.position&&""===data.title?undefined:[data.position,data.title]),
+                                rules:[
+                                    {required:true,message:"职务职称不能为空！"}
+                                ]
+                            })(
+                                <Cascader 
+                                    options={job} placeholder="请选择" 
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="执业证号">{
+                            getFieldDecorator("practiceCode",{
+                                initialValue:data.practiceCode,
+                                rules:[
+                                    {required:true,message:"执业证号码不能为空！"}
+                                ]
+                            })(
+                                <Input placeholder="请输入" 
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="资格证号">{
+                            getFieldDecorator("qualificationCode",{
+                                initialValue:data.qualificationCode,
+                                rules:[
+                                    {required:true,message:"资格证号码不能为空！"}
+                                ]
+                            })(
+                                <Input placeholder="请输入" 
+                                    disabled={this.props.disabled}
+                                    onChange={this.props.onChange}
+                                />
+                            )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item
+                            label="身份证正面" className="principal-identityFront-photos must-upload"
+                            validateStatus={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.identityFront?"":"error")
+                                    :(this.state.fileList.identityFront.length>0?"":"error")
+                            }
+                            help={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.identityFront?"支持扩展名：.jpg .png":"文件上传失败！")
+                                    :(this.state.fileList.identityFront.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                            }
+                        >
+                            <Row>
+                                <Col span={8}>
+                                    <Upload {...this.uploadPhotoConfig}
+                                        name="identityFront"
+                                        customRequest={(fileObject:object)=>{
+                                            this.uploadPhoto(fileObject,"identityFront");
+                                        }}
+                                        onRemove={(file:UploadFile)=>{
+                                            this.uploadPhotoRemove(file,"identityFront")
+                                        }}
+                                        onPreview={(file:UploadFile)=>{
+                                            this.uploadPhotoPreview(file,"identityFront")
+                                        }}
+                                        fileList={this.state.fileList.identityFront}
+                                        disabled={this.props.disabled||this.state.uploading.identityFront}
+                                    >
+                                        {this.state.uploadLimit.identityFront>this.state.fileList.identityFront.length
+                                        ?(
+                                            <div>
+                                                <Icon type={this.state.uploading.identityFront?"loading":"plus"} />
+                                                <div className="ant-upload-text">{this.state.uploading.identityFront?"上传中..":"上传"}</div>
+                                            </div>
+                                        )
+                                        :null}
+                                    </Upload>
+                                </Col>
+                            </Row>
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item
+                            label="身份证背面" className="principal-identityBack-photos must-upload"
+                            validateStatus={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.identityBack?"":"error")
+                                    :(this.state.fileList.identityBack.length>0?"":"error")
+                            }
+                            help={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.identityBack?"支持扩展名：.jpg .png":"文件上传失败！")
+                                    :(this.state.fileList.identityBack.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                            }
+                        >
+                            <Row>
+                                <Col span={8}>
+                                    <Upload
+                                        {...this.uploadPhotoConfig}
+                                        name="identityBack"
+                                        customRequest={(fileObject:object)=>{
+                                            this.uploadPhoto(fileObject,"identityBack");
+                                        }}
+                                        onRemove={(file:UploadFile)=>{
+                                            this.uploadPhotoRemove(file,"identityBack")
+                                        }}
+                                        onPreview={(file:UploadFile)=>{
+                                            this.uploadPhotoPreview(file,"identityBack")
+                                        }}
+                                        fileList={this.state.fileList.identityBack}
+                                        disabled={this.props.disabled||this.state.uploading.identityBack}
+                                    >
+                                        {this.state.uploadLimit.identityBack>this.state.fileList.identityBack.length
+                                        ?(
+                                            <div>
+                                                <Icon type={this.state.uploading.identityBack?"loading":"plus"} />
+                                                <div className="ant-upload-text">{this.state.uploading.identityBack?"上传中..":"上传"}</div>
+                                            </div>
+                                        )
+                                        :null}
+                                    </Upload>
+                                </Col>
+                            </Row>
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item
+                            label="二寸寸照" className="principal-photo-photos must-upload"
+                            validateStatus={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.photo?"":"error")
+                                    :(this.state.fileList.photo.length>0?"":"error")
+                            }
+                            help={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.photo?"支持扩展名：.jpg .png":"文件上传失败！")
+                                    :(this.state.fileList.photo.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                            }
+                        >
+                            <Row>
+                                <Col span={8}>
+                                    <Upload {...this.uploadPhotoConfig}
+                                        name="photo"
+                                        customRequest={(fileObject:object)=>{
+                                            this.uploadPhoto(fileObject,"photo");
+                                        }}
+                                        onRemove={(file:UploadFile)=>{
+                                            this.uploadPhotoRemove(file,"photo")
+                                        }}
+                                        onPreview={(file:UploadFile)=>{
+                                            this.uploadPhotoPreview(file,"photo")
+                                        }}
+                                        fileList={this.state.fileList.photo}
+                                        disabled={this.props.disabled||this.state.uploading.photo}
+                                    >
+                                        {this.state.uploadLimit.photo>this.state.fileList.photo.length
+                                        ?(
+                                            <div>
+                                                <Icon type={this.state.uploading.photo?"loading":"plus"} />
+                                                <div className="ant-upload-text">{this.state.uploading.photo?"上传中..":"上传"}</div>
+                                            </div>
+                                        )
+                                        :null}
+                                    </Upload>
+                                </Col>
+                            </Row>  
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Row>
+                            <Form.Item
+                                label="执业证书" className="principal-identityFront-photos must-upload"
+                                validateStatus={
+                                    !this.state.hasFileValidateError
+                                        ?(this.state.uploadSuccess.practice?"":"error")
+                                        :(this.state.fileList.practice.length>0?"":"error")
+                                }
+                                help={
+                                    !this.state.hasFileValidateError
+                                        ?(this.state.uploadSuccess.practice?"支持扩展名：.jpg .png":"文件上传失败！")
+                                        :(this.state.fileList.practice.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                                }
+                            >
+                                <Upload {...this.uploadPhotoConfig}
+                                    name="practice"
+                                    customRequest={(fileObject:object)=>{
+                                        this.uploadPhoto(fileObject,"practice");
+                                    }}
+                                    onRemove={(file:UploadFile)=>{
+                                        this.uploadPhotoRemove(file,"practice")
+                                    }}
+                                    onPreview={(file:UploadFile)=>{
+                                        this.uploadPhotoPreview(file,"practice")
+                                    }}
+                                    fileList={this.state.fileList.practice}
+                                    disabled={this.props.disabled||this.state.uploading.practice}
+                                >
+                                    {this.state.uploadLimit.practice>this.state.fileList.practice.length
+                                    ?(
+                                        <div>
+                                            <Icon type={this.state.uploading.practice?"loading":"plus"} />
+                                            <div className="ant-upload-text">{this.state.uploading.practice?"上传中..":"上传"}</div>
+                                        </div>
+                                    )
+                                    :null}
+                                </Upload>
+                            </Form.Item>
+                        </Row>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item
+                            label="资格证书" className="principal-identityFront-photos must-upload"
+                            validateStatus={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.qualification?"":"error")
+                                    :(this.state.fileList.qualification.length>0?"":"error")
+                            }
+                            help={
+                                !this.state.hasFileValidateError
+                                    ?(this.state.uploadSuccess.qualification?"支持扩展名：.jpg .png":"文件上传失败！")
+                                    :(this.state.fileList.qualification.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                            }
+                        >
+                            <Upload {...this.uploadPhotoConfig}
+                                name="qualification"
+                                customRequest={(fileObject:object)=>{
+                                    this.uploadPhoto(fileObject,"qualification");
+                                }}
+                                onRemove={(file:UploadFile)=>{
+                                    this.uploadPhotoRemove(file,"qualification")
+                                }}
+                                onPreview={(file:UploadFile)=>{
+                                    this.uploadPhotoPreview(file,"qualification")
+                                }}
+                                fileList={this.state.fileList.qualification}
+                                disabled={this.props.disabled||this.state.uploading.qualification}
+                            >
+                                {this.state.uploadLimit.qualification>this.state.fileList.qualification.length
+                                ?(
+                                    <div>
+                                        <Icon type={this.state.uploading.qualification?"loading":"plus"} />
+                                        <div className="ant-upload-text">{this.state.uploading.qualification?"上传中..":"上传"}</div>
+                                    </div>
+                                )
+                                :null}
+                            </Upload>
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        {this.props.displaySign?(
+                            <Form.Item
+                                label="签字表" className="principal-signature-photos must-upload"
+                                validateStatus={
+                                    !this.state.hasFileValidateError
+                                        ?(this.state.uploadSuccess.signature?"":"error")
+                                        :(this.state.fileList.signature.length>0?"":"error")
+                                }
+                                help={
+                                    !this.state.hasFileValidateError
+                                        ?(this.state.uploadSuccess.signature?"支持扩展名：.jpg .png":"文件上传失败！")
+                                        :(this.state.fileList.signature.length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+                                }
+                            >
+                                <Row>
+                                    <Col span={8}>
+                                        <Upload {...this.uploadPhotoConfig}
+                                            name="signature"
+                                            customRequest={(fileObject:object)=>{
+                                                this.uploadPhoto(fileObject,"signature");
+                                            }}
+                                            onRemove={(file:UploadFile)=>{
+                                                this.uploadPhotoRemove(file,"signature")
+                                            }}
+                                            onPreview={(file:UploadFile)=>{
+                                                this.uploadPhotoPreview(file,"signature")
+                                            }}
+                                            fileList={this.state.fileList.signature}
+                                            disabled={this.props.disabled||this.state.uploading.signature}
+                                        >
+                                            {this.state.uploadLimit.signature>this.state.fileList.signature.length
+                                            ?(
+                                                <div>
+                                                    <Icon type={this.state.uploading.signature?"loading":"plus"} />
+                                                    <div className="ant-upload-text">{this.state.uploading.signature?"上传中..":"上传"}</div>
+                                                </div>
+                                            )
+                                            :null}
+                                        </Upload>
+                                    </Col>
+                                    <Col span={7} offset={1}>
+                                        <Button type="dashed" style={{width:102,height:102}}
+                                            onClick={()=>{ResourceUtils.download("医疗机构负责人签字表.doc")}}
+                                        >
+                                            <Icon type="download" /><br/>
+                                            签字表模板
+                                        </Button>
+                                    </Col>
+                                </Row>  
+                            </Form.Item>
+                        ):null}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={24}>
+                        <Form.Item label="工作履历">
+                            <ApplyFormResume 
+                                resumes={this.props.manager.personalResumes} 
+                                onChange={this.resumeChangeHandler}
+                                disabled={this.props.disabled}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        );
+    }
+
+    /**
+     * 组件载入后，拆解管理人员的身份证正面和反面
+     */
+    componentDidMount=()=>{
+        const {idcardImg}=this.props.manager;
+        const identityArray=idcardImg.split(",");
+        const idFrontString=identityArray[0],
+            idBackString=identityArray.length>1?identityArray[1]:"";
+        const {identityFront,identityBack,signature,photo,practice,qualification}=this.state.fileList;
+        
+        this.setState({
+            ...this.state,
+            fileList:{
+                ...this.state.fileList,
+                identityFront:ApplyUtils.urlStringToUploadArray(identityFront,idFrontString),
+                identityBack:ApplyUtils.urlStringToUploadArray(identityBack,idBackString),
+                signature:ApplyUtils.urlStringToUploadArray(signature,this.props.manager.signature),
+                photo:ApplyUtils.urlStringToUploadArray(photo,this.props.manager.img),
+                practice:ApplyUtils.urlStringToUploadArray(practice,this.props.manager.practiceImg),
+                qualification:ApplyUtils.urlStringToUploadArray(qualification,this.props.manager.qualificationCertImg),
+            }
+        });
+    }
+
+    /**
+     * 上传图片
+     */
+    uploadPhoto=async (fileObject:object,key:string)=>{
+        // 设置上传中
+        const {uploading}=this.state;
+        uploading[key]=true;
+        this.setState({...this.state,uploading:uploading});
+
+        // 上传文件或图片
+        const option=fileObject as {file:File};
+        const uploadResponse=await (new HttpRequest())
+            .upload<{url:string},{applyNo:string}>
+            (
+                `webapi/comm/uploadFile`,
+                option.file,
+                "file",
+                {applyNo:this.props.serialNumber}
+            );
+        const {uploadSuccess}=this.state;
+        uploadSuccess[key]=(uploadResponse.success&&(uploadResponse.data!==null));
+        uploading[key]=false;
+
+        //上传失败显示
+        if(!uploadSuccess[key]||!uploadResponse.data){
+            this.setState({
+                ...this.state,
+                uploading:uploading,
+                uploadSuccess:uploadSuccess
+            });
+            return;
+        }
+
+        //上传成功，设置已上传列表
+        const {fileList}=this.state;
+        fileList[key].push({
+            uid:String(fileList[key].length),
+            name:option.file.name,
+            size:0,
+            type:"",
+            url:uploadResponse.data.url
+        });
+        this.setState({
+            ...this.state,
+            uploading:uploading,
+            uploadSuccess:uploadSuccess,
+            fileList:fileList
+        });
+        this.props.onChange();
+    }
+
+    /**
+     * 全屏查看上传的图片
+     */
+    uploadPhotoPreview=(uploadFile:UploadFile,key:string)=>{
+        // 获取全部上传的图片元素
+        const row=document.querySelector<HTMLDivElement>(`.principal-${key}-photos`);
+        if(!row) return;
+        const imgArray=row.querySelectorAll<HTMLImageElement>
+            (".ant-upload-list-item-image");
+        const imageList:Array<HTMLImageElement>=[];
+        const {fileList}=this.state;
+
+        const viewImageNameSet=ApplyUtils.uploadArrayToNameSet(fileList[key]);
+        let currentIndex=0;
+        imgArray.forEach((img,index)=>{
+            if(viewImageNameSet.has(img.alt)){
+                imageList.push(img);
+                currentIndex=(img.alt===uploadFile.name?index:currentIndex);
+            }
+        });
+
+        ImageViewer.view(imageList,currentIndex);
+    }
+
+    /**
+     * 删除上传的文件或图片
+     */
+    uploadPhotoRemove=(file:UploadFile,key:string)=>{
+        const {confirm}=Modal;
+        const {fileList}=this.state;
+        confirm({
+            title: '确定要删除当前上传的图片么？',
+            okText: '继续删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk:()=>{
+                fileList[key].splice(fileList[key].findIndex(item=>item.uid===file.uid),1);
+                this.setState({
+                    ...this.state,
+                    fileList:fileList
+                });
+            },
+        });
+        this.props.onChange();
+    }
+
+    /**
+     * 提供给子组件进行调用，修改人员中的履历列表
+     */
+    resumeChangeHandler=(resumes:Array<ApplyContentManagerResume>)=>{   
+        const {data}=this.state;
+        data.personalResumes=resumes;
+        this.setState({
+            ...this.state,
+            data:data
+        });
+        this.props.onChange();
+    }
+
+    /**
+     * 校验表单并返回表单内容
+     */
+    validateFieldsAndScroll=():Promise<FormValidateResult<ApplyContentManager>>=>
+        (new Promise<FormValidateResult<ApplyContentManager>>((resolve,reject)=>{
+            this.props.form.validateFieldsAndScroll((errors,values)=>{
+                //报错返回
+                if(errors){
+                    resolve({hasError:true,message:"",data:null});
+                }
+
+                //格式转换
+                values.birthday=!values.birthday
+                    ?(values.idcard?ApplyUtils.identityCodeToBirthday(values.idcard):null)
+                    :values.birthday.format("YYYY-MM-DD");
+                values.position=values.positionAndTitle[0];
+                values.title=values.positionAndTitle[1];
+                delete values.positionAndTitle;
+
+                // 验证文件列表
+                const {identityFront,identityBack,signature,photo,practice,qualification}=this.state.fileList;
+                if(identityFront.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人身份证正面图片！",data:null});
+                }
+                if(identityBack.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人身份证背面图片！",data:null});
+                }
+                if(this.props.displaySign&&signature.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人签字表图片！",data:null});
+                }
+                if(photo.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人寸照！",data:null});
+                }
+                if(practice.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人执业证书照片！",data:null});
+                }
+                if(qualification.length<1){
+                    this.setState({
+                        ...this.state,
+                        hasFileValidateError:true
+                    });
+                    resolve({hasError:true,message:"必须上传负责人资格证书照片！",data:null});
+                }
+
+                // 转换文件列表
+                const identityImages=ApplyUtils.uploadArrayToUrlString(
+                    identityFront.concat(identityBack)
+                );
+                const signatureImages=ApplyUtils.uploadArrayToUrlString(signature);
+                const photoImages=ApplyUtils.uploadArrayToUrlString(photo);
+                const practiceImages=ApplyUtils.uploadArrayToUrlString(practice);
+                const qualificationImages=ApplyUtils.uploadArrayToUrlString(qualification);
+
+                // 返回完整的法人信息
+                resolve({
+                    ...this.state.data,
+                    ...values,
+                    idcardImg:identityImages,
+                    signature:signatureImages,
+                    img:photoImages,
+                    practiceImg:practiceImages,
+                    qualificationCertImg:qualificationImages,
+                });
+            })
+        })
+    )
+}
+export default Form.create<ApplyFormPrincipalProps>({name:"applyFormPrincipal"})(ApplyFormPrincipal);

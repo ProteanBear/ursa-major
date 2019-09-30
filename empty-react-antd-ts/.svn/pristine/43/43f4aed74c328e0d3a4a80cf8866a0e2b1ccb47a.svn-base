@@ -1,0 +1,42 @@
+body{
+    background-color: #F0F3F7;
+}
+
+.background{
+    background-image: url("../resources/login-backgroud.png");
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+.login-container{
+    max-width: 400px;
+    margin: auto;
+    padding-top: 120px;
+    text-align: center;
+    color: #555;
+}
+.login-container h1{
+    margin-bottom: 1em;
+}
+.login-container form{
+    padding: 0 30px;
+}
+.login-container .auto-login{
+    float: left;
+}
+.login-container .apply{
+    float: right;
+}
+.login-container .form-item-inline{
+    text-align: left;
+}
+.login-container .input-verify-code{
+    max-width: 220px;
+    margin-right: 10px;
+}
+.login-container .container-verify{
+    width: 110px;
+}
+.login-container .button-submit{
+    width: 100%;
+}

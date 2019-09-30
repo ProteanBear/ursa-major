@@ -1,0 +1,79 @@
+import React from 'react';
+import { AppComponentProps } from '../../app/Model';
+import { withRouter, Link } from 'react-router-dom';
+import Container, { ContainerLoading } from '../../components/Container';
+import { Breadcrumb, Icon, Typography, Tabs} from 'antd';
+import { LoginChecker } from '../../app/LoginChecker';
+import OrganizationStaffDoctorsAndNurses from '../../components/OrganizationStaffDoctorsAndNurses';
+import OrganizationStaffTechnical from '../../components/OrganizationStaffTechnical';
+import OrganizationStaffOther from '../../components/OrganizationStaffOther';
+
+/**
+ * 机构人员信息维护
+ */
+class StaffEdit extends React.Component<AppComponentProps>{
+    readonly state:{
+        /**机构标识 */
+        organizationId?:string;
+    }={};
+
+    private loginChecker=new LoginChecker();
+
+    /**
+     * 页面布局
+     */
+    render(){
+        if(!this.state.organizationId){
+            return (<ContainerLoading/>)
+        }
+
+        const {Title}=Typography;
+        const {TabPane}=Tabs;
+
+        return (
+            <Container needLogin={true}>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item>
+                        <Link to="/protected/organization">
+                            <Icon type="home"/>&nbsp;
+                            <span>机构首页</span>
+                        </Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item><span>机构人员维护</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4} className="title-with-underline">机构人员维护</Title>
+                <Tabs tabPosition="left" defaultActiveKey="doctorAndNurse">
+                    <TabPane tab="医护人员" key="doctorAndNurse">
+                        <OrganizationStaffDoctorsAndNurses 
+                            serialNumber={this.state.organizationId}
+                        />
+                    </TabPane>
+                    <TabPane tab="医技人员" key="technology">
+                        <OrganizationStaffTechnical 
+                            serialNumber={this.state.organizationId}
+                        />
+                    </TabPane>
+                    <TabPane tab="其他人员" key="other">
+                        <OrganizationStaffOther 
+                            serialNumber={this.state.organizationId}
+                        />
+                    </TabPane>
+                </Tabs>
+            </Container>
+        );
+    }
+
+    /**
+     * 组件载入后，读取当前登录用户信息
+     */
+    async componentDidMount(){
+        const {data}=await this.loginChecker.loginUser();
+        if(!data) return;
+        this.setState({
+            ...this.state,
+            organizationId:data.orgCode,
+        });
+    }
+}
+export default withRouter(StaffEdit);

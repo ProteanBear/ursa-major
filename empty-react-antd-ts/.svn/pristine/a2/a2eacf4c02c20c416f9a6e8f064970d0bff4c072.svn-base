@@ -1,0 +1,488 @@
+import React from 'react';
+import { Breadcrumb,Icon,Typography, Button,Divider,Col, Form, Input, Select,Radio, Upload, Row } from 'antd';
+import { Link } from 'react-router-dom';
+
+import Container from '../../components/Container';
+import {ApplySectionPrompt,ApplySectionRecordStep, ApplySectionLicenseStep} from '../../components/ApplyHeader';
+import { FormComponentProps } from 'antd/lib/form';
+import {DictionaryData,DictionaryLoader} from '../../app/DictionaryLoader';
+import { ApplyFormMedical, ApplyFormMedicalType,ApplyFormMedicalTypeContext } from '../../components/ApplyFormMedical';
+import { ApplyContent, ApplyStep } from '../../app/Model';
+
+/**
+ * 许可流程：第二步，机构信息
+ */
+class LicenseOrganization extends React.Component<FormComponentProps>{
+    render(){
+        const {Title}=Typography;
+        const {Option}=Select;
+        const {getFieldDecorator} = this.props.form;
+        const recordApply:ApplyContent={applyNo:"337676",applyDeadline:"2019年1月1日"};
+        const street:Array<DictionaryData>=DictionaryLoader.instance.street();
+        const subjection:Array<DictionaryData>=DictionaryLoader.instance.subjection();
+        const ownership:Array<DictionaryData>=DictionaryLoader.instance.ownership();
+        const serviceObject:Array<DictionaryData>=DictionaryLoader.instance.serviceObject();
+        const serviceMode:Array<DictionaryData>=DictionaryLoader.instance.serviceMode();
+        const category:Array<DictionaryData>=DictionaryLoader.instance.category();
+        const level:Array<DictionaryData>=DictionaryLoader.instance.level();
+        const grade:Array<DictionaryData>=DictionaryLoader.instance.grade();
+        const prefixSelector = getFieldDecorator('prefix', {
+            initialValue: '028',
+        })(
+            <Select style={{ width: 70 }}>
+                <Option value="028">028</Option>
+            </Select>
+        );
+
+        return (
+            <Container>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>许可</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4} className="title-with-underline">许可申请</Title>
+
+                {/* 顶部 */}
+                <ApplySectionLicenseStep {...ApplyStep.LICENSE_ORGANIZATION} />
+                <Divider><span className="title-inner">第二步：机构信息</span></Divider>
+
+                {/* 表单：基本信息 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">基本信息</h4>
+                    <Form layout="vertical">
+                        <Row>
+                            <Col span={15}>
+                                <Form.Item label="机构名称">{
+                                    getFieldDecorator("name",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="所属街道">{
+                                    getFieldDecorator("street",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="选择机构所属的（高新区）街道"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {street.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="机构地址" help="请输入详细的地址">{
+                                    getFieldDecorator("address",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <div className="input-group">
+                                            <Col span={8}><Input value="四川省" disabled/></Col>
+                                            <Col span={8}><Input value="成都市" disabled/></Col>
+                                            <Col span={8}><Input value="高新区" disabled/></Col>
+                                            <Col span={24}>
+                                                <Input.TextArea rows={3} style={{maxHeight:73}} />
+                                            </Col>
+                                        </div>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="所有制性质">{
+                                    getFieldDecorator("ownership",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {ownership.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                                <Form.Item label="电话号码">{
+                                    getFieldDecorator("telephone",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input addonBefore={prefixSelector} placeholder="请输入" />)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="隶属关系">{
+                                    getFieldDecorator("subjection",{
+                                        initialValue:"6",
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {subjection.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                                <Form.Item label="邮政编码">{
+                                    getFieldDecorator("postcode",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入"/>)}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="统一社会信用代码">
+                                    <Input placeholder="请输入"/>
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="服务对象">{
+                                    getFieldDecorator("service.object",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {serviceObject.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="服务方式">{
+                                    getFieldDecorator("service.mode",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch mode="multiple"
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {serviceMode.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="机构类别">{
+                                    getFieldDecorator("category",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {category.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="机构级别">{
+                                    getFieldDecorator("level",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {level.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="机构等次">{
+                                    getFieldDecorator("grade",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Select showSearch
+                                            placeholder="请选择"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option:React.ReactElement) =>
+                                                option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {grade.map((data:DictionaryData,index:number)=>{
+                                                return (<Option key={data.value}>{data.label}</Option>);
+                                            })}
+                                        </Select>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="核定床位数">{
+                                    getFieldDecorator("bed.certified",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="个"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="观察床位数">{
+                                    getFieldDecorator("bed.inspect",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="个"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="牙科诊椅数">{
+                                    getFieldDecorator("bed.tooth",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="个"/>)}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="占地面积">{
+                                    getFieldDecorator("area.land",{
+                                        rules:[
+                                            {required:false}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="平米"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="建筑面积">{
+                                    getFieldDecorator("area.construction",{
+                                        rules:[
+                                            {required:false}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="平米"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="建筑面积中业务用房面积">{
+                                    getFieldDecorator("area.profession",{
+                                        rules:[
+                                            {required:false}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="平米"/>)}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={7}>
+                                <Form.Item label="资金总额">{
+                                    getFieldDecorator("funding.total",{
+                                        rules:[
+                                            {required:false}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="万元"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={7} offset={1}>
+                                <Form.Item label="固定资金">{
+                                    getFieldDecorator("funding.fixed",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="万元"/>)}
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="注册资金">{
+                                    getFieldDecorator("funding.register",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="万元"/>)}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={15}>
+                                <Form.Item label="备注">
+                                    <Input.TextArea rows={4} />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Form.Item label="流动资金">{
+                                    getFieldDecorator("funding.flow",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(<Input placeholder="请输入" suffix="万元"/>)}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Col>
+
+                {/* 表单：诊疗范围 */}
+                <Col span={22} offset={1}>
+                    {/* <h4 className="title-form-sub">诊疗范围</h4>
+                    <ApplyFormMedicalTypeContext.Provider value={{type:ApplyFormMedicalType.FULL}}>
+                        <ApplyFormMedical {...recordApply} />
+                    </ApplyFormMedicalTypeContext.Provider> */}
+                </Col>
+
+                {/* 表单：上传内容 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">上传内容</h4>
+                    <Form labelCol={{span:24}} wrapperCol={{span:24}}>
+                        <Row>
+                            <Col span={24}>
+                                <Form.Item label={
+                                        <span>
+                                            营业执照或核名通知书：&nbsp;
+                                            <Radio.Group value={2}>
+                                                <Radio value={1}>营业执照</Radio>
+                                                <Radio value={2}>核名通知书</Radio>
+                                            </Radio.Group>
+                                        </span>
+                                    }
+                                    help="支持扩展名：.jpg .png">{
+                                    getFieldDecorator("license",{
+                                        rules:[
+                                            {required:true}
+                                        ]
+                                    })(
+                                        <Upload
+                                            name="license"
+                                            listType="picture-card"
+                                            className="avatar-uploader"
+                                            showUploadList={false}
+
+                                        >
+                                            <div>
+                                                <Icon type="plus" />
+                                                <div className="ant-upload-text">上传</div>
+                                            </div>
+                                        </Upload>
+                                    )}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="房屋平面布局图" help="支持扩展名：.jpg .png">{
+                                        getFieldDecorator("license",{
+                                            rules:[
+                                                {required:true}
+                                            ]
+                                        })(
+                                            <Upload
+                                                name="license"
+                                                listType="picture-card"
+                                                className="avatar-uploader"
+                                                showUploadList={false}
+
+                                            >
+                                                <div>
+                                                    <Icon type="plus" />
+                                                    <div className="ant-upload-text">上传</div>
+                                                </div>
+                                            </Upload>
+                                        )}
+                                </Form.Item>
+                            </Col>
+                            <Col span={12}>
+                                <Form.Item
+                                    label="外景图" help="支持扩展名：.jpg .png">{
+                                        getFieldDecorator("license",{
+                                            rules:[
+                                                {required:true}
+                                            ]
+                                        })(
+                                            <Upload
+                                                name="license"
+                                                listType="picture-card"
+                                                className="avatar-uploader"
+                                                showUploadList={false}
+
+                                            >
+                                                <div>
+                                                    <Icon type="plus" />
+                                                    <div className="ant-upload-text">上传</div>
+                                                </div>
+                                            </Upload>
+                                        )}
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Col>
+            
+                {/* 按钮 */}
+                <Col span={24} className="section-buttons">
+                    <Button><Link to="/public/license/step-commitment/1">上一步</Link></Button>
+                    <Button type="primary"><Link to="/public/license/step-manager/1">保存并进入下一步</Link></Button>
+                </Col>
+            </Container>
+        );
+    }
+}
+export default Form.create({name:"licenseOrganization"})(LicenseOrganization);

@@ -1,0 +1,53 @@
+import React from 'react';
+import {Col,Typography,Form,Upload,Button,Icon} from 'antd';
+
+import { ApplyContent } from '../app/Model';
+
+/**
+ * 申请公用表单：承诺书
+ */
+ export default class ApplyFormCommitment extends React.Component<ApplyContent>{
+     render(){
+         return (
+            <section>
+                <Col span={10} offset={7} className="section-prompt">
+                    <Typography.Paragraph ellipsis={{ rows: 3, expandable: true }}>
+                        <b>说明</b>：下载《告知通知书》模板，填写承诺书内容后加盖公章并扫描为扫描
+                        件，点击上传将《告知通知书》扫描件上传到系统中，上传成功后，会自动进入下一步。
+                    </Typography.Paragraph>
+                </Col>
+
+                <Col span={10} offset={7} className="section-prompt">
+                    <Form labelCol={{span:8}} wrapperCol={{span:16}}>
+                        <Form.Item label="下载模板">
+                            <Button icon="download">下载《告知通知书》模板</Button>
+                        </Form.Item>
+                        <Form.Item label="上传扫描件" extra="支持扩展名：.jpg .png">
+                            <Col span={8}>
+                                <Upload
+                                    name="commitment"
+                                    listType="picture-card"
+                                    className="avatar-uploader"
+                                    showUploadList={false}
+
+                                >
+                                    <div>
+                                        <Icon type="plus" />
+                                        <div className="ant-upload-text">上传</div>
+                                    </div>
+                                </Upload>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Button type="dashed" style={{height:102,width:102}}>
+                                    <Icon type="file-image" style={{fontSize:32}} />
+                                    <br/>
+                                    <span>示例图</span><Icon type="zoom-in" />
+                                </Button>
+                            </Col>
+                        </Form.Item>
+                    </Form>
+                </Col>
+            </section>
+         );
+     }
+ }

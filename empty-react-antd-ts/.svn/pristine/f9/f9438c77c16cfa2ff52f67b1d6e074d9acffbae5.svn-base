@@ -1,0 +1,207 @@
+import { UploadFile } from "antd/lib/upload/interface";
+import { ApplyContentManager, ApplyContentManagerFactory } from "../app/Model";
+import { DictionaryLoader } from "../app/DictionaryLoader";
+
+/**
+ * 申请相关的方法
+ */
+export default class ApplyUtils{
+    /**
+     * 申请的当前状态是否可编辑
+     * @param status 状态值
+     */
+    static canEdit=(status:number)=>(status===0||status===2||status===4||status==12);
+
+    /**
+     * 申请的当前状态是否已经通过
+     * @param status 状态值
+     */
+    static agree=(status:number)=>(status===9||status===10||status===15);
+
+    /**
+     * 申请的当前状态是否可以申请现场核验（许可）
+     * @param status 状态值
+     */
+    static canSite=(status:number)=>(status===7);
+
+    /**
+     * 申请的当前状态是否可以进行资料补充（许可）
+     * @param status 状态值
+     */
+    static canSupplement=(status:number)=>(status===9||status===15);
+
+    /**
+     * 申请的当前状态是否需要获取补充资料被驳回理由（许可）
+     * @param status 状态值
+     */
+    static supplementReject=(status:number)=>(status===15);
+
+    /**
+     * 申请的当前状态是否需要获取驳回理由
+     * @param status 状态值
+     */
+    static needLoadReject=(status:number)=>(status===2||status===4||status==12);
+
+    /**
+     * 审核结果是否为驳回
+     */
+    static inspectIsReject=(status:number)=>(status===1);
+
+    /**
+     * 将字符串形式的已选择诊疗范围转换为Set
+     */
+    static medicalScopeToSet=(scope:string):Set<string>=>{
+        const scopeArray=scope.split(",");
+        const result=new Set<string>();
+        scopeArray.map(value=>result.add(value));
+        return result;
+    }
+
+    /**
+     * 将Set形式的已选择诊疗范围转换为字符串
+     */
+    static medicalScopeToString=(scope:Set<string>):string=>{
+        let result="",i=0;
+        scope.forEach(val=>{
+            if(val==="") return;
+            result+=((i++===0?"":",")+val);
+        });
+        return result;
+    };
+
+    /**
+     * 将Set形式的已选择诊疗范围转换为诊疗范围名称字符串
+     */
+    static medicalScopeToDescriptionString=(scope:Set<string>):string=>{
+        let result:Map<string,Array<string>>=new Map();
+        const dictionary=DictionaryLoader.instance;
+        scope.forEach(val=>{
+            // 获取标签
+            const label=dictionary.medicalLabel(val);
+            // 第一层
+            if(val.length<3) {
+                const array=result.get(label)||[];
+                result.set(label,array);
+            }
+            // 第二层
+            else{
+                const parentLabel=dictionary.medicalLabel(val.substring(0,val.indexOf(".")));
+                const array=result.get(parentLabel)||[];
+                array.push(label);
+                result.set(parentLabel,array);
+            }
+        });
+        
+        let resultString="",i=0;
+        result.forEach((array,label)=>{
+            if(label==="") return;
+            resultString+=((i++===0?"":",")+label);
+            resultString+=(array.length>0?"（":"");
+            let j=0;
+            array.forEach(subLabel=>{resultString+=((j++===0?"":",")+subLabel)});
+            resultString+=(array.length>0?"）":"");
+        })
+        return resultString;
+    };
+
+    /**
+     * 获取诊疗范围编码子级的父级编码
+     */
+    static medicalScopeParentCode=(code:string):string|null=>{
+        const index=code.indexOf(".")
+        if(index===-1) return null;
+        return code.substring(0,index);
+    }
+
+    /**
+     * 将路径（多个间逗号分隔）转换为上传文件对象列表
+     */
+    static urlStringToUploadArray=(array:Array<UploadFile>,urls:string)
+        :Array<UploadFile>=>{
+        const urlArray=urls.split(",");
+        if(urlArray.length===0||urls==="") return array;
+        urlArray.forEach((url,index)=>{
+            array.push({
+                uid:String(index),
+                name:url.substring(url.lastIndexOf("/")+1),
+                size:0,
+                type:"",
+                url:url
+            });
+        });
+        return array;
+    }
+
+    /**
+     * 将上传文件列表转换为url字符串（多个之间逗号分隔）
+     */
+    static uploadArrayToUrlString=(array:Array<UploadFile>):string=>{
+        let result="",i=0;
+        array.forEach((data)=>{
+            result+=((i++===0?"":",")+data.url);
+        });
+        return result;
+    }
+
+    /**
+     * 将上传文件列表转换为名称的Set，用于判断指定的文件是否存在
+     */
+    static uploadArrayToNameSet=(array:Array<UploadFile>):Set<string>=>{
+        const result=new Set<string>();
+        array.map(data=>result.add(data.name));
+        return result;
+    }
+
+    /**
+     * 将管理人员数组中的人员分解开;
+     * 不存在的创建为默认对象
+     */
+    static managerListToMap=(serialNumber:string,list:Array<ApplyContentManager>):{
+        legal:ApplyContentManager,
+        principal:ApplyContentManager,
+        contact:ApplyContentManager
+    }=>{
+        let legal,principal,contact;
+        list.forEach(manager=>{
+            switch(manager.type){
+                case 1:
+                    legal=manager;
+                    break;
+                case 2:
+                    principal=manager;
+                    break;
+                case 3:
+                    contact=manager;
+                    break;
+                default:
+            }
+        });
+
+        legal=legal||ApplyContentManagerFactory.create(serialNumber,1);
+        principal=principal||ApplyContentManagerFactory.create(serialNumber,2);
+        contact=contact||ApplyContentManagerFactory.create(serialNumber,3);
+        return {legal:legal,principal:principal,contact:contact};
+    }
+
+    /**
+     * 将日期时间字符串显示为日期
+     */
+    static displayDate=(dateTime:string)=>(
+        dateTime
+            .replace(new RegExp("[0-9]{2}:[0-9]{2}:[0-9]{2}"),"")
+            .trim()
+    )
+
+    /**
+     * 合并指定人员信息的全部图片
+     */
+    static concatStaffImages=(...imageUrl:string[])=>{
+        let result="",index=0;
+        imageUrl.forEach(url=>{
+            if(!url||url==="") return;
+            result+=((index++===0?"":",")+url);
+        });
+        console.log(result);
+        return result;
+    }
+}

@@ -1,0 +1,112 @@
+import React from 'react';
+import { Tabs, Form } from 'antd';
+import StaffDoctorsAndNurse from './ApplyStaffDoctorsAndNurses';
+import StaffTechnical from './ApplyStaffTechnical';
+import StaffOther from './ApplyStaffOther';
+import { FormComponentProps } from 'antd/lib/form';
+import { DataCache } from '../app/DataCache';
+
+type OrganizationStaffManagerProps=FormComponentProps&{
+    /**当前的申请单号 */
+    serialNumber:string;
+    /**是否禁止输入 */
+    disabled:boolean;
+    /**内容修改时处理 */
+    onChange():void;
+}
+
+/**
+ * 机构人员管理
+ */
+class OrganizationStaffManager extends React.Component<OrganizationStaffManagerProps>{
+    readonly state:{
+        data:{
+            [key:string]:Array<any>
+        };
+        /**当前激活的Tab栏键名 */
+        activeTabKey:string;
+    }={
+        data:{
+            applyStaffs:[],
+            delStaffs:[],
+            applyTechnicians:[],
+            delTechnicians:[],
+            applyOthers:[],
+            delOthers:[],
+        },
+        activeTabKey:"doctorAndNurse",
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {TabPane}=Tabs;
+        return (
+            <Tabs 
+                activeKey={this.state.activeTabKey}
+                onChange={(key)=>{
+                    DataCache.instance.transfer({activeTabKey:key});
+                    this.setState({...this.state,activeTabKey:key});
+                }}
+            >
+                <TabPane tab="医护人员" key="doctorAndNurse">
+                    <StaffDoctorsAndNurse
+                        serialNumber={this.props.serialNumber} 
+                        disabled={this.props.disabled}
+                        onChange={this.onChange}
+                    />
+                </TabPane>
+                <TabPane tab="医技人员" key="technology">
+                    <StaffTechnical
+                        serialNumber={this.props.serialNumber} 
+                        disabled={this.props.disabled}
+                        onChange={this.onChange} />
+                </TabPane>
+                <TabPane tab="其他人员" key="other">
+                    <StaffOther 
+                        serialNumber={this.props.serialNumber} 
+                        disabled={this.props.disabled}
+                        onChange={this.onChange} />
+                </TabPane>
+            </Tabs>
+        );
+    }
+
+    /**
+     * 组件载入后
+     */
+    componentDidMount(){
+        // 检查缓存的当前Tab栏
+        const transfer=DataCache.instance.transfer();
+        const {activeTabKey}=transfer||{activeTabKey:"doctorAndNurse"}
+        if(!transfer){
+            DataCache.instance.transfer({
+                activeTabKey:"doctorAndNurse",
+            });
+        }
+        this.setState({
+            ...this.state,
+            activeTabKey:activeTabKey,
+        });
+    }
+
+    /**
+     * 更新当前人员记录
+     */
+    onChange=(key:string,staffs:Array<any>,delKey?:string,staffIds?:Array<number>)=>{
+        const {data}=this.state;
+        data[key]=staffs;
+        if(delKey&&staffIds) data[delKey]=staffIds;
+        this.setState({
+            ...this.state,
+            data:data
+        });
+    }
+
+    /**
+     * 获取全部人员的信息
+     */
+    staffs=()=>({...this.state.data});
+}
+export default Form.create<OrganizationStaffManagerProps>({name:"OrganizationStaffManager"})(OrganizationStaffManager);

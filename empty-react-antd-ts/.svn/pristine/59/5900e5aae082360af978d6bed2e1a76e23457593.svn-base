@@ -1,0 +1,555 @@
+import { RouteComponentProps } from "react-router";
+import { FormComponentProps } from "antd/lib/form";
+
+/**应用相关的数据结果 */
+
+/**url传递参数 */
+export interface UrlParameter{
+    id:string
+}
+
+/**登录用户信息*/
+export interface LoginUser{
+    token:string,
+    userId:string,
+    userName:string,
+    roleName:string,
+}
+/**登录状态及用户*/
+export interface LoginStatus{
+    isLogin:boolean
+    data?:LoginUser
+}
+
+/**申请的业务类型 */
+export class ApplyType{
+    static readonly RECORD=new ApplyType(0,"record");
+    static readonly LICENSE=new ApplyType(1,"license");
+    static create=(type:number)=>(type===0?ApplyType.RECORD:ApplyType.LICENSE);
+
+    readonly key:number;
+    readonly url:string;
+    constructor(key:number,url:string){
+        this.key=key;
+        this.url=url;
+    }
+}
+
+/**500错误页面路径 */
+export const PageError500="/public/error500";
+
+/**申请的执行步骤 */
+export class ApplyStep{
+    static readonly RECORD_COMMITMENT=new ApplyStep(0,"commitment",ApplyType.RECORD);
+    static readonly RECORD_ORGANIZATION=new ApplyStep(1,"organization",ApplyType.RECORD);
+    static readonly RECORD_STAFF=new ApplyStep(2,"staff",ApplyType.RECORD);
+    static readonly RECORD_RESULT=new ApplyStep(3,"result",ApplyType.RECORD);
+    static readonly LICENSE_COMMITMENT=new ApplyStep(0,"commitment",ApplyType.LICENSE);
+    static readonly LICENSE_ORGANIZATION=new ApplyStep(1,"organization",ApplyType.LICENSE);
+    static readonly LICENSE_MANAGER=new ApplyStep(2,"manager",ApplyType.LICENSE);
+    static readonly LICENSE_STAFF=new ApplyStep(3,"staff",ApplyType.LICENSE);
+    static readonly LICENSE_RESULT=new ApplyStep(4,"result",ApplyType.LICENSE);
+
+    step:number;
+    url:string;
+    type:ApplyType;
+    constructor(step:number,url:string,type:ApplyType){
+        this.step=step;
+        this.url=url;
+        this.type=type;
+    }
+    routePath=(serialNumber:string)=>`/public/${this.type.url}/step-${this.url}/${serialNumber}`;
+}
+
+/**申请的数据内容 */
+export interface ApplyContent{
+    applyNo:string,
+    applyDeadline?:string
+}
+/**申请是否存在返回的基础数据 */
+export interface ApplyContentExist{
+    exist:boolean,
+    commit:boolean,
+    applyType:number,
+    status:number,
+    effectiveDate:string
+}
+/**申请的设备信息 */
+export interface ApplyContentEquipment{
+    name:string,
+    type:number,
+    num:number
+}
+/**申请的机构信息 */
+export interface ApplyContentOrganization{
+    /**机构地址 */
+    address:string,
+    /**机构名称 */
+    name:string,
+    /**ID标识 */
+    id:string,
+    /**诊疗科目代码 */
+    diagnosisSubjectCode:string,
+    /**牙科诊椅数 */
+    chairsDentalNum:number,
+    /**观察床位数 */
+    observedBedNum:number,
+    /**注册资金 */
+    registeredCapital:number,
+    /**核定床位数 */
+    approvedBedNum:number,
+    /**社会统一信用代码 */
+    onlyCode:string,
+    /**机构外景图 */
+    orgOutImg:string,
+    /**消防资料 */
+    fire:string,
+    /**传真地址 */
+    fax:string,
+    /**备注1 */
+    remark:string,
+    /**所有制 */
+    ownership:string,
+    /**备注2 */
+    remark2:string,
+    /**建筑面积 */
+    structureArea:number,
+    /**管理制度 */
+    managerment:string,
+    /**环评资料 */
+    eia:string,
+    /**申请类型 */
+    applyType:number,
+    /**邮箱地址 */
+    email:string,
+    /**服务对象 */
+    serviceObj:string,
+    /**隶属关系 */
+    membership:string,
+    /**机构等次 */
+    grade:string,
+    /**业务用房面积 */
+    bizArea:number,
+    /**机构平面图 */
+    orgFlatImg:string,
+    /**机构告知承诺书 */
+    commitment:string,
+    /**流动资金 */
+    liquidity:number,
+    /**主管单位 */
+    managerUnit:string,
+    /**机构级别 */
+    level:string,
+    /**邮编 */
+    post:string,
+    /**电话号码 */
+    tel:string,
+    /**占地面积 */
+    ownArea:number,
+    /**投资总额 */
+    totalCapital:number,
+    /**固定资金 */
+    fixedCapital:number,
+    /**机构类别 */
+    orgType:number,
+    /**服务方式 */
+    serviceType:string,
+    /**所属街道 */
+    street:string,
+    /**中医诊疗范围 */
+    medicineScope:string,
+    /**中医诊疗技术和方案 */
+    medicineTechnology:string,
+    /**诊疗范围名称 */
+    diagnosisSubjectName:string,
+    /**营业执照 */
+    businessLicense:string,
+    /**经营性质 */
+    natureOperation:string,
+    /**医废协议 */
+    medicalWasteAgreement:string,
+    /**有效时间 */
+    effectiveTimeStr:string,
+    /**有效时间 */
+    effictiveStartTime:string,
+    /**电子证编号 */
+    eCertNo:string,
+    /**下载地址 */
+    eCert:string,
+    /**下个校验日 */
+    nextValidDate:string,
+    /**设备清单 */
+    equipments:Array<ApplyContentEquipment>,
+    /**申请专贴 */
+    applyStatus:number,
+}
+/**人员履历 */
+export interface ApplyContentManagerResume{
+    time:string,
+    unit:string,
+    position:string
+}
+/**管理人员信息 */
+export interface ApplyContentManager{
+    /**姓名 */
+    name:string,
+    /**人员ID */
+    id:number,
+    /**类型：1法人，2负责人、3联系人 */
+    type:number,
+    /** */
+    signature:string,
+    /**年龄 */
+    age:number,
+    /**生日 */
+    birthday:string,
+    /**民族 */
+    nation:string,
+    /**身份证号 */
+    idcard:string,
+    /**身份证图片 */
+    idcardImg:string,
+    /**籍贯 */
+    nativePlace:string,
+    /**政治面貌 */
+    political:string,
+    /**职务 */
+    position:string,
+    /**工作单位 */
+    job:string,
+    /**工作单位电话 */
+    jobPhone:string,
+    /**家庭住址 */
+    homeAddress:string,
+    /**职称 */
+    title:string,
+    /**寸照存放地址 */
+    img:string,
+    /**家庭电话 */
+    homePhone:string,
+    /**曾用名 */
+    oldName:string,
+    /**手机号码 */
+    phone:string,
+    /**专业 */
+    specialty:string,
+    /**邮箱地址 */
+    email:string,
+    /**申请单号 */
+    orgCode:string,
+    /**文化程度 */
+    education:string,
+    /**性别 */
+    sex:string,
+    /**微信号 */
+    wechat:string,
+    /**QQ号码 */
+    qq:string,
+    /**人员履历 */
+    personalResumes:Array<ApplyContentManagerResume>,
+    /**执业证书图片 */
+    practiceImg:string,
+    /**执业证书编号 */
+    practiceCode:string,
+}
+/**
+ * 管理人员创建工厂类
+ */
+export class ApplyContentManagerFactory{
+    /**
+     * 创建指定类型的管理人员信息
+     * @param serialNumber 申请单号
+     * @param type 类型
+     */
+    static create=(serialNumber:string,type:number):ApplyContentManager=>{
+        return {
+            name:"",
+            id:0,
+            type:type,
+            signature:"",
+            age:0,
+            birthday:"",
+            nation:"",
+            idcard:"",
+            idcardImg:"",
+            nativePlace:"",
+            political:"",
+            position:"",
+            job:"",
+            jobPhone:"",
+            homeAddress:"",
+            title:"",
+            img:"",
+            homePhone:"",
+            oldName:"",
+            phone:"",
+            specialty:"",
+            email:"",
+            orgCode:serialNumber,
+            education:"",
+            sex:"",
+            wechat:"",
+            qq:"",
+            personalResumes:[],
+            practiceImg:"",
+            practiceCode:"",
+        };
+    };
+}
+/**人员信息 */
+export interface ApplyContentDoctorOrNurse{
+    /**姓名 */
+    name:string,
+    /**人员ID */
+    id:number,
+    /**类型：1医师，2护士*/
+    type:number,
+    /**申请单号 */
+    orgCode:string,
+    /**身份证号 */
+    idcard:string,
+    /**学历 */
+    education:string,
+    /**职务 */
+    position:string,
+    /**出生日期 */
+    birthday:string,
+    /**职称 */
+    title:string,
+    /**寸照 */
+    img:string,
+    /**sex */
+    sex:string,
+    /**身份证正反 */
+    idcardImg:string,
+    /**执业证编码 */
+    practiceCode:string,
+    /**执业证图片 */
+    practiceImg:string,
+    /**资格证图片 */
+    qualificationCertImg:string,
+    /**职称证图片 */
+    titleCertImg:string,
+    /**所属科室 */
+    dept:string,
+    /**毕业院校 */
+    school:string,
+}
+/**
+ * 管理人员创建工厂类
+ */
+export class ApplyContentDoctorOrNurseFactory{
+    /**
+     * 创建指定类型的管理人员信息
+     * @param serialNumber 申请单号
+     * @param type 类型
+     */
+    static create=(serialNumber:string):ApplyContentDoctorOrNurse=>{
+        return {
+            "name":"",
+            "id":0,
+            "type":1,
+            "orgCode":serialNumber,
+            "idcard":"",
+            "education":"",
+            "position":"",
+            "birthday":"",
+            "title":"",
+            "img":"",
+            "sex":"",
+            "idcardImg":"",
+            "practiceCode":"",
+            "practiceImg":"",
+            "qualificationCertImg":"",
+            "titleCertImg":"",
+            "dept":"",
+            "school":""
+        };
+    };
+}
+/**人员信息：医技人员 */
+export interface ApplyContentStaffTech{
+    /**姓名 */
+    name:string,
+    /**人员ID */
+    id:number,
+    /**申请单号 */
+    orgCode:string,
+    /**身份证号 */
+    idcard:string,
+    /**学历 */
+    education:string,
+    /**职务 */
+    position:string,
+    /**出生日期 */
+    birthday:string,
+    /**职称 */
+    title:string,
+    /**寸照 */
+    img:string,
+    /**sex */
+    sex:string,
+    /**身份证正反 */
+    idcardImg:string,
+    /**资格证编码 */
+    qualificationCode:string,
+    /**资格证图片 */
+    qualificationImg:string,
+    /**所属科室 */
+    dept:string,
+    /**毕业院校 */
+    school:string,
+}
+/**
+ * 医技人员创建工厂类
+ */
+export class ApplyContentStaffTechFactory{
+    /**
+     * 创建指定类型的人员信息
+     * @param serialNumber 申请单号
+     * @param type 类型
+     */
+    static create=(serialNumber:string):ApplyContentStaffTech=>{
+        return {
+            "name":"",
+            "id":0,
+            "orgCode":serialNumber,
+            "idcard":"",
+            "education":"",
+            "position":"",
+            "birthday":"",
+            "title":"",
+            "img":"",
+            "sex":"",
+            "idcardImg":"",
+            "qualificationCode":"",
+            "qualificationImg":"",
+            "dept":"",
+            "school":""
+        };
+    };
+}
+/**人员信息：其他人员 */
+export interface ApplyContentStaffOther{
+    /**姓名 */
+    name:string,
+    /**人员ID */
+    id:number,
+    /**申请单号 */
+    orgCode:string,
+    /**身份证号 */
+    idcard:string,
+    /**学历 */
+    education:string,
+    /**职务 */
+    position:string,
+    /**出生日期 */
+    birthday:string,
+    /**职称 */
+    title:string,
+    /**寸照 */
+    img:string,
+    /**sex */
+    sex:string,
+    /**身份证正反 */
+    idcardImg:string,
+    /**资格证编码 */
+    qualificationCode:string,
+    /**资格证图片 */
+    qualificationImg:string,
+    /**所属科室 */
+    dept:string,
+    /**毕业院校 */
+    school:string,
+}
+/**
+ * 其他人员创建工厂类
+ */
+export class ApplyContentStaffOtherFactory{
+    /**
+     * 创建指定类型的人员信息
+     * @param serialNumber 申请单号
+     * @param type 类型
+     */
+    static create=(serialNumber:string):ApplyContentStaffOther=>{
+        return {
+            "name":"",
+            "id":0,
+            "orgCode":serialNumber,
+            "idcard":"",
+            "education":"",
+            "position":"",
+            "birthday":"",
+            "title":"",
+            "img":"",
+            "sex":"",
+            "idcardImg":"",
+            "qualificationCode":"",
+            "qualificationImg":"",
+            "dept":"",
+            "school":""
+        };
+    };
+}
+/**机构信息返回内容集合 */
+export interface ApplyDetailGroup{
+    /**机构信息 */
+    orgInfo:ApplyContentOrganization,
+    /**设备清单 */
+    equipment:Array<ApplyContentEquipment>,
+    /**管理人员 */
+    managerPerson:Array<ApplyContentManager>
+}
+
+/**审核意见内容 */
+export interface ApplyInspectContent{
+    status:number,
+    opinion:string,
+}
+/**申请编辑缓存信息 */
+export interface ApplyEditInfor{
+    serialNumber:string,
+    step:ApplyStep,
+    data?:ApplyContent
+}
+/**顶部提示信息传递属性 */
+export interface ApplyHeaderProps{
+    serialNumber:string,
+    deadline:string
+}
+/**组件属性通用传递对象：包括路由、antd表单及其他属性 */
+export type AppComponentProps=RouteComponentProps<UrlParameter>&FormComponentProps;
+/**申请内容传递对象 */
+export type AppApplyContentProps={
+    organization?:ApplyContentOrganization
+};
+
+/**验证返回结果 */
+export interface FormValidateResult<T>{
+    hasError:boolean,
+    message:string,
+    data:T|null
+}
+
+/**职务职称的标签 */
+export class ApplyJobAndTitleTag{
+    static typeValueOf=(value:string)=>value==="706"?2:1;
+    static readonly DOCTOR_AND_NURSE=new ApplyJobAndTitleTag(["doctor","nurse"]);
+    static readonly TECH=new ApplyJobAndTitleTag(["tech"]);
+    static readonly OTHER=new ApplyJobAndTitleTag(["other"]);
+
+    readonly tags:Array<string>;
+    constructor(tags:Array<string>){
+        this.tags=tags;
+    }
+}
+
+/**申请状态返回 */
+export interface ApplyStatus{
+    orgName:string,
+    applyValidDate:string,
+    refuse:string,
+    eCert:string,
+    status:number,
+    createTime:string
+}

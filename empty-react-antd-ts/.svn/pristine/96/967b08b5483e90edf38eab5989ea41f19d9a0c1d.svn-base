@@ -1,0 +1,173 @@
+import React from 'react';
+import {Col,Typography,Form,Upload,Button,Icon, Modal} from 'antd';
+import {AppApplyContentProps } from '../app/Model';
+import { UploadProps } from 'antd/lib/upload';
+import { UploadFile } from 'antd/lib/upload/interface';
+import ImageViewer from './ImageViewer';
+import { HttpRequest } from '../app/Request';
+import ApplyUtils from '../utils/ApplyUtils';
+
+type CommitProps=AppApplyContentProps&{
+    serialNumber:string,
+    onUploadCompleted(url:string):void;
+};
+
+/**
+ * 申请公用表单：承诺书
+ */
+export default class ApplyFormCommitment extends React.Component<CommitProps>{
+    state:{
+        fileList:Array<UploadFile>,
+        uploadSuccess:boolean
+    }={
+        fileList:ApplyUtils.urlStringToUploadArray(
+            [],this.props.organization?this.props.organization.commitment:""
+        ),
+        uploadSuccess:true,
+    }
+
+    /**
+     * 上传组件配置
+     */
+    private readonly uploadConfig:UploadProps={
+        accept:".jpg,.png",
+        listType:"picture-card",
+        className:"avatar-uploader",
+        showUploadList:true,
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {fileList}=this.state;
+        const uploadButton=(
+            <div>
+                <Icon type="plus" />
+                <div className="ant-upload-text">上传</div>
+            </div>
+        );
+        return (
+            <section>
+                <Col span={10} offset={7} className="section-prompt">
+                    <Typography.Paragraph ellipsis={{ rows: 3, expandable: true }}>
+                        <b>说明</b>：下载《告知通知书》模板，填写承诺书内容后加盖公章并扫描为扫描
+                        件，点击上传将《告知通知书》扫描件上传到系统中，上传成功后，会自动进入下一步。
+                    </Typography.Paragraph>
+                </Col>
+
+                <Col span={10} offset={7} className="section-prompt">
+                    <Form labelCol={{span:8}} wrapperCol={{span:16}}>
+                        <Form.Item label="下载模板">
+                            <Button icon="download" onClick={this.downloadTemplate}>
+                                下载《告知通知书》模板
+                            </Button>
+                        </Form.Item>
+                        <Form.Item 
+                            label="上传扫描件" 
+                            validateStatus={this.state.uploadSuccess?"":"error"}
+                            help={this.state.uploadSuccess?"支持扩展名：.jpg .png":"图片上传失败！"}
+                        >
+                            <Col span={8}>
+                                <Upload
+                                    {...this.uploadConfig}
+                                    name="commitment"
+                                    fileList={this.state.fileList}
+                                    onPreview={this.previewCommitment}
+                                    onRemove={this.removeCommitment}
+                                    multiple
+                                    customRequest={this.uploadCommitment}
+                                >
+                                    {fileList.length>0?null:uploadButton}
+                                </Upload>
+                            </Col>
+                            <Col span={8} offset={1}>
+                                <Button type="dashed" style={{height:102,width:102}}>
+                                    <Icon type="file-image" style={{fontSize:32}} />
+                                    <br/>
+                                    <span>示例图</span><Icon type="zoom-in" />
+                                </Button>
+                            </Col>
+                        </Form.Item>
+                    </Form>
+                </Col>
+            </section>
+        );
+    }
+
+    /**
+     * 下载《告知通知书模板》
+     */
+    downloadTemplate=()=>{
+        window.open("https://www.baidu.com/s?wd=告知通知书模板");
+    }
+
+    /**
+     * 上传告知承诺书文件
+     */
+    uploadCommitment=async (fileObject:object)=>{
+        const option=fileObject as {file:File};
+        const uploadResponse=await (new HttpRequest())
+            .upload<{url:string},{applyNo:string}>
+            (
+                `webapi/comm/uploadFile`,
+                option.file,
+                "file",
+                {applyNo:this.props.serialNumber}
+            );
+        
+        if(!uploadResponse.success||!uploadResponse.data){
+            this.setState({
+                ...this.state,
+                uploadSuccess:false
+            });
+            return;
+        }
+
+        const {fileList}=this.state;
+        fileList.push({
+            uid:"1",
+            name:"commitment.jpg",
+            size:0,
+            type:"",
+            url:uploadResponse.data.url
+        });
+        this.setState({
+            ...this.state,
+            uploadSuccess:true,
+            fileList:fileList
+        });
+        this.props.onUploadCompleted(uploadResponse.data.url);
+    }
+
+    /**
+     * 预览承诺书图片
+     */
+    previewCommitment=(uploadFile:UploadFile)=>{
+        const img=document.querySelector<HTMLImageElement>(".ant-upload-list-item-image");
+        if(img){
+            ImageViewer.view([img],0);
+        }
+    }
+
+    /**
+     * 删除上传的承诺书图片
+     */
+    removeCommitment=(file:UploadFile)=>{
+        const {confirm}=Modal;
+        const {fileList}=this.state;
+        confirm({
+            title: '确定要删除当前上传的图片么？',
+            okText: '继续删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk:()=>{
+                fileList.splice(fileList.findIndex(item=>item.uid===file.uid),1);
+                this.setState({
+                    ...this.state,
+                    fileList:fileList
+                });
+            },
+        });
+    }
+}

@@ -1,0 +1,169 @@
+import {createHashHistory} from 'history';
+import { DataCache } from './DataCache';
+
+/**请求方式 */
+enum Method{
+    GET="GET",HEAD="HEAD",
+    POST="POST",PUT="PUT",PATCH="PATCH",
+    DELETE="DELETE"
+}
+
+/**数据格式类型 */
+enum ContentType{
+    JSON="application/json;charset=UTF-8",
+    Form="application/x-www-form-urlencoded; charset=UTF-8",
+    Multipart="multipart/form-data; charset=utf-8; boundary=__X_YZWJ_BOUNDARY__",
+    File="application/octet-stream"
+}
+
+/**
+ * 服务器返回的内容
+ */
+interface ServerResponse<R>{
+    code:number,
+    data?:R,
+    msg:string
+}
+
+/**
+ * 定义接口返回类型
+ */
+export interface HttpResponse<R>{
+    success:boolean,
+    data?:R,
+    message?:string
+}
+
+/**
+ * Http请求
+ */
+export class HttpRequest{
+    /**
+     * 发送GET请求
+     * @param url 链接地址
+     * @param parameters 传递参数
+     */
+    get<R>(url: string): Promise<HttpResponse<R>> {
+        url=this.fullUrl(url);
+        const option:RequestInit=this.defualtOption(url);
+        const {token}=DataCache.instance.token();
+
+        option.method=Method.GET;
+        if(token){
+            const headers=new Headers();
+            headers.set("Authorization",token);
+        }
+        return fetch(url,option)
+                .then<ServerResponse<R>>(this.transform)
+                .then<HttpResponse<R>>(this.responseData)
+                .catch<HttpResponse<R>>(this.errorResponse);
+    } 
+    
+    /**
+     * 发送POST请求
+     * @param url 链接地址
+     * @param data 传递数据
+     */
+    post<R, P = {}>(url: string, data?: P): Promise<HttpResponse<R>> {
+        url=this.fullUrl(url);
+        const option:RequestInit=this.defualtOption(url);
+        const {token}=DataCache.instance.token();
+
+        option.method=Method.POST;
+        const headers=new Headers({
+            "Content-Type":ContentType.JSON
+        });
+        if(token){
+            headers.set("Authorization",token);
+        }
+        option.headers=headers;
+        option.body=JSON.stringify(data);
+
+        return fetch(url,option)
+                .then<ServerResponse<R>>(this.transform)
+                .then<HttpResponse<R>>(this.responseData)
+                .catch<HttpResponse<R>>(this.errorResponse);
+    }
+
+    /**
+     * 上传文件或图片处理
+     * @param url 链接地址
+     * @param data 传递数据
+     */
+    upload<R, P = {}>(url: string, data?: P): Promise<R> {
+        throw new Error("Method not implemented.");
+    }
+
+    /**
+     * 生成请求的Option设置
+     * @param url 链接地址,判断是否HTTPS
+     */
+    private defualtOption(url:string):RequestInit{
+        return {
+            cache:"no-cache",
+            credentials:(url.startsWith("https:")?"include":"omit"),
+            mode:"cors",
+            redirect: "follow",
+            referrerPolicy: "no-referrer"
+        };
+    }
+
+    /**
+     * 获取完整的链接地址（不以http开头，使用全局服务地址补全）
+     * @param url 链接地址
+     */
+    private fullUrl(url:string){
+        return (!url
+                ||url.startsWith("http:")
+                ||url.startsWith("https:"))
+                    ?url
+                    :(process.env.REACT_APP_SERVER_DOMAIN+url);
+    }
+
+    /**
+     * 判断网络状态码，进行错误跳转
+     * @param response 请求返回内容
+     */
+    private transform<R>(response:Response):Promise<ServerResponse<R>>{
+        //网络状态错误
+        if(!response.ok){
+            const history = createHashHistory();
+            switch(response.status){
+                case 404:
+                    history.push("/public/rror404");
+                    break;
+                case 403:
+                    history.push("/public/error403");
+                    break;
+                case 500:
+                default:
+                    history.push("/public/error500");
+            }
+            throw new Error(`出现网络错误！状态码:${response.status},错误内容：${response.statusText}.`);
+        }
+        return response.json();
+    }
+
+    /**
+     * 解析服务端返回的Json内容，并生成Web端通用的处理对象
+     * @param response 
+     */
+    private responseData<R>(response:ServerResponse<R>):Promise<HttpResponse<R>>{
+        return new Promise<HttpResponse<R>>((resolve, reject)=>resolve({
+            success:response.code===0,
+            data:response.data,
+            message:response.msg
+        }));
+    }
+
+    /**
+     * 返回错误信息
+     * @param error 错误
+     */
+    private errorResponse<R>(error:Error):Promise<HttpResponse<R>>{
+        return new Promise<HttpResponse<R>>((resolve, reject)=>reject({
+            success:false,
+            message:error.message
+        }));
+    }
+}

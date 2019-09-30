@@ -1,0 +1,72 @@
+/**
+ * 申请流程中相关的通用组件：顶部，包括提示信息，步骤条
+ */
+import React from 'react';
+import {Icon,Steps} from 'antd';
+
+import {RecordApply, RecordStep} from '../models/Record'
+
+/**
+ * 申请顶部组件：提示信息
+ */
+export class ApplySectionPrompt extends React.Component<RecordApply>{
+    constructor(props:RecordApply){
+        super(props);
+    }
+    
+    render(){
+        return (
+            <section className="title-prompt-center">
+                <h4>申请单号：{this.props.applyNo}，本申请单有效期到{this.props.applyDeadline}。</h4>
+                <h5><Icon type="info-circle" />请牢记你的申请单号，以备继续填写资料！</h5>
+            </section>
+        );
+    }
+}
+
+/**
+ * 申请顶部组件：备案步骤条
+ */
+export class ApplySectionRecordStep extends React.Component<RecordStep>{
+    constructor(props:RecordStep){
+        super(props);
+    }
+
+    render(){
+        const {Step}=Steps;
+        return (
+            <section className="section-step">
+                <Steps current={this.props.step}>
+                    <Step title="承诺书" description="下载、填写后并上传《告知承诺书》。" />
+                    <Step title="机构信息" description="填写机构的基本信息。" />
+                    <Step title="管理人员" description="填写机构的管理人员信息。" />
+                    <Step title="审核结果" description="查看审核状态，并进行后续处理。" />
+                </Steps>
+            </section>
+        );
+    }
+}
+
+/**
+ * 申请顶部组件：许可步骤条
+ */
+export class ApplySectionLicenseStep extends React.Component<RecordStep>{
+    constructor(props:RecordStep){
+        super(props);
+    }
+
+    render(){
+        const {Step}=Steps;
+        return (
+            <section className="section-step">
+                <Steps current={this.props.step}>
+                    <Step title="承诺书" description="下载、填写后并上传《告知承诺书》。" />
+                    <Step title="机构信息" description="填写机构的基本信息。" />
+                    <Step title="管理人员" description="填写机构的管理人员信息。" />
+                    <Step title="医护人员" description="填写机构的医护人员信息。" />
+                    <Step title="审核结果" description="查看审核状态，并进行后续处理。" />
+                </Steps>
+            </section>
+        );
+    }
+}

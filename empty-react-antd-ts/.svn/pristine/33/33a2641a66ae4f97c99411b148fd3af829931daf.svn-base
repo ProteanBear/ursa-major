@@ -1,0 +1,81 @@
+import React from 'react';
+import {HashRouter as Router,Route} from 'react-router-dom';
+
+import PageLogin from '../pages/Login';
+import {Error404,Error403,Error500} from '../pages/public/Error';
+import PagePublicSwitch from '../pages/public/Switch';
+import RecordCommitment from '../pages/public/RecordCommitment';
+import LicenseCommitment from '../pages/public/LicenseCommitment';
+import RecordOrganization from '../pages/public/RecordOrganization';
+import RecordStaff from '../pages/public/RecordStaff';
+import RecordResult from '../pages/public/RecordResult';
+import LicenseOrganization from '../pages/public/LicenseOrganization';
+import LicenseManager from '../pages/public/LicenseManager';
+import LicenseStaff from '../pages/public/LicenseStaff';
+import LicenseResult from '../pages/public/LicenseResult';
+import PageOrganization from '../pages/protected/Organization';
+
+/**
+ * 子集路由：非登录组
+ */
+class AppRouterGroupPublic extends React.Component{
+    render(){
+        return (
+            <Router>
+                {/* 非登录组：业务类型选择 */}
+                <Route path="/public/switch" component={PagePublicSwitch} />
+                {/* 执业申请：备案流程 */}
+                <Route path="/public/record/step-commitment/:id" component={RecordCommitment} />
+                <Route path="/public/record/step-organization/:id" component={RecordOrganization} />
+                <Route path="/public/record/step-staff/:id" component={RecordStaff} />
+                <Route path="/public/record/step-result/:id" component={RecordResult} />
+                {/* 执业申请：许可流程 */}
+                <Route path="/public/license/step-commitment/:id" component={LicenseCommitment} />
+                <Route path="/public/license/step-organization/:id" component={LicenseOrganization} />
+                <Route path="/public/license/step-manager/:id" component={LicenseManager} />
+                <Route path="/public/license/step-staff/:id" component={LicenseStaff} />
+                <Route path="/public/license/step-result/:id" component={LicenseResult} />
+                {/* 错误页面 */}
+                <Route path="/public/error404" component={Error404} />
+                <Route path="/public/error403" component={Error403} />
+                <Route path="/public/error500" component={Error500} />
+                {/* 非登录组：默认页 */}
+                <Route exact path="/public" component={PagePublicSwitch} />
+            </Router>
+        );
+    }
+}
+
+/**
+ * 子集路由：登录组
+ */
+class AppRouterGroupProtected extends React.Component{
+    render(){
+        return (
+            <Router>
+                {/* 机构信息首页 */}
+                <Route path="/protected/organization" component={PageOrganization} />
+            </Router>
+        );
+    }
+}
+
+/**
+ * 顶层路由：登录、非登录组、需登录组
+ */
+export default class AppRouter extends React.Component{
+    render(){
+        return (
+            <Router>
+                {/* 登录页 */}
+                <Route path="/login" component={PageLogin} />
+                {/* 非登录组：即执业申请、错误页等 */}
+                <Route path="/public" component={AppRouterGroupPublic} />
+                {/* 登录组：机构信息维护、项目维护等 */}
+                <Route path="/protected" component={AppRouterGroupProtected} />
+                {/* 首页：默认进入登录页 */}
+                <Route exact path="/" component={PageLogin} />
+            </Router>
+        );
+    }
+}

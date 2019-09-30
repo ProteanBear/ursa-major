@@ -1,0 +1,212 @@
+import React from 'react';
+import { Form, Col, Input, Radio, DatePicker, Select, Cascader, Upload, Icon, Row, Button } from 'antd';
+import { FormComponentProps } from 'antd/lib/form';
+import { DictionaryLoader, DictionaryData } from '../app/DictionaryLoader';
+import ApplyFormResume from './ApplyFormResume';
+
+/**
+ * 申请公用表单：法人相关信息
+ */
+class ApplyFormLegal extends React.Component<FormComponentProps>{
+    render(){
+        const {getFieldDecorator} = this.props.form;
+        const {Option}=Select;
+        const education=DictionaryLoader.instance.education();
+        const job=DictionaryLoader.instance.job();
+
+        return (
+            <Form layout="vertical">
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="姓名">{
+                            getFieldDecorator("legal.name",{
+                                rules:[
+                                    {required:true}
+                                ]
+                            })(<Input placeholder="请输入"/>)}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="性别">
+                            <Radio.Group value={1}>
+                                <Radio value={1}>男</Radio>
+                                <Radio value={2}>女</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="出生年月">{
+                            getFieldDecorator("legal.birthday",{
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(<DatePicker placeholder="请选择日期" />)}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="学历">{
+                            getFieldDecorator("legal.education",{
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(
+                                <Select showSearch
+                                    placeholder="请选择"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option:React.ReactElement) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+                                >
+                                    {education.map((data:DictionaryData,index:number)=>{
+                                        return (<Option key={data.value}>{data.label}</Option>);
+                                    })}
+                                </Select>
+                            )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="毕业专业" help="限125字以内">{
+                            getFieldDecorator("legal.profession",{
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(<Input placeholder="请输入"/>)}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item label="职务职称">{
+                            getFieldDecorator("legal.job",{
+                                rules:[
+                                    {required:false}
+                                ]
+                            })(<Cascader options={job} placeholder="请选择" />)}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item label="身份证号">{
+                            getFieldDecorator("legal.identity",{
+                                rules:[
+                                    {required:true}
+                                ]
+                            })(<Input placeholder="请输入"/>)}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={8}>
+                        <Form.Item
+                            label="签字表" help="支持扩展名：.jpg .png">{
+                                getFieldDecorator("legal.signature",{
+                                    rules:[
+                                        {required:true}
+                                    ]
+                                })(
+                                    <Row>
+                                        <Col span={8}>
+                                            <Upload
+                                                name="legal.signature"
+                                                listType="picture-card"
+                                                className="avatar-uploader"
+                                                showUploadList={false}
+
+                                            >
+                                                <div>
+                                                    <Icon type="plus" />
+                                                    <div className="ant-upload-text">上传</div>
+                                                </div>
+                                            </Upload>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Button type="dashed" style={{width:102,height:102}}>
+                                                <Icon type="download" /><br/>
+                                                签字表模板
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item
+                            label="身份证正面" help="支持扩展名：.jpg .png">{
+                                getFieldDecorator("legal.identity.front",{
+                                    rules:[
+                                        {required:true}
+                                    ]
+                                })(
+                                    <Row>
+                                        <Col span={8}>
+                                            <Upload
+                                                name="legal.identity.front"
+                                                listType="picture-card"
+                                                className="avatar-uploader"
+                                                showUploadList={false}
+                                            >
+                                                <div>
+                                                    <Icon type="plus" />
+                                                    <div className="ant-upload-text">上传</div>
+                                                </div>
+                                            </Upload>
+                                        </Col>
+                                        <Col span={8} offset={1}>
+                                            <Button type="dashed" style={{height:102,width:102}}>
+                                                <Icon type="file-image" style={{fontSize:32}} />
+                                                <br/>
+                                                <span>示例图</span><Icon type="zoom-in" />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                )}
+                        </Form.Item>
+                    </Col>
+                    <Col span={7} offset={1}>
+                        <Form.Item
+                            label="身份证背面" help="支持扩展名：.jpg .png">{
+                                getFieldDecorator("legal.identity.back",{
+                                    rules:[
+                                        {required:true}
+                                    ]
+                                })(
+                                    <Row>
+                                        <Col span={8}>
+                                            <Upload
+                                                name="legal.identity.back"
+                                                listType="picture-card"
+                                                className="avatar-uploader"
+                                                showUploadList={false}
+
+                                            >
+                                                <div>
+                                                    <Icon type="plus" />
+                                                    <div className="ant-upload-text">上传</div>
+                                                </div>
+                                            </Upload>
+                                        </Col>
+                                        <Col span={8} offset={1}>
+                                            <Button type="dashed" style={{height:102,width:102}}>
+                                                <Icon type="file-image" style={{fontSize:32}} />
+                                                <br/>
+                                                <span>示例图</span><Icon type="zoom-in" />
+                                            </Button>
+                                        </Col>
+                                    </Row>
+                                )}
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={24}>
+                        <Form.Item label="工作履历">
+                            <ApplyFormResume />
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        );
+    }
+}
+export default Form.create({name:"applyFormLegal"})(ApplyFormLegal);

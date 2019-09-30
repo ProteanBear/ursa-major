@@ -1,0 +1,22 @@
+/**
+ * 链接地址工具
+ */
+export default class ResourceUtils{
+    /**
+     * 获取指定资源的全链接地址
+     * @param fileName 
+     */
+    static resource(fileName:string):string{
+        return fileName.startsWith("http")
+                ?fileName
+                :(process.env.REACT_APP_SERVER_RESOURCE_ROOT+fileName);
+    }
+
+    /**
+     * 下载资源文件
+     * @param url 
+     */
+    static download(url:string){
+        window.open(this.resource(url));
+    }
+}

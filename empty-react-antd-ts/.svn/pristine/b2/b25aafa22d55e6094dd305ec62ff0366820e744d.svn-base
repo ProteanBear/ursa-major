@@ -1,0 +1,140 @@
+import React from 'react';
+import Container from '../../components/Container';
+import { Breadcrumb,Icon,Typography, Button, Divider,Col,Form,message} from 'antd';
+import { Link, withRouter } from 'react-router-dom';
+import { ApplySectionPrompt, ApplySectionRecordStep } from '../../components/ApplyHeader';
+import ApplyFormCommitment  from '../../components/ApplyFormCommitment';
+import { ApplyStep, AppComponentProps, ApplyContentOrganization, PageError500} from '../../app/Model';
+import { HttpResponse, HttpRequest } from '../../app/Request';
+import InteractionUtils from '../../utils/InteractionUtils';
+
+/**
+ * 备案流程：第一步，承诺书
+ */
+class RecordCommitment extends React.Component<AppComponentProps>{
+    readonly state:{
+        /**申请单号 */
+        serialNumber:string;
+        /**保存按钮是否请求中 */
+        loading:boolean;
+        /**申请内容 */
+        data?:ApplyContentOrganization
+    }={
+        serialNumber:this.props.match.params.id,
+        loading:false
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Title}=Typography;
+
+        //未载入数据时
+        if(!this.state.data){
+            return (
+                <Container></Container>
+            );
+        }
+
+        //载入数据成功后
+        return (
+            <Container>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>备案</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4} className="title-with-underline">备案申请</Title>
+
+                {/* 顶部 */}
+                <ApplySectionPrompt serialNumber={this.state.serialNumber} 
+                    deadline={this.state.data.effectiveTime} />
+                <ApplySectionRecordStep {...ApplyStep.RECORD_COMMITMENT} />
+                <Divider><span className="title-inner">第一步：承诺书</span></Divider>
+
+                {/* 表单 */}
+                <ApplyFormCommitment 
+                    serialNumber={this.state.serialNumber} 
+                    organization={this.state.data} 
+                    onUploadCompleted={this.uploadCompleted}
+                />
+
+                {/* 按钮 */}
+                <Col span={24} className="section-buttons">
+                    <Button type="primary" 
+                        loading={this.state.loading}
+                        disabled={""===this.state.data.commitment}
+                        onClick={this.saveCommitmentAndNext}
+                        >
+                        保存并进入下一步
+                    </Button>
+                </Col>
+            </Container>
+        );
+    }
+
+    /**
+     * 组件完成后请求获取申请信息
+     */
+    async componentDidMount(){
+        message.loading("正在获取申请内容...",0);
+
+        const applyContent:HttpResponse<ApplyContentOrganization>=
+            await ((new HttpRequest()).get<ApplyContentOrganization>(
+                `webapi/apply/getRecordInfo?applyNo=${this.state.serialNumber}`
+            ));
+        message.destroy();
+
+        if(!applyContent.success){
+            this.props.history.push(PageError500);
+        }
+
+        this.setState({
+            ...this.state,
+            data:applyContent.data
+        });
+    }
+
+    /**
+     * 告知承诺书上传完成
+     */
+    uploadCompleted=(url:string)=>{
+        this.setState({
+            ...this.state,
+            data:{
+                ...this.state.data,
+                commitment:url
+            }
+        });
+
+        // 上传完成后自动保存进入下一步
+        this.saveCommitmentAndNext();
+    }
+
+    /**
+     * 保存后并进入下一步
+     */
+    saveCommitmentAndNext=async ()=>{
+        if(!this.state.data) return;
+        this.setState({...this.state,loading:true});
+
+        const saveResponse:HttpResponse<any>=
+            await ((new HttpRequest()).post<any,{applyNo:string,commitment:string}>(
+                "webapi/apply/saveCommitment",
+                {
+                    applyNo:this.state.serialNumber,
+                    commitment:this.state.data.commitment
+                }
+            ));
+
+        if(!saveResponse.success){
+            this.props.history.push(PageError500);
+        }
+
+        this.setState({...this.state,loading:false});
+        InteractionUtils.scrollToTop();
+        this.props.history.push(ApplyStep.RECORD_ORGANIZATION.routePath(this.state.serialNumber));
+    }
+}
+export default withRouter((Form.create({name:"pageRecordCommitment"})(RecordCommitment) as any));

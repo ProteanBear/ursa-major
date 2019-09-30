@@ -1,0 +1,308 @@
+import React, { ChangeEvent, KeyboardEvent } from 'react';
+import { RouteComponentProps,Link, withRouter } from 'react-router-dom';
+import { UrlParameter, LoginUser } from '../app/Model';
+import { Form, Input, Checkbox, Button, Icon, Tooltip } from 'antd';
+import { LoginChecker } from '../app/LoginChecker';
+import { DataCache, CacheMode } from '../app/DataCache';
+import { HttpRequest } from '../app/Request';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+
+type LoginForAccountProps=RouteComponentProps<UrlParameter>&{
+
+}
+
+/**
+ * 用户登录：使用机构账号登录表单
+ */
+class LoginForAccount extends React.Component<LoginForAccountProps>{
+    readonly state:{
+        /**图片信息载入中 */
+        loading:boolean;
+        /**登录请求中 */
+        requesting:boolean;
+        /**图形验证码内容 */
+        imageBase64:string|undefined;
+        /**登录请求数据 */
+        data:{
+            [key:string]:string,
+        };
+        /**验证码图片载入错误 */
+        loadError:boolean;
+        /**请求出错 */
+        requestError:boolean;
+        /**是否自动登录 */
+        autoLogin:boolean;
+        /**验证码错误 */
+        codeError:boolean;
+    }={
+        loading:true,
+        requesting:false,
+        imageBase64:undefined,
+        data:{
+            username:"",
+            password:"",
+            imgToken:"",
+            imgCode:""
+        },
+        loadError:false,
+        requestError:false,
+        autoLogin:true,
+        codeError:false,
+    }
+
+    /**
+     * 登录检查器
+     */
+    private loginChecker=new LoginChecker();
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const iconStyle={ color: 'rgba(0,0,0,.25)' }
+        const {username,password,imgCode}=this.state.data;
+
+        return (
+            <Form>
+                <Form.Item hasFeedback
+                    validateStatus={this.state.requestError?"error":undefined}
+                    help={this.state.requestError?"登录失败，用户名或密码错误！":undefined}
+                >
+                    <Input disabled={this.state.requesting}
+                        prefix={<Icon type="user" style={iconStyle} />}
+                        placeholder="机构账户" 
+                        value={username}
+                        onChange={(event:ChangeEvent<HTMLInputElement>)=>
+                            this.inputOnChange(event.target.value,"username")}
+                        onFocus={this.inputOnFocus}
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Input.Password disabled={this.state.requesting}
+                        prefix={<Icon type="lock" style={iconStyle} />}
+                        placeholder="登录密码" 
+                        value={password}
+                        onChange={(event:ChangeEvent<HTMLInputElement>)=>
+                            this.inputOnChange(event.target.value,"password")}
+                        onFocus={this.inputOnFocus}
+                    />
+                </Form.Item>
+                <Form.Item hasFeedback
+                    validateStatus={this.state.codeError?"error":undefined}
+                    help={this.state.codeError?"验证码错误！":undefined}
+                >
+                    <Input disabled={this.state.requesting}
+                        style={{width:220,marginRight:10}}
+                        prefix={<Icon type="credit-card" style={iconStyle} />}
+                        placeholder="输入右侧的图形验证码" 
+                        value={imgCode}
+                        onChange={(event:ChangeEvent<HTMLInputElement>)=>
+                            this.inputOnChange(event.target.value,"imgCode")}
+                        onFocus={this.inputOnFocus}
+                        onKeyDown={this.keyDownLogin}
+                    />
+                    {this.state.imageBase64
+                    ?(
+                        <Tooltip placement="right" title="看不清？点击换一张！">
+                            <img src={this.state.imageBase64} width="110" height="32" alt="验证码"
+                                onClick={this.loadVerifyCodeImage}  style={{cursor:"pointer"}}
+                            />
+                        </Tooltip>
+                    )
+                    :(
+                        this.state.loadError
+                        ?(
+                            <Button type="link" style={{width:110}}
+                                onClick={this.loadVerifyCodeImage}
+                            >
+                                重新载入
+                            </Button>
+                        )
+                        :(
+                            <span style={{display:"inline-block",width:110}}><Icon type="loading"/>&nbsp;载入中</span>
+                        )
+                    )}
+                </Form.Item>
+                <Form.Item>
+                    <Checkbox 
+                        className="auto-login" 
+                        checked={this.state.autoLogin}
+                        disabled={this.state.requesting}
+                        onChange={this.autoLoginOnChange}
+                    >
+                        自动登录
+                    </Checkbox>
+                    <Link className="apply" to="/public">执业申请</Link>
+                </Form.Item>
+                <Form.Item>
+                    <Button disabled={username===""||password===""||imgCode===""}
+                        loading={this.state.requesting}
+                        type="primary" onClick={this.login}
+                        htmlType="button" className="button-submit">
+                        登 录
+                    </Button>
+                </Form.Item>
+            </Form>
+        );
+    }
+
+    /**
+     * 组件载入前检查是否已经登陆，以及上次编辑的状态
+     */
+    async componentWillMount(){
+        const {isLogin}=await this.loginChecker.loginUser();
+        //已登录：跳转到机构首页
+        if(isLogin){
+            this.props.history.replace("/protected/organization");
+            return;
+        }
+
+        //未登录：检查是否有编辑申请
+        const editInfor=DataCache.instance.edit();
+        if(editInfor){
+            const {serialNumber,step}=editInfor;
+            if(serialNumber){
+                this.props.history.push(step.routePath(serialNumber));
+                return;
+            }
+        }
+        
+        // 未登录载入图形验证码
+        this.loadVerifyCodeImage();
+    }
+
+    /**
+     * 载入图形验证码
+     */
+    loadVerifyCodeImage=async ()=>{
+        this.setState({...this.state,imageBase64:undefined,loading:true});
+        const verifyCodeResponse=await ((new HttpRequest())
+            .get<{img:string,imgToken:string}>("webapi/login/getVerCodeImg"));
+
+        if(!verifyCodeResponse.success||!verifyCodeResponse.data){
+            this.setState({
+                ...this.state,
+                loadError:true,
+                loading:false,
+            });
+            return;
+        }
+
+        this.setState({
+            ...this.state,
+            loadError:false,
+            loading:false,
+            imageBase64:verifyCodeResponse.data.img,
+            data:{
+                ...this.state.data,
+                imgToken:verifyCodeResponse.data.imgToken
+            }
+        });
+    }
+
+    /**
+     * 输入修改
+     */
+    inputOnChange=(value:string,key:string)=>{
+        const {data}=this.state;
+        data[key]=value;
+        this.setState({
+            ...this.state,
+            data:data
+        });
+    }
+
+    /**
+     * 聚焦时取消错误信息
+     */
+    inputOnFocus=()=>{
+        this.setState({
+            ...this.state,
+            requestError:false
+        });
+    }
+
+    /**
+     * 自动登录勾选
+     */
+    autoLoginOnChange=(event:CheckboxChangeEvent)=>{
+        this.setState({
+            ...this.state,
+            autoLogin:event.target.checked
+        });
+    }
+
+    /**
+     * 回车登录
+     */
+    keyDownLogin=(event:KeyboardEvent)=>{
+        if(event.key==="Enter"){
+            this.login();
+        }
+    }
+
+    /**
+     * 用户登录处理
+     */
+    login=async ()=>{
+        // 验证输入
+        const {data}=this.state;
+        if(data.username===""
+            ||data.password===""
+            ||data.imgCode===""){
+            return;
+        }
+        
+        // 登录请求
+        this.setState({...this.state,requesting:true});
+        const loginResponse=await (new HttpRequest())
+            .post<LoginUser>("webapi/login/orgLogin",
+                (process.env.REACT_APP_USE_MOCK==="true")
+                ?{
+                    ...data,
+                    token:"sdjlksdjfkdlsfksdjflksdjfjlsdflksdflk",
+                    userId:0,
+                    userName:"人员姓名",
+                    roleName:"窗口人员"
+                }
+                :data
+            );
+
+        // 登录失败
+        if(!loginResponse.success||!loginResponse.data){
+            if(loginResponse.message
+                &&loginResponse.message.indexOf("验证码")){
+                this.setState({
+                    ...this.state,
+                    requesting:false,
+                    requestError:false,
+                    codeError:true,
+                });
+                return;
+            }
+            
+            this.setState({
+                ...this.state,
+                requesting:false,
+                requestError:true,
+                codeError:false,
+            });
+            return;
+        }
+
+        // 记录当前Token
+        // 勾选自动登录记录到LocalStorage中，未勾选记录到SessionStorage中
+        DataCache.instance.token(
+            loginResponse.data.token,
+            {
+                isLogin:true,
+                data:loginResponse.data
+            },
+            this.state.autoLogin?CacheMode.LOCAL:CacheMode.SESSION
+        );
+
+        // 成功后进入主页
+        this.props.history.replace("/protected/organization");
+    }
+}
+export default withRouter(LoginForAccount);

@@ -1,0 +1,116 @@
+import { LoginStatus, ApplyEditInfor } from "./Model";
+
+/**
+ * 数据缓存器：单例模式
+ */
+export class DataCache{
+    public static readonly instance:DataCache=new DataCache();
+    private DataCache(){}
+
+    // Token默认缓存时间(单位：分钟)
+    private _tokenExpired:number=2*24*60;
+    // 工单编辑默认缓存时间(单位：分钟)
+    private _editExpired:number=15*24*60;
+    // 字典数据默认缓存时间(单位：分钟)
+    private _dictionaryExpired:number=60*24*60;
+
+    //记录传递的数据信息
+    private _dataMap:Map<string,any>=new Map();
+
+    /**
+     * 写入或返回本地储存的Token
+     * @param t token内容
+     */
+    token(t?:string,data?:LoginStatus):{token:string|null,data?:LoginStatus}{
+        if(t&&data){
+            this.put("token",t,this._tokenExpired);
+            this.put("token_data",JSON.stringify(data),this._tokenExpired);
+            return {token:t,data:data};
+        }
+        const dataJson=this.get("token_data");
+        return {token:this.get("token"),data:dataJson?JSON.parse(dataJson):null};
+    }
+
+    /**
+     * 写入或返回当前编辑情况的记录，如备案申请的信息（单号，第一步等）;
+     * 传空参数，返回最后一次编辑的申请；
+     * 传字符串参数，返回指定申请单号的申请；
+     * 传数据内容，写入申请单号信息到缓存中。
+     * @param data 编辑记录内容
+     */
+    edit(data?:string|ApplyEditInfor):ApplyEditInfor|null{
+        //写入
+        if(data&&(typeof data!=="string")){
+            const applyData=(data as ApplyEditInfor);
+            this.put(`edit_${applyData.serialNumber}`,JSON.stringify(data),this._editExpired);
+            this.put("edit_latest",applyData.serialNumber,this._editExpired);
+            return applyData;
+        }
+
+        //未传递参数，获取最后一次编辑的单号
+        const latestNumber=data?data:this.get("edit_latest");
+        const value=this.get(`edit_${latestNumber}`);
+        return value?JSON.parse(value):null;
+    }
+
+    /**
+     * 用于不同路由之间的数据传递（仅记录在内存中）
+     * @param data 数据内容
+     */
+    transfer(data?:any){
+        if(data){
+            this._dataMap.set("transferData",data);
+        }
+        return this._dataMap.get("transferData");
+    }
+
+    /**
+     * 获取或插入数据字典信息
+     * @param keyOrData 子项键名或插入数据对象
+     */
+    dictionary(keyOrData?:string|any){
+        //写入模式
+        if(keyOrData&&!(typeof keyOrData==="string")){
+            this.put("dictionary",JSON.stringify(keyOrData),this._dictionaryExpired);
+            return keyOrData;
+        }
+
+        const value=this.get("dictionary");
+        const data=value?JSON.parse(value):null;
+
+        //全部返回模式
+        if(!data) return data;
+        //子项返回模式
+        return data[keyOrData];
+    }
+
+    /**
+     * 本地存储写入
+     * @param key 
+     * @param value 
+     * @param expired 过期时间（单位为分钟）
+     */
+    private put(key:string,value:string,expired:number):void{
+        if(!window.localStorage) return;
+
+        localStorage.setItem(key,value);
+        if(expired){
+            localStorage.setItem(key+"_expired",String(Date.now()+expired*60*1000));
+        }
+    }
+
+    //本地存储读取
+    private get(key:string){
+        if(!window.localStorage) return null;
+
+        // 检查过期后删除
+        const now=Date.now();
+        const expired=localStorage.getItem(key+"_expired")||now+1;
+        if(now>=expired){
+            localStorage.removeItem(key);
+            return null;
+        }
+        
+        return localStorage.getItem(key);
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "success-null":{
+        "code":0,
+        "data":null
+    },
+    "apply-record-create":{
+        "code":0,
+        "data":{
+            "applyNo":"ZVY6NK"
+        }
+    },
+    "apply-license-create":{
+        "code":1,
+        "msg":"创建许可失败！"
+    },
+    "apply-exist-not":{
+        "code":0,
+        "data":{
+            "exist":false
+        }
+    },
+    "apply-exist-has":{
+        "code":0,
+        "data":{
+            "exist":true
+        }
+    }
+}

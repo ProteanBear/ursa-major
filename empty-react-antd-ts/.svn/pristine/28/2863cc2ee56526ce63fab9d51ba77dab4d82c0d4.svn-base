@@ -1,0 +1,124 @@
+import { UploadFile } from "antd/lib/upload/interface";
+import { ApplyContentManager, ApplyContentManagerFactory } from "../app/Model";
+
+/**
+ * 申请相关的方法
+ */
+export default class ApplyUtils{
+    /**
+     * 申请的当前状态是否可编辑
+     * @param status 状态值
+     */
+    static canEdit=(status:number)=>(status===0||status===4);
+
+    /**
+     * 申请的当前状态是否需要获取驳回理由
+     * @param status 状态值
+     */
+    static needLoadReject=(status:number)=>(status===4);
+
+    /**
+     * 审核结果是否为驳回
+     */
+    static inspectIsReject=(status:number)=>(status===1);
+
+    /**
+     * 将字符串形式的已选择诊疗范围转换为Set
+     */
+    static medicalScopeToSet=(scope:string):Set<string>=>{
+        const scopeArray=scope.split(",");
+        const result=new Set<string>();
+        scopeArray.map(value=>result.add(value));
+        return result;
+    }
+
+    /**
+     * 将Set形式的已选择诊疗范围转换为字符串
+     */
+    static medicalScopeToString=(scope:Set<string>):string=>{
+        let result="",i=0;
+        scope.forEach(val=>{
+            result+=((i++===0?"":",")+val);
+        });
+        return result;
+    };
+
+    /**
+     * 获取诊疗范围编码子级的父级编码
+     */
+    static medicalScopeParentCode=(code:string):string|null=>{
+        const index=code.indexOf(".")
+        if(index===-1) return null;
+        return code.substring(0,index);
+    }
+
+    /**
+     * 将路径（多个间逗号分隔）转换为上传文件对象列表
+     */
+    static urlStringToUploadArray=(array:Array<UploadFile>,urls:string)
+        :Array<UploadFile>=>{
+        const urlArray=urls.split(",");
+        if(urlArray.length===0||urls==="") return array;
+        urlArray.map((url,index)=>{
+            array.push({
+                uid:String(index),
+                name:url.substring(url.lastIndexOf("/")+1),
+                size:0,
+                type:"",
+                url:url
+            });
+        });
+        return array;
+    }
+
+    /**
+     * 将上传文件列表转换为url字符串（多个之间逗号分隔）
+     */
+    static uploadArrayToUrlString=(array:Array<UploadFile>):string=>{
+        let result="",i=0;
+        array.map((data)=>{
+            result+=((i++===0?"":",")+data.url);
+        });
+        return result;
+    }
+
+    /**
+     * 将上传文件列表转换为名称的Set，用于判断指定的文件是否存在
+     */
+    static uploadArrayToNameSet=(array:Array<UploadFile>):Set<string>=>{
+        const result=new Set<string>();
+        array.map(data=>result.add(data.name));
+        return result;
+    }
+
+    /**
+     * 将管理人员数组中的人员分解开;
+     * 不存在的创建为默认对象
+     */
+    static managerListToMap=(serialNumber:string,list:Array<ApplyContentManager>):{
+        legal:ApplyContentManager,
+        principal:ApplyContentManager,
+        contact:ApplyContentManager
+    }=>{
+        let legal,principal,contact;
+        list.map(manager=>{
+            switch(manager.type){
+                case 1:
+                    legal=manager;
+                    break;
+                case 2:
+                    principal=manager;
+                    break;
+                case 3:
+                    contact=manager;
+                    break;
+                default:
+            }
+        });
+
+        legal=legal||ApplyContentManagerFactory.create(serialNumber,1);
+        principal=principal||ApplyContentManagerFactory.create(serialNumber,2);
+        contact=contact||ApplyContentManagerFactory.create(serialNumber,3);
+        return {legal:legal,principal:principal,contact:contact};
+    }
+}

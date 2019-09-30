@@ -1,0 +1,4 @@
+REACT_APP_SERVER_DOMAIN_MOCK=http://localhost:3001/
+REACT_APP_SERVER_DOMAIN=https://wsxk.care4u.cn/medical/
+REACT_APP_SERVER_RESOURCE_ROOT=https://wsxk.care4u.cn/upload/recorder/
+REACT_APP_USE_MOCK=false

@@ -1,0 +1,328 @@
+import React from 'react';
+import { ApplyContentOrganization, ApplyContentEquipment } from '../app/Model';
+import { Skeleton, Layout, Row, Col, Typography, Carousel, Descriptions,Button } from 'antd';
+import ImageViewer from './ImageViewer';
+import { DictionaryLoader } from '../app/DictionaryLoader';
+import ApplyUtils from '../utils/ApplyUtils';
+
+type OrganizationDetailInforOrganizationProps={
+    data?:ApplyContentOrganization,
+    equipments?:Array<ApplyContentEquipment>
+}
+
+/**
+ * 申请详情中的申请资料中的机构信息
+ */
+export default class OrganizationDetailInforOrganization extends React.Component<OrganizationDetailInforOrganizationProps>{
+    readonly state:{}={}
+
+    /**
+     * 页面布局
+     */
+    render(){
+        if(!this.props.data||!this.props.equipments){
+            return (
+                <Skeleton active /> 
+            );
+        }
+
+        return this.props.data.applyType?this.jsxForLicense():this.jsxForRecord();
+    }
+
+    /**
+     * 备案显示的机构信息内容
+     */
+    jsxForRecord=()=>{
+        if(!this.props.data||!this.props.equipments) return;
+        const {Content}=Layout;
+        const {Paragraph,Title,Text}=Typography;
+        const {data,equipments}=this.props;
+        const dictionary=DictionaryLoader.instance;
+        let index=0;
+        return (
+            <Content id="apply-detail-organization">
+                <Row>
+                    <Col span={6} className="descriptions-carousel">
+                        <Paragraph>
+                            <Title level={4}>{data.name}</Title>
+                            <Text>营业执照：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.businessLicense.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}；社会统一信用代码：${data.onlyCode||"无"}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                    </Col>
+                    <Col span={18}>
+                        <Descriptions title="　" layout="vertical"
+                            column={4} bordered={true} size="small">
+                            <Descriptions.Item label="所属街道">{dictionary.streetLabel(data.street)}</Descriptions.Item>
+                            <Descriptions.Item label="社会统一信用代码" span={2}>{data.onlyCode||"暂无"}</Descriptions.Item>
+                            <Descriptions.Item label="备案类型">{dictionary.categoryLabel(data.orgType)}</Descriptions.Item>
+                            <Descriptions.Item label="所有制形式">{dictionary.ownershipLabel(data.ownership)}</Descriptions.Item>
+                            <Descriptions.Item label="隶属关系" span={2}>{dictionary.subjectionLabel(data.membership)}</Descriptions.Item>
+                            <Descriptions.Item label="经营性质">{data.natureOperation}</Descriptions.Item>
+                            <Descriptions.Item label="机构地址" span={4}>{data.address}</Descriptions.Item>
+                        </Descriptions>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={17}>
+                        <Descriptions title="　" layout="vertical"
+                            column={4} bordered={true} size="small">
+                            <Descriptions.Item label="诊疗科目" span={4}>{data.diagnosisSubjectName}</Descriptions.Item>
+                            <Descriptions.Item label="设备清单" span={4}>
+                                {
+                                    equipments.map(equip=>(
+                                        <span>{`${equip.name}（${equip.type===0?"大型设备":"普通设备"}，${equip.num}台）`}<br/></span>
+                                    ))
+                                }
+                            </Descriptions.Item>
+                            <Descriptions.Item label="中医诊疗技术和方案" span={4}>{data.medicineTechnology||"暂无"}</Descriptions.Item>
+                            <Descriptions.Item label="医疗废物服务协议" span={4}>
+                                {ApplyUtils.urlStringToUploadArray([],data.medicalWasteAgreement).map((image,index)=>(
+                                    <Button type="link" icon="download" style={{display:"block"}}
+                                        onClick={()=>{this.onDownload(image.url||"")}}
+                                    >{image.name}</Button>
+                                ))}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="机构制度" span={4}>
+                                {ApplyUtils.urlStringToUploadArray([],data.managerment).map((image,index)=>(
+                                    <Button type="link" icon="download" style={{display:"block"}}
+                                        onClick={()=>{this.onDownload(image.url||"")}}
+                                    >{image.name}</Button>
+                                ))}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="消防应急预案" span={4}>
+                                {ApplyUtils.urlStringToUploadArray([],data.fire).map((image,index)=>(
+                                    <Button type="link" icon="download" style={{display:"block"}}
+                                        onClick={()=>{this.onDownload(image.url||"")}}
+                                    >{image.name}</Button>
+                                ))}
+                            </Descriptions.Item>
+                        </Descriptions>
+                    </Col>
+                    <Col span={6} offset={1} className="descriptions-carousel">
+                        <Paragraph>
+                            <Title level={4}>&nbsp;</Title>
+                            <Text>房屋平面布局图：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.orgFlatImg.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                        <Paragraph>
+                            <Text>告知承诺书：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.commitment.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                    </Col>
+                </Row>
+            </Content>
+        );
+    }
+
+    /**
+     * 许可显示的机构信息内容
+     */
+    jsxForLicense=()=>{
+        if(!this.props.data||!this.props.equipments) return;
+        const {Content}=Layout;
+        const {Paragraph,Title,Text}=Typography;
+        const {data,equipments}=this.props;
+        const {businessLicense,nameVerification}=data;
+        const hasLicense=(""!==businessLicense);
+        const license=hasLicense?businessLicense:nameVerification;
+        const dictionary=DictionaryLoader.instance;
+        let index=0;
+        return (
+            <Content id="apply-detail-organization">
+                <Row>
+                    <Col span={6} className="descriptions-carousel">
+                        <Paragraph>
+                            <Title level={4}>{data.name}</Title>
+                            <Text>{hasLicense?"营业执照：":"核名通知书："}</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                license.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}；社会统一信用代码：${data.onlyCode||"无"}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                    </Col>
+                    <Col span={18}>
+                        <Descriptions title="　" layout="vertical"
+                            column={4} bordered={true} size="small">
+                            <Descriptions.Item label="所属街道">{dictionary.streetLabel(data.street)}</Descriptions.Item>
+                            <Descriptions.Item label="社会统一信用代码" span={3}>{data.onlyCode||"暂无"}</Descriptions.Item>
+                            <Descriptions.Item label="所有制形式">{dictionary.ownershipLabel(data.ownership)}</Descriptions.Item>
+                            <Descriptions.Item label="隶属关系">{dictionary.subjectionLabel(data.membership)}</Descriptions.Item>
+                            <Descriptions.Item label="电话号码">{data.tel}</Descriptions.Item>
+                            <Descriptions.Item label="邮政编码">{data.post}</Descriptions.Item>
+                            <Descriptions.Item label="机构地址" span={4}>{data.address}</Descriptions.Item>
+                        </Descriptions>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={17}>
+                        <Descriptions title="　" layout="vertical"
+                            column={12} bordered={true} size="small">
+                            <Descriptions.Item label="服务对象" span={6}>{dictionary.serviceObjectLabel(data.serviceObj)}</Descriptions.Item>
+                            <Descriptions.Item label="服务方式" span={6}>{dictionary.serviceModeLabel(data.serviceType.split(","))}</Descriptions.Item>
+                            <Descriptions.Item label="机构类别" span={6}>{dictionary.categoryLabel(data.orgType)}</Descriptions.Item>
+                            <Descriptions.Item label="机构等级" span={6}>{dictionary.levelLabel(data.level)+dictionary.gradeLabel(data.grade)}</Descriptions.Item>
+                            <Descriptions.Item label="核定床位数" span={4}>{data.approvedBedNum}个</Descriptions.Item>
+                            <Descriptions.Item label="观察床位数" span={4}>{data.observedBedNum}个</Descriptions.Item>
+                            <Descriptions.Item label="牙科诊椅数" span={4}>{data.chairsDentalNum}个</Descriptions.Item>
+                            <Descriptions.Item label="占地面积" span={4}>{data.ownArea?`${data.ownArea}平米`:"无"}</Descriptions.Item>
+                            <Descriptions.Item label="建筑面积" span={4}>{data.structureArea?`${data.structureArea}平米`:"无"}</Descriptions.Item>
+                            <Descriptions.Item label="业务用房面积" span={4}>{data.bizArea?`${data.bizArea}平米`:"无"}</Descriptions.Item>
+                            <Descriptions.Item label="资金总额" span={3}>{data.approvedBedNum?`${data.approvedBedNum}万元`:"无"}</Descriptions.Item>
+                            <Descriptions.Item label="固定资金" span={3}>{data.observedBedNum}万元</Descriptions.Item>
+                            <Descriptions.Item label="注册资金" span={3}>{data.chairsDentalNum}万元</Descriptions.Item>
+                            <Descriptions.Item label="流动资金" span={3}>{data.ownArea}万元</Descriptions.Item>
+                            <Descriptions.Item label="诊疗科目" span={12}>{data.diagnosisSubjectName}</Descriptions.Item>
+                            <Descriptions.Item label="设备清单" span={12}>
+                                {
+                                    equipments.map(equip=>(
+                                        <span>{`${equip.name}（${equip.type===0?"大型设备":"普通设备"}，${equip.num}台）`}<br/></span>
+                                    ))
+                                }
+                            </Descriptions.Item>
+                            <Descriptions.Item label="消毒供应设施配置" span={6}>
+                                {data.disinfection?(
+                                    ApplyUtils.urlStringToUploadArray([],data.disinfection).map((image,index)=>(
+                                        <Button type="link" icon="download" style={{display:"block"}}
+                                            onClick={()=>{this.onDownload(image.url||"")}}
+                                        >{image.name}</Button>
+                                    ))
+                                ):"暂无"}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="医疗废弃物处置方案" span={6}>
+                                {data.medicalWasteAgreement?(
+                                    ApplyUtils.urlStringToUploadArray([],data.medicalWasteAgreement).map((image,index)=>(
+                                        <Button type="link" icon="download" style={{display:"block"}}
+                                            onClick={()=>{this.onDownload(image.url||"")}}
+                                        >{image.name}</Button>
+                                    ))
+                                ):"暂无"}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="污水处理方案" span={6}>
+                                {data.sewage?(
+                                    ApplyUtils.urlStringToUploadArray([],data.sewage).map((image,index)=>(
+                                        <Button type="link" icon="download" style={{display:"block"}}
+                                            onClick={()=>{this.onDownload(image.url||"")}}
+                                        >{image.name}</Button>
+                                    ))
+                                ):"暂无"}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="消防应急预案" span={6}>
+                                {data.fire?(
+                                    ApplyUtils.urlStringToUploadArray([],data.fire).map((image,index)=>(
+                                        <Button type="link" icon="download" style={{display:"block"}}
+                                            onClick={()=>{this.onDownload(image.url||"")}}
+                                        >{image.name}</Button>
+                                    ))
+                                ):"暂无"}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="备注" span={12}>{data.remark||"无"}</Descriptions.Item>
+                        </Descriptions>
+                    </Col>
+                    <Col span={6} offset={1} className="descriptions-carousel">
+                        <Paragraph>
+                            <Title level={4}>&nbsp;</Title>
+                            <Text>房屋平面布局图：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.orgFlatImg.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                        <Paragraph>
+                            <Text>外景图：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.orgOutImg.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                        <Paragraph>
+                            <Text>告知承诺书：</Text>
+                        </Paragraph>
+                        <Carousel>
+                            {
+                                data.commitment.split(",").map((src)=>(
+                                    <img data-image-index={index++} onClick={this.onPreviewImages}
+                                        src={src} className="image-to-view"
+                                        alt={`机构名称：${data.name}`}
+                                    />
+                                ))
+                            }
+                        </Carousel>
+                    </Col>
+                </Row>
+            </Content>
+        );
+    }
+
+    /**
+     * 预览相关图片
+     */
+    onPreviewImages=(event:React.MouseEvent<HTMLImageElement>)=>{
+        const target=event.target as HTMLImageElement;
+        const container=document.querySelector("#apply-detail-organization");
+        if(container){
+            const imgs=container.querySelectorAll<HTMLImageElement>
+                (".slick-slide:not(.slick-cloned) img.image-to-view");
+            const imageList:Array<HTMLImageElement>=[];
+            imgs.forEach(img=>{
+                imageList.push(img)
+            });
+            const selectedIndex=Number(
+                target.dataset["imageIndex"]||"0"
+            );
+            ImageViewer.view(imageList,selectedIndex);
+        }
+    }
+
+    /**
+     * 下载指定的文件
+     */
+    onDownload=(url:string)=>{
+        if(url==="") return;
+        window.open(url);
+    }
+}

@@ -1,0 +1,797 @@
+import React from 'react';
+import { Row, Col, Card, Button, Icon, Drawer, Form, Input, Radio, Select, Cascader, Upload, Modal, List, Empty, Result, message } from 'antd';
+import { DictionaryLoader, DictionaryData } from '../app/DictionaryLoader';
+import { ApplyContentDoctorOrNurse, AppComponentProps, ApplyContentDoctorOrNurseFactory, ApplyJobAndTitleTag } from '../app/Model';
+import { HttpRequest, PageConfig } from '../app/Request';
+import { withRouter } from 'react-router';
+import { UploadFile, UploadProps } from 'antd/lib/upload/interface';
+import ApplyUtils from '../utils/ApplyUtils';
+import ImageViewer from './ImageViewer';
+import { SpinProps } from 'antd/lib/spin';
+import { PaginationConfig } from 'antd/lib/table';
+
+type OrganizationStaffDoctorsAndNurseProps=AppComponentProps&{
+    /**当前的申请单号 */
+    serialNumber:string;
+}
+
+/**
+ * 医护人员管理组件
+ */
+class OrganizationStaffDoctorsAndNurse extends React.Component<OrganizationStaffDoctorsAndNurseProps>{
+    state:{
+        /**编辑抽屉是否显示 */
+        drawerVisible:boolean;
+        /**当前列表数据 */
+        data:Array<ApplyContentDoctorOrNurse>;
+        /**正在编辑的数据 */
+        editingData?:ApplyContentDoctorOrNurse;
+        /**正在编辑的数据在列表中的索引 */
+        currentIndex:number;
+        /**文件上传验证错误 */
+        hasFileValidateError:boolean;
+        /**上传文件列表 */
+        fileList:{
+            [key:string]:Array<UploadFile>
+        };
+        /**上传是否成功 */
+        uploadSuccess:{
+            [key:string]:boolean
+        };
+        /**上传的数量限制 */
+        uploadLimit:{
+            [key:string]:number
+        };
+        /**分页配置 */
+        page:PageConfig;
+        /**是否载入中 */
+        loading:boolean;
+        /**是否载入错误 */
+        loadedError:boolean;
+        /**搜索关键字 */
+        searchKey:string|undefined;
+        /**请求中 */
+        requesting:boolean;
+    }= { 
+        drawerVisible: false,
+        currentIndex:-1,
+        hasFileValidateError:false,
+        fileList:{
+            "identityFront":[],
+            "identityBack":[],
+            "photo":[],
+            "practice":[],
+            "qualification":[],
+            "title":[],
+        },
+        uploadSuccess:{
+            "identityFront":true,
+            "identityBack":true,
+            "photo":true,
+            "practice":true,
+            "qualification":true,
+            "title":true,
+        },
+        uploadLimit:{
+            "identityFront":1,
+            "identityBack":1,
+            "photo":1,
+            "practice":20,
+            "qualification":20,
+            "title":20,
+        },
+        loading:true,
+        loadedError:false,
+        data:[],
+        page:{
+            index:1,
+            size:12
+        },
+        searchKey:undefined,
+        requesting:false,
+    };
+
+    /**
+     * 上传组件配置：图片
+     */
+    private readonly uploadPhotoConfig:UploadProps={
+        accept:".jpg,.png",
+        listType:"picture-card",
+        className:"avatar-uploader",
+        showUploadList:true,
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {getFieldDecorator} = this.props.form;
+        const {Option}=Select;
+
+        const {loading,loadedError,data,editingData,requesting}=this.state;
+        const education=DictionaryLoader.instance.education();
+        const job=DictionaryLoader.instance.job(ApplyJobAndTitleTag.DOCTOR_AND_NURSE.tags);
+        const jobLabel=DictionaryLoader.instance.jobLabel;
+        const empty=(<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />);
+        const loadingProps:SpinProps={tip:"载入中...",size:"default"};
+
+        return (
+            <div>
+                <Row style={{marginTop:20}}>
+                    <Col span={8}>
+                        <Button icon="plus" onClick={()=>{this.showDrawer(-1)}}>添加人员</Button>
+                    </Col>
+                    <Col span={8} offset={8}>
+                        <Input.Search enterButton
+                            placeholder="输入人员姓名或身份证号"
+                            value={this.state.searchKey}
+                            onChange={(event)=>{this.setState({...this.state,searchKey:event.target.value})}}
+                            onSearch={()=>{this.setState({...this.state,loading:true});this.loadData({index:1,size:12})}}
+                        />
+                    </Col>
+                </Row>
+                <Row style={{marginTop:30}}>
+                    <List size="small" itemLayout="vertical"
+                        loading={loading?loadingProps:false}
+                        grid={{ gutter: 16, column: 4 }}
+                        pagination={this.paginationConfig(this.state.page)}
+                        locale={loadedError
+                            ?{emptyText:this.jsxErrorResult("数据载入出现错误！",()=>{this.loadData(this.state.page)})}
+                            :{emptyText:empty}
+                        }
+                        dataSource={data}
+                        renderItem={(person,index) => (
+                            <List.Item>
+                                <Card className="staff-card"
+                                    actions={[
+                                        <Button type="link" onClick={()=>this.showDrawer(index)} disabled={requesting}>
+                                            <Icon type="edit" key="edit" style={{width:18}}/>编辑
+                                        </Button>,
+                                        <Button type="link" style={{color:"red"}}
+                                            onClick={()=>this.deleteStaff(index)} 
+                                            disabled={requesting}>
+                                            <Icon type="delete" key="delete" theme="twoTone" twoToneColor="red" style={{width:18}}/>删除
+                                        </Button>
+                                    ]}
+                                >
+                                    <Card.Meta
+                                        avatar={<img alt="" src={person.img} style={{width:64,height:"auto",maxHeight:128}}/>}
+                                        title={person.name}
+                                        description={
+                                            <p>
+                                                {jobLabel(person.position)}<br/>
+                                                {jobLabel(person.title)}<br/>
+                                                {person.dept}
+                                            </p>
+                                        }
+                                    />
+                                </Card>
+                            </List.Item>
+                        )}
+                    />
+                </Row>
+                
+                {/* 医生和护士编辑抽屉 */}
+                {editingData?(
+                    <Drawer maskClosable={!this.state.requesting}
+                        title={
+                            this.state.currentIndex===-1
+                                ?"添加医护人员"
+                                :`编辑人员（${editingData.name}）`
+                        } 
+                        width={560}
+                        bodyStyle={{paddingBottom:54}}
+                        onClose={this.onClose}
+                        visible={this.state.drawerVisible}
+                        destroyOnClose={true}
+                    >
+                        <Form labelCol={{span:6}} wrapperCol={{span:18}}>
+                            <h4 className="title-form-sub">信息填写</h4>
+                            <Row>
+                                <Col span={15}>
+                                    <Form.Item label="人员姓名">{
+                                        getFieldDecorator("name",{
+                                            initialValue:editingData.name,
+                                            rules:[
+                                                {required:true,message:"人员姓名不能为空！"}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" 
+                                            />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                                <Col span={9}>
+                                    <Form.Item label="性别" 
+                                        labelCol={{span:8}} wrapperCol={{span:16}}
+                                    >{
+                                        getFieldDecorator("sex",{
+                                            initialValue:(""===editingData.sex?"男":editingData.sex),
+                                            rules:[
+                                                {required:false}
+                                            ]
+                                        })(
+                                            <Radio.Group
+                                            >
+                                                <Radio value="男">男</Radio>
+                                                <Radio value="女">女</Radio>
+                                            </Radio.Group>
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={15}>
+                                    <Form.Item label="身份证号">{
+                                        getFieldDecorator("idcard",{
+                                            initialValue:editingData.idcard,
+                                            rules:[
+                                                {required:true,message:"身份证号码不能为空！"}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" 
+                                            />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                                <Col span={9}>
+                                    <Form.Item label="年龄"
+                                        labelCol={{span:8}} wrapperCol={{span:16}}
+                                    >{
+                                        getFieldDecorator("age",{
+                                            initialValue:editingData.age||"",
+                                            rules:[
+                                                {required:true,message:"年龄不能为空！"}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={15}>
+                                    <Form.Item label="毕业院校">{
+                                        getFieldDecorator("school",{
+                                            initialValue:editingData.school,
+                                            rules:[
+                                                {required:false}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" 
+                                            />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                                <Col span={9}>
+                                    <Form.Item label="学历" 
+                                        labelCol={{span:8}} wrapperCol={{span:16}}
+                                    >{
+                                        getFieldDecorator("education",{
+                                            initialValue:(""===editingData.education?undefined:editingData.education),
+                                            rules:[
+                                                {required:false}
+                                            ]
+                                        })(
+                                            <Select showSearch
+                                                placeholder="请选择" 
+                                                optionFilterProp="children" 
+                                                filterOption={(input, option:React.ReactElement) =>
+                                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                }
+                                            >
+                                                {education.map((data:DictionaryData,index:number)=>{
+                                                    return (<Option key={data.value}>{data.label}</Option>);
+                                                })}
+                                            </Select>
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={15}>
+                                    <Form.Item label="职务职称">{
+                                        getFieldDecorator("positionAndTitle",{
+                                            initialValue:(""===editingData.position&&""===editingData.title?undefined:[editingData.position,editingData.title]),
+                                            rules:[
+                                                {required:true,message:"职务职称不能为空！"}
+                                            ]
+                                        })(
+                                            <Cascader 
+                                                options={job} placeholder="请选择" 
+                                            />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                                <Col span={9}>
+                                    <Form.Item label="科室"
+                                        labelCol={{span:8}} wrapperCol={{span:16}}
+                                    >{
+                                        getFieldDecorator("dept",{
+                                            initialValue:editingData.dept,
+                                            rules:[
+                                                {required:true,message:"所属科室不能为空！"}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" 
+                                            />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={15}>
+                                    <Form.Item label="执业证号">{
+                                        getFieldDecorator("practiceCode",{
+                                            initialValue:editingData.practiceCode,
+                                            rules:[
+                                                {required:true,message:"执业证号不能为空！"}
+                                            ]
+                                        })(
+                                            <Input placeholder="请输入" />
+                                        )}
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <h4 className="title-form-sub">上传内容</h4>
+                            <Row>
+                                <Col span={12}>
+                                    {this.uploadJsxContent("identityFront","身份证正面","示例图")}
+                                </Col>
+                                <Col span={12}>
+                                    {this.uploadJsxContent("identityBack","身份证背面","示例图")}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={12}>
+                                    {this.uploadJsxContent("photo","二寸寸照","示例图")}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={24}>
+                                    {this.uploadJsxContent("practice","执业证书")}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={24}>
+                                    {this.uploadJsxContent("qualification","资格证书")}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span={24}>
+                                    {this.uploadJsxContent("title","职称证书")}
+                                </Col>
+                            </Row>
+                        </Form>
+                        <div className="bottom-bar">
+                            <Button 
+                                disabled={this.state.requesting}
+                                onClick={this.onClose} 
+                                style={{ marginRight: 8 }}
+                            >
+                                取消
+                            </Button>
+                            <Button 
+                                loading={this.state.requesting}
+                                onClick={this.saveStaff} 
+                                type="primary"
+                            >
+                                保存
+                            </Button>
+                        </div>
+                    </Drawer>
+                ):null}
+            </div>
+        );
+    }
+
+    /**
+     * 返回错误显示信息
+     */
+    jsxErrorResult=(descrition:string,onClick:(()=>void))=>(
+        <Result
+            status="error"
+            title="载入失败"
+            subTitle={descrition}
+            extra={[
+                <Button type="primary" icon="redo" onClick={onClick}>
+                    重新载入
+                </Button>
+            ]}
+        />
+    )
+
+    /**
+     * 生成List使用的分页配置
+     */
+    paginationConfig=(page:PageConfig):PaginationConfig=>{
+        return {
+            position:"bottom",
+            total:page.total,
+            current:page.index,
+            pageSize:page.size,
+            simple:true,
+            className:"to-do-list-page",
+            onChange:(toPage)=>{
+                this.loadData({
+                    ...page,
+                    index:toPage
+                });
+            }
+        }
+    }
+
+    /**
+     * 组件载入后读取人员列表
+     */
+    componentDidMount(){
+        this.loadData(this.state.page);
+    }
+
+    /**
+     * 读取人员列表
+     */
+    loadData=async (page:PageConfig)=>{
+        // 获取医护人员信息
+        const staffResponse=await ((new HttpRequest()).get<Array<ApplyContentDoctorOrNurse>>(
+                `web/org/staffList?search=${this.state.searchKey}`,
+                page
+            ));
+        // 失败
+        if(!staffResponse.success||!staffResponse.data){
+            this.setState({
+                ...this.state,
+                loading:false,
+                loadedError:true,
+                data:[]
+            });
+            return;
+        }
+
+        // 设置显示
+        this.setState({
+            ...this.state,
+            loading:false,
+            data:staffResponse.data,
+            page:staffResponse.pageConfig,
+        });
+    }
+
+    /**
+     * 返回指定的图片上传单元
+     */
+    uploadJsxContent=(key:string,label:string,example?:string)=>(
+        <Form.Item
+            label={label} className={`staffdn-${key}-photos must-upload`}
+            labelCol={{span:24}} wrapperCol={{span:24}}
+            validateStatus={
+                !this.state.hasFileValidateError
+                    ?(this.state.uploadSuccess[key]?"":"error")
+                    :(this.state.fileList[key].length>0?"":"error")
+            }
+            help={
+                !this.state.hasFileValidateError
+                    ?(this.state.uploadSuccess[key]?"支持扩展名：.jpg .png":"文件上传失败！")
+                    :(this.state.fileList[key].length>0?"支持扩展名：.jpg .png":"必须上传此文件！")
+            }
+        >
+            <Row>
+                <Col span={example?10:24}>
+                    <Upload {...this.uploadPhotoConfig}
+                        name={key}
+                        customRequest={(fileObject:object)=>{
+                            this.uploadPhoto(fileObject,key);
+                        }}
+                        onRemove={(file:UploadFile)=>{
+                            this.uploadPhotoRemove(file,key)
+                        }}
+                        onPreview={(file:UploadFile)=>{
+                            this.uploadPhotoPreview(file,key)
+                        }}
+                        fileList={this.state.fileList[key]}
+                        disabled={this.state.requesting}
+                    >
+                        {this.state.uploadLimit[key]>this.state.fileList[key].length
+                        ?(
+                            <div>
+                                <Icon type="plus" />
+                                <div className="ant-upload-text">上传</div>
+                            </div>
+                        )
+                        :null}
+                    </Upload>
+                </Col>
+            </Row>  
+        </Form.Item>
+    );
+
+    /**
+     * 打开抽屉
+     */
+    showDrawer = (index:number) => {
+        // 获取数据
+        const data=(index===-1||!this.state.data
+            ?ApplyContentDoctorOrNurseFactory.create(this.props.serialNumber)
+            :this.state.data[index]);
+
+        // 转换图片列表
+        let {identityFront,identityBack,photo,
+            practice,qualification,title}=this.state.fileList;
+        const identityArray=data.idcardImg.split(",");
+        const idFrontString=identityArray[0],
+            idBackString=identityArray.length>1?identityArray[1]:"";
+        identityFront.splice(0,identityFront.length);
+        identityFront=ApplyUtils.urlStringToUploadArray(identityFront,idFrontString);
+        identityBack.splice(0,identityBack.length);
+        identityBack=ApplyUtils.urlStringToUploadArray(identityBack,idBackString);
+        photo.splice(0,photo.length);
+        photo=ApplyUtils.urlStringToUploadArray(photo,data.img);
+        practice.splice(0,practice.length);
+        practice=ApplyUtils.urlStringToUploadArray(practice,data.practiceImg);
+        qualification.splice(0,qualification.length);
+        qualification=ApplyUtils.urlStringToUploadArray(qualification,data.qualificationCertImg);
+        title.splice(0,title.length);
+        title=ApplyUtils.urlStringToUploadArray(title,data.titleCertImg);
+        
+        // 设置显示
+        this.setState({
+            ...this.state,
+            drawerVisible: true,
+            editingData:{...data},
+            currentIndex:index,
+            fileList:{
+                identityFront:identityFront,
+                identityBack:identityBack,
+                photo:photo,
+                practice:practice,
+                qualification:qualification,
+                title:title,
+            }
+        });
+    };
+
+    /**
+     * 关闭抽屉
+     */
+    onClose = () => {
+        if(this.state.requesting) return;
+        this.setState({
+            ...this.state,
+            drawerVisible: false,
+        });
+    };
+
+    /**
+     * 上传图片
+     */
+    uploadPhoto=async (fileObject:object,key:string)=>{
+        // 上传文件或图片
+        const option=fileObject as {file:File};
+        const uploadResponse=await (new HttpRequest())
+            .upload<{url:string},{applyNo:string}>
+            (
+                `webapi/comm/uploadFile`,
+                option.file,
+                "file",
+                {applyNo:this.props.serialNumber}
+            );
+        const {uploadSuccess}=this.state;
+        uploadSuccess[key]=(uploadResponse.success&&(uploadResponse.data!==null));
+        
+        //上传失败显示
+        if(!uploadSuccess[key]||!uploadResponse.data){
+            this.setState({
+                ...this.state,
+                uploadSuccess:uploadSuccess
+            });
+            return;
+        }
+
+        //上传成功，设置已上传列表
+        const {fileList}=this.state;
+        fileList[key].push({
+            uid:String(fileList[key].length),
+            name:option.file.name,
+            size:0,
+            type:"",
+            url:uploadResponse.data.url
+        });
+        this.setState({
+            ...this.state,
+            uploadSuccess:uploadSuccess,
+            fileList:fileList
+        });
+    }
+
+    /**
+     * 全屏查看上传的图片
+     */
+    uploadPhotoPreview=(uploadFile:UploadFile,key:string)=>{
+        // 获取全部上传的图片元素
+        const row=document.querySelector<HTMLDivElement>(`.staffdn-${key}-photos`);
+        if(!row) return;
+        const imgArray=row.querySelectorAll<HTMLImageElement>
+            (".ant-upload-list-item-image");
+        const imageList:Array<HTMLImageElement>=[];
+        const {fileList}=this.state;
+
+        const viewImageNameSet=ApplyUtils.uploadArrayToNameSet(fileList[key]);
+        let currentIndex=0;
+        imgArray.forEach((img,index)=>{
+            if(viewImageNameSet.has(img.alt)){
+                imageList.push(img);
+                currentIndex=(img.alt===uploadFile.name?index:currentIndex);
+            }
+        });
+
+        ImageViewer.view(imageList,currentIndex);
+    }
+
+    /**
+     * 删除上传的文件或图片
+     */
+    uploadPhotoRemove=(file:UploadFile,key:string)=>{
+        const {confirm}=Modal;
+        const {fileList}=this.state;
+        confirm({
+            title: '确定要删除当前上传的图片么？',
+            okText: '继续删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk:()=>{
+                fileList[key].splice(fileList[key].findIndex(item=>item.uid===file.uid),1);
+                this.setState({
+                    ...this.state,
+                    fileList:fileList
+                });
+            },
+        });
+    }
+
+    /**
+     * 保存添加的人员
+     */
+    saveStaff=()=>{
+        const handler=async (currentIndex:number,postData:{[key:string]:any})=>{
+            // 发起请求
+            this.setState({...this.state,requesting:true});
+            const hide=message.loading("正在处理...",0);
+            // 添加或更新医护人员信息
+            const staffResponse=await ((new HttpRequest()).post<any>(
+                (currentIndex===-1?"web/org/staffAdd":"web/org/staffEdit"),
+                postData
+            ));
+            // 失败
+            if(!staffResponse.success){
+                this.setState({...this.state,requesting:false});
+                hide();
+                message.error(staffResponse.message);
+                return;
+            }
+
+            // 设置显示
+            this.setState({
+                ...this.state,
+                requesting:false,
+                drawerVisible:false,
+                loading:true,
+            });
+            hide();
+            message.success("处理成功！");
+            // 重新载入数据
+            this.loadData(this.state.page);
+        };
+
+        //校验表单
+        this.props.form.validateFieldsAndScroll((error,values)=>{
+            if(error||!this.state.data) return;
+            
+            //格式转换
+            values.birthday=!values.birthday?"":values.birthday.format("YYYY-MM-DD");
+            values.position=values.positionAndTitle[0];
+            values.title=values.positionAndTitle[1];
+            delete values.positionAndTitle;
+            values.type=ApplyJobAndTitleTag.typeValueOf(values.position);
+
+            // 验证文件列表
+            const {identityFront,identityBack,photo,practice,qualification,title}=this.state.fileList;
+            if(identityFront.length<1
+                ||identityBack.length<1
+                ||photo.length<1
+                ||practice.length<1
+                ||qualification.length<1
+                ||title.length<1
+            ){
+                this.setState({
+                    ...this.state,
+                    hasFileValidateError:true
+                });
+                return;
+            }
+
+            // 转换文件列表
+            const identityImages=ApplyUtils.uploadArrayToUrlString(
+                identityFront.concat(identityBack)
+            );
+            const photoImages=ApplyUtils.uploadArrayToUrlString(photo);
+            const practiceImages=ApplyUtils.uploadArrayToUrlString(practice);
+            const qualificationImages=ApplyUtils.uploadArrayToUrlString(qualification);
+            const titleImages=ApplyUtils.uploadArrayToUrlString(title);
+
+            // 获取队列中数据
+            const {data,currentIndex}=this.state;
+            let postData;
+            // 添加
+            if(currentIndex===-1){
+                postData={
+                    ...values,
+                    idcardImg:identityImages,
+                    img:photoImages,
+                    practiceImg:practiceImages,
+                    qualificationCertImg:qualificationImages,
+                    titleCertImg:titleImages
+                };
+            }
+            // 编辑
+            else{
+                const currentData=data[currentIndex];
+                postData={
+                    ...currentData,
+                    ...values,
+                    idcardImg:identityImages,
+                    img:photoImages,
+                    practiceImg:practiceImages,
+                    qualificationCertImg:qualificationImages,
+                    titleCertImg:titleImages
+                }
+            }
+            
+            handler(currentIndex,postData);
+        });
+    }
+
+    /**
+     * 删除人员
+     */
+    deleteStaff=(index:number)=>{
+        if(!this.state.data) return;
+        // 获取人员信息
+        const {data}=this.state;
+        const staff=data[index];
+
+        // 删除处理
+        const handler=async ()=>{
+            // 发起请求
+            this.setState({...this.state,requesting:true});
+            const hide=message.loading("正在处理...",0);
+            const staffResponse=await ((new HttpRequest()).get<any>(
+                `web/org/staffDelete?id=${staff.id}`
+            ));
+
+            // 失败
+            if(!staffResponse.success){
+                this.setState({...this.state,requesting:false});
+                hide();
+                message.error(staffResponse.message);
+                return;
+            }
+
+            // 设置显示
+            this.setState({...this.state,requesting:false,loading:true});
+            hide();
+            message.success("处理成功！");
+            // 重新载入数据
+            this.loadData(this.state.page);
+        }
+
+        const {confirm}=Modal;
+        confirm({
+            title: `确定要删除人员【${staff.name}】么？`,
+            okText: '继续删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk:()=>{handler()},
+        });
+    }
+}
+export default withRouter(Form.create<OrganizationStaffDoctorsAndNurseProps>({name:"orgDoctorsAndNurseForm"})(OrganizationStaffDoctorsAndNurse));

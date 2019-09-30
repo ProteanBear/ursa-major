@@ -1,0 +1,48 @@
+import { DataCache } from "./DataCache";
+import { HttpRequest, HttpResponse } from "./Request";
+
+/**
+ * 登录用户信息
+ */
+export interface LoginUser{
+
+}
+
+/**
+ * 登录状态
+ */
+export interface LoginStatus{
+    isLogin:boolean
+    data?:LoginUser
+}
+
+/**
+ * 登录校验器：通过读取本地存储中的Token记录，
+ * 并通过访问服务端校验token是否过期，
+ * 判断用户是否已经登录。
+ */
+export class LoginChecker{
+    static isLogin:boolean=false;
+
+    /**
+     * 检查用户是否已经登录；
+     * 首先访问本地存储检查是否有token保存，
+     * 包含Token则向服务端请求，检查Token有效性，
+     * token有效返回本地存储的用户信息；无效，则返回null
+     */
+    async loginUser():Promise<LoginStatus>{
+        const {token,data}=DataCache.instance.token();
+        const falsePromise=new Promise<LoginStatus>(
+            (resolve, reject)=>resolve({isLogin:false})
+        );
+        if(!token) return falsePromise;
+
+        const checkLogin:HttpResponse<any>=
+                await ((new HttpRequest()).get<any>("webapi/login/chedkToken"));
+        if(!checkLogin.success) return falsePromise;
+
+        return await new Promise<LoginStatus>(
+            (resolve, reject)=>resolve({isLogin:true,data:data})
+        );
+    }
+}

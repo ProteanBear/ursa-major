@@ -1,0 +1,14 @@
+{
+    "success-null":{
+        "code":0,
+        "data":null
+    },
+    "login-error":{
+        "code":"failure",
+        "msg":"登录错误"
+    },
+    "login-right":{
+        "code":"success",
+        "msg":"登录成功"
+    }
+}

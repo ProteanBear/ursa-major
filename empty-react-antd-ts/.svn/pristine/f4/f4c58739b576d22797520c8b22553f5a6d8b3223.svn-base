@@ -1,0 +1,445 @@
+{
+  "success-null": {
+    "code": 0,
+    "data": null
+  },
+  "fail-null": {
+    "code": 1,
+    "data": null
+  },
+  "apply-record-create": {
+    "code": 0,
+    "data": {
+      "applyNo": "ZVY6NK"
+    }
+  },
+  "apply-license-create": {
+    "code": 1,
+    "msg": "创建许可失败！"
+  },
+  "apply-exist-not": {
+    "code": 0,
+    "data": {
+      "exist": false
+    }
+  },
+  "apply-exist-has": {
+    "code": 0,
+    "data": {
+      "exist": true,
+      "commit": false,
+      "applyType": 0,
+      "status": 0,
+      "effectiveDate": "2018年9月1日"
+    }
+  },
+  "apply-status": {
+    "code": 0,
+    "data": {
+      "orgName": "中医诊所",
+      "applyValidDate": "2018年9月1日",
+      "refuse": "驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了驳回了",
+      "eCert": "",
+      "status": 8,
+      "createTime": "2018年7月1日"
+    }
+  },
+  "image-upload": {},
+  "image-upload-result": {
+    "code": 0,
+    "data": {
+      "url": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-commitment-saved": {
+    "code": 0,
+    "data": {
+      "applyNo": "ZVY6NK",
+      "commitment": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-organization-saved": {
+    "code": 0,
+    "data": {
+      "name": "成都高新安舒堂中医诊所",
+      "street": "51010901",
+      "address": "天府一街734号",
+      "onlyCode": "",
+      "membership": "6002006",
+      "ownership": "6001005",
+      "natureOperation": "营利性",
+      "medicineTechnology": "",
+      "equipments": [
+        {
+          "name": "诊椅",
+          "type": 1,
+          "num": 3
+        },
+        {
+          "name": "诊桌",
+          "type": 1,
+          "num": 1
+        },
+        {
+          "name": "火罐",
+          "type": 1,
+          "num": 10
+        }
+      ],
+      "diagnosisSubjectCode": ",50,50.01,50.05,50.06,50.02,50.03,50.04,50.11,50.10,50.13",
+      "medicalWasteAgreement": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "managerment": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "businessLicense": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "orgFlatImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-organization-data": {
+    "code": 0,
+    "data": {
+      "name": "成都高新安舒堂中医诊所",
+      "street": "51010901",
+      "address": "天府一街734号",
+      "onlyCode": "",
+      "membership": "6002006",
+      "ownership": "6001005",
+      "natureOperation": "营利性",
+      "medicineTechnology": "",
+      "status": 0,
+      "commitment": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "equipments": [
+        {
+          "name": "诊椅",
+          "type": 1,
+          "num": 3
+        },
+        {
+          "name": "诊桌",
+          "type": 1,
+          "num": 1
+        },
+        {
+          "name": "火罐",
+          "type": 1,
+          "num": 10
+        }
+      ],
+      "diagnosisSubjectCode": ",50,50.01,50.05,50.06,50.02,50.03,50.04,50.11,50.10,50.13",
+      "medicalWasteAgreement": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "managerment": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "businessLicense": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+      "orgFlatImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-manager-data": {
+    "code": 0,
+    "data": [
+      {
+        "name": "法人",
+        "id": 0,
+        "type": 1,
+        "signature": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+        "age": 0,
+        "birthday": "2019-09-04",
+        "nation": "",
+        "idcard": "427489273487923894",
+        "idcardImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+        "nativePlace": "",
+        "political": "",
+        "position": "712",
+        "job": "",
+        "jobPhone": "",
+        "homeAddress": "",
+        "title": "712001",
+        "img": "",
+        "homePhone": "",
+        "oldName": "",
+        "phone": "",
+        "specialty": "医科",
+        "email": "",
+        "orgCode": "ZVY6NK",
+        "education": "6008002",
+        "sex": "男",
+        "wechat": "",
+        "qq": "",
+        "personalResumes": [
+          {
+            "time": "2019-09-03~2019-10-10",
+            "unit": "华西医院",
+            "position": "中医医师"
+          }
+        ]
+      },
+      {
+        "name": "负责人",
+        "id": 0,
+        "type": 2,
+        "signature": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+        "age": 0,
+        "birthday": "2019-09-06",
+        "nation": "03",
+        "idcard": "5490890350948",
+        "idcardImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+        "nativePlace": "四川",
+        "political": "6014001",
+        "position": "702",
+        "job": "",
+        "jobPhone": "",
+        "homeAddress": "",
+        "title": "702001",
+        "img": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+        "homePhone": "",
+        "oldName": "",
+        "phone": "",
+        "specialty": "医科",
+        "email": "",
+        "orgCode": "ZVY6NK",
+        "education": "6008003",
+        "sex": "男",
+        "wechat": "",
+        "qq": "",
+        "personalResumes": [
+          {
+            "time": "2019-08-09~2019-10-11",
+            "unit": "省医院",
+            "position": "西医医师"
+          }
+        ]
+      },
+      {
+        "name": "联系人",
+        "id": 0,
+        "type": 3,
+        "signature": "",
+        "age": 0,
+        "birthday": "",
+        "nation": "",
+        "idcard": "",
+        "idcardImg": "",
+        "nativePlace": "",
+        "political": "",
+        "position": "",
+        "job": "",
+        "jobPhone": "34343343",
+        "homeAddress": "",
+        "title": "",
+        "img": "",
+        "homePhone": "",
+        "oldName": "",
+        "phone": "34234234",
+        "specialty": "",
+        "email": "",
+        "orgCode": "ZVY6NK",
+        "education": "",
+        "sex": "",
+        "wechat": "",
+        "qq": "",
+        "personalResumes": [],
+        "prefix": "028"
+      }
+    ]
+  },
+  "apply-doctor-nurse-data": {
+    "code": 0,
+    "data": [
+      {
+        "name": "姓名",
+        "id": 0,
+        "type": 1,
+        "orgCode": "",
+        "idcard": "342348237489273",
+        "education": "",
+        "position": "701",
+        "birthday": "",
+        "title": "701002",
+        "img": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "sex": "男",
+        "idcardImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png,https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "practiceCode": "",
+        "practiceImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "qualificationCertImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "titleCertImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "dept": "内科",
+        "school": "华西医科大"
+      }
+    ]
+  },
+  "apply-staff-tech-data": {
+    "code": 0,
+    "data": [
+      {
+        "name": "姓名",
+        "id": 0,
+        "orgCode": "",
+        "idcard": "342348237489273",
+        "education": "",
+        "position": "701",
+        "birthday": "",
+        "title": "701002",
+        "img": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "sex": "男",
+        "idcardImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png,https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "qualificationCode": "",
+        "qualificationImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "dept": "内科",
+        "school": "华西医科大"
+      }
+    ]
+  },
+  "apply-staff-other-data": {
+    "code": 0,
+    "data": [
+      {
+        "name": "姓名",
+        "id": 0,
+        "orgCode": "",
+        "idcard": "342348237489273",
+        "education": "",
+        "position": "701",
+        "birthday": "",
+        "title": "701002",
+        "img": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "sex": "男",
+        "idcardImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png,https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "qualificationCode": "",
+        "qualificationImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+        "dept": "内科",
+        "school": "华西医科大"
+      }
+    ]
+  },
+  "apply-staff-saved": {
+    "code": 0,
+    "data": {
+      "applyNo": "ZVY6NK",
+      "applyManagers": [
+        {
+          "name": "法人",
+          "id": 0,
+          "type": 1,
+          "signature": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+          "age": 0,
+          "birthday": "2019-09-04",
+          "nation": "",
+          "idcard": "427489273487923894",
+          "idcardImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+          "nativePlace": "",
+          "political": "",
+          "position": "712",
+          "job": "",
+          "jobPhone": "",
+          "homeAddress": "",
+          "title": "712001",
+          "img": "",
+          "homePhone": "",
+          "oldName": "",
+          "phone": "",
+          "specialty": "医科",
+          "email": "",
+          "orgCode": "ZVY6NK",
+          "education": "6008002",
+          "sex": "男",
+          "wechat": "",
+          "qq": "",
+          "personalResumes": [
+            {
+              "time": "2019-09-03~2019-10-10",
+              "unit": "华西医院",
+              "position": "中医医师"
+            }
+          ]
+        },
+        {
+          "name": "负责人",
+          "id": 0,
+          "type": 2,
+          "signature": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+          "age": 0,
+          "birthday": "2019-09-06",
+          "nation": "03",
+          "idcard": "5490890350948",
+          "idcardImg": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png,https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+          "nativePlace": "四川",
+          "political": "6014001",
+          "position": "702",
+          "job": "",
+          "jobPhone": "",
+          "homeAddress": "",
+          "title": "702001",
+          "img": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
+          "homePhone": "",
+          "oldName": "",
+          "phone": "",
+          "specialty": "医科",
+          "email": "",
+          "orgCode": "ZVY6NK",
+          "education": "6008003",
+          "sex": "男",
+          "wechat": "",
+          "qq": "",
+          "personalResumes": [
+            {
+              "time": "2019-08-09~2019-10-11",
+              "unit": "省医院",
+              "position": "西医医师"
+            }
+          ]
+        },
+        {
+          "name": "联系人",
+          "id": 0,
+          "type": 3,
+          "signature": "",
+          "age": 0,
+          "birthday": "",
+          "nation": "",
+          "idcard": "",
+          "idcardImg": "",
+          "nativePlace": "",
+          "political": "",
+          "position": "",
+          "job": "",
+          "jobPhone": "34343343",
+          "homeAddress": "",
+          "title": "",
+          "img": "",
+          "homePhone": "",
+          "oldName": "",
+          "phone": "34234234",
+          "specialty": "",
+          "email": "",
+          "orgCode": "ZVY6NK",
+          "education": "",
+          "sex": "",
+          "wechat": "",
+          "qq": "",
+          "personalResumes": [],
+          "prefix": "028"
+        }
+      ],
+      "applyStaffs": [
+        {
+          "name": "姓名",
+          "id": 0,
+          "type": 1,
+          "orgCode": "",
+          "idcard": "342348237489273",
+          "education": "",
+          "position": "701",
+          "birthday": "",
+          "title": "701002",
+          "img": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          "sex": "男",
+          "idcardImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png,https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          "practiceCode": "",
+          "practiceImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          "qualificationCertImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          "titleCertImg": "https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png",
+          "dept": "内科",
+          "school": "华西医科大"
+        }
+      ],
+      "applyTechnicians": [],
+      "applyOthers": []
+    }
+  }
+}

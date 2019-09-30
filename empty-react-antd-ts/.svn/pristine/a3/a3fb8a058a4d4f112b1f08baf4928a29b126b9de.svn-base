@@ -1,0 +1,62 @@
+import React from 'react';
+import Container from '../../components/Container';
+import { Breadcrumb,Icon,Typography, Button, Divider, Col, Modal } from 'antd';
+import { ApplySectionPrompt, ApplySectionLicenseStep } from '../../components/ApplyHeader';
+import { RecordApply } from '../../models/Record';
+import ApplyFormLegal from '../../components/ApplyFormLegal';
+import ApplyFormPrincipal from '../../components/ApplyFormPrincipal';
+import ApplyFormContact from '../../components/ApplyFormContact';
+import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+
+type RecordApplyWithRouter=RecordApply & RouteComponentProps;
+
+/**
+ * 许可流程：第三步，管理人员
+ */
+class LicenseManager extends React.Component<RecordApplyWithRouter>{
+    render(){
+        const {Title}=Typography;
+        const recordApply:RecordApply={applyNo:"337676",applyDeadline:"2019年1月1日"};
+
+        return (
+            <Container>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>许可</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4}>许可申请</Title>
+
+                {/* 顶部 */}
+                <ApplySectionPrompt {...recordApply}/>
+                <ApplySectionLicenseStep step={2} />
+                <Divider><span className="title-inner">管理人员</span></Divider>
+
+                {/* 表单：法人信息 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">法人信息</h4>
+                    <ApplyFormLegal />
+                </Col>
+
+                {/* 表单：负责人信息 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">负责人信息</h4>
+                    <ApplyFormPrincipal />
+                </Col>
+
+                {/* 表单：联系人信息 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">联系人信息</h4>
+                    <ApplyFormContact />
+                </Col>
+
+                {/* 按钮 */}
+                <Col span={24} className="section-buttons">
+                    <Button><Link to="/public/license/step-organization/1">上一步</Link></Button>
+                    <Button type="primary"><Link to="/public/license/step-staff/1">保存并进入下一步</Link></Button>
+                </Col>
+            </Container>
+        );
+    }
+}
+export default withRouter(LicenseManager);

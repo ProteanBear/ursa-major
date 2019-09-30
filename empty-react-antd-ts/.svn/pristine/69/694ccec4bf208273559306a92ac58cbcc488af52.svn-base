@@ -1,0 +1,176 @@
+import React from 'react';
+import {Col,Form,Button,Icon, Select,InputNumber, AutoComplete, Row} from 'antd';
+
+import { DictionaryData,DictionaryLoader } from '../app/DictionaryLoader';
+import { ApplyContentEquipment } from '../app/Model';
+import { SelectValue } from 'antd/lib/select';
+
+type ApplyFormEquipmentProps={
+    equiptments:Array<ApplyContentEquipment>,
+    onChange(equipments:Array<ApplyContentEquipment>):void,
+    disabled:boolean
+}
+
+/**
+  * 申请公用表单：设备管理
+  */
+class ApplyFormEquipment extends React.Component<ApplyFormEquipmentProps>{
+    readonly state:{
+        equipmentNames:Array<DictionaryData>,
+        equipments:Array<ApplyContentEquipment>
+    }={
+        equipmentNames:DictionaryLoader.instance.equipment(),
+        equipments:this.props.equiptments
+    }
+
+    /**
+     * 页面布局
+     */
+    render(){
+        const {Option}=Select;
+        const {equipmentNames}=this.state;
+
+        const autoCompleteChildren=equipmentNames.map(
+            data=><Option key={data.value}>{data.label}</Option>
+        );
+
+        return (
+            <Form className="form-ul-group" layout="inline" labelCol={{span:0}} wrapperCol={{span:24}}>
+                {this.props.equiptments.map((equipment,index)=>(
+                    <Row key={`equipment-${index}`}>
+                        <Col span={4}>
+                        <Form.Item>
+                            <Select value={equipment.type} defaultValue={1}
+                                onChange={(value:number)=>{
+                                    equipment.type=value;
+                                    this.equipmentChange(index,equipment);
+                                }}
+                                disabled={this.props.disabled}
+                            >
+                                <Option value={0}>大型设备</Option>
+                                <Option value={1}>普通设备</Option>
+                            </Select>
+                        </Form.Item>
+                        </Col>
+                        <Col span={1}><span className="divider">--</span></Col>
+                        <Col span={8}>
+                        <Form.Item>
+                            <AutoComplete value={equipment.name}
+                                    placeholder="请输入设备名称"
+                                    onSearch={this.handleSearch}
+                                    onChange={(value:SelectValue)=>{
+                                        equipment.name=(value as string);
+                                        this.equipmentChange(index,equipment);
+                                    }}
+                                    onSelect={(value:SelectValue)=>{
+                                        equipment.name=(value as string);
+                                        equipment.type=0;
+                                        this.equipmentChange(index,equipment);
+                                    }}
+                                    disabled={this.props.disabled}
+                            >
+                                {autoCompleteChildren}
+                            </AutoComplete>
+                        </Form.Item>
+                        </Col>
+                        <Col span={1}><span className="divider">--</span></Col>
+                        <Col span={4}>
+                        <Form.Item>
+                            <InputNumber min={1} step={1} defaultValue={1}
+                                value={equipment.num} 
+                                formatter={value => `${value}个`}
+                                parser={value => value?value.replace('个', ''):""}
+                                onChange={(value:number|undefined)=>{
+                                    if(!value) return;
+                                    equipment.num=value;
+                                    this.equipmentChange(index,equipment);
+                                }}
+                                disabled={this.props.disabled}
+                            />
+                        </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Button type="link" 
+                                onClick={()=>this.removeEquipment(index)}
+                                disabled={this.props.disabled}
+                            >
+                                <Icon
+                                    className="dynamic-delete-button"
+                                    type="minus-circle-o"
+                                />
+                            </Button>
+                        </Col>
+                    </Row>
+                ))}
+                <Row>
+                    <Col span={18}>
+                        <Form.Item>
+                            <Button type="dashed" 
+                                onClick={this.addNewEquipment}
+                                disabled={this.props.disabled}
+                            >
+                                <Icon type="plus" /> 添加设备
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
+            </Form>
+        );
+    }
+
+    /**
+     * 过滤提示大设备名称
+     */
+    handleSearch = (value:string) => {
+        const dictionaryEquiptment=DictionaryLoader.instance.equipment();
+        const {equipmentNames}=this.state;
+        equipmentNames.splice(0,equipmentNames.length);
+        dictionaryEquiptment.forEach((dict:DictionaryData)=>{
+            if(dict.label&&(String(dict.label).indexOf(value)!==-1)){
+                equipmentNames.push(dict);
+            }
+        });
+        this.setState({
+            ...this.state,
+            equiptmentNames:equipmentNames
+        });
+    }
+
+    /**
+     * 添加一条新的设备信息
+     */
+    addNewEquipment=()=>{
+        const {equipments}=this.state;
+        equipments.push({
+            name:"",
+            type:1,
+            num:1
+        });
+        this.setState({...this.state,equipments:equipments});
+
+        this.props.onChange(equipments);
+    }
+
+    /**
+     * 删除一个新添加的设备
+     */
+    removeEquipment=(index:number)=>{
+        const {equipments}=this.state;
+        equipments.splice(index,1);
+        this.setState({...this.state,equipments:equipments});
+
+        this.props.onChange(equipments);
+    }
+
+    /**
+     * 设备信息修改
+     */
+    equipmentChange=(index:number,equipment:ApplyContentEquipment)=>{
+        const {equipments}=this.state;
+        equipments[index]=equipment;
+        this.setState({...this.state,equipments:equipments});
+
+        this.props.onChange(equipments);
+    }
+}
+export default ApplyFormEquipment;

@@ -1,0 +1,63 @@
+import React from 'react';
+import Container from '../../components/Container';
+import { Breadcrumb,Icon,Typography, Button, Divider, Col, Modal } from 'antd';
+import { ApplySectionLicenseStep } from '../../components/ApplyHeader';
+import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import { ApplyContent, ApplyStep } from '../../app/Model';
+
+type RecordApplyWithRouter=ApplyContent & RouteComponentProps;
+
+/**
+ * 许可流程：第四步，人员信息
+ */
+class LicenseStaff extends React.Component<RecordApplyWithRouter>{
+    /**
+     * 弹出提交确认框
+     */
+    submitApplyConfirm=()=>{
+        const {history}=this.props;
+        Modal.confirm({
+            title: '是否继续提交申请?',
+            content: '提交后将无法修改！',
+            okText: '提交',
+            cancelText: '再看看',
+            onOk() {
+                history.push("/public/license/step-result/1");
+            },
+            onCancel() {},
+        });
+    }
+
+    render(){
+        const {Title}=Typography;
+        const recordApply:ApplyContent={applyNo:"337676",applyDeadline:"2019年1月1日"};
+
+        return (
+            <Container>
+                {/* 标题 */}
+                <Breadcrumb className="breadcrumb">
+                    <Breadcrumb.Item><Icon type="file-text"/><span>执业申请</span></Breadcrumb.Item>
+                    <Breadcrumb.Item><span>许可</span></Breadcrumb.Item>
+                </Breadcrumb>
+                <Title level={4}>许可申请</Title>
+
+                {/* 顶部 */}
+                <ApplySectionLicenseStep {...ApplyStep.LICENSE_STAFF} />
+                <Divider><span className="title-inner">第四步：医护人员</span></Divider>
+
+                {/* 表单：人员管理 */}
+                <Col span={22} offset={1}>
+                    <h4 className="title-form-sub">人员管理</h4>
+                </Col>
+
+                {/* 按钮 */}
+                <Col span={24} className="section-buttons">
+                    <Button><Link to="/public/record/step-organization/1">上一步</Link></Button>
+                    <Button>保存但不提交</Button>
+                    <Button type="primary" onClick={this.submitApplyConfirm}>保存并提交申请</Button>
+                </Col>
+            </Container>
+        );
+    }
+}
+export default withRouter(LicenseStaff);

@@ -1,0 +1,100 @@
+{
+  "success-null": {
+    "code": 0,
+    "data": null
+  },
+  "fail-null": {
+    "code": 1,
+    "data": null
+  },
+  "apply-record-create": {
+    "code": 0,
+    "data": {
+      "applyNo": "ZVY6NK"
+    }
+  },
+  "apply-license-create": {
+    "code": 1,
+    "msg": "创建许可失败！"
+  },
+  "apply-exist-not": {
+    "code": 0,
+    "data": {
+      "exist": false
+    }
+  },
+  "apply-exist-has": {
+    "code": 0,
+    "data": {
+      "exist": true
+    }
+  },
+  "image-upload": {},
+  "image-upload-result": {
+    "code": 0,
+    "data": {
+      "url": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-commitment-data": {
+    "code": 0,
+    "data": {
+      "applyNo": "ZVY6NK",
+      "commitment": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png"
+    }
+  },
+  "apply-orgranization-data": {
+    "data": {
+      "address": "",
+      "name": "",
+      "id": "",
+      "diagnosisSubjectCode": "",
+      "chairsDentalNum": 0,
+      "observedBedNum": 0,
+      "registeredCapital": 0,
+      "approvedBedNum": 0,
+      "onlyCode": "",
+      "orgOutImg": "",
+      "status": 0,
+      "fire": "",
+      "fax": "",
+      "createTime": null,
+      "updateTime": null,
+      "remark": "",
+      "ownership": "",
+      "remark2": "",
+      "structureArea": 0,
+      "managerment": "",
+      "eia": "",
+      "applyType": 0,
+      "email": "",
+      "serviceObj": "",
+      "membership": "",
+      "grade": "",
+      "bizArea": 0,
+      "orgFlatImg": "",
+      "commitment": "",
+      "liquidity": 0,
+      "managerUnit": "",
+      "level": "",
+      "post": "",
+      "tel": "",
+      "ownArea": 0,
+      "totalCapital": 0,
+      "fixedCapital": 0,
+      "orgType": 0,
+      "serviceType": "",
+      "street": "",
+      "medicineScope": "",
+      "medicineTechnology": "",
+      "diagnosisSubjectName": "",
+      "businessLicense": "",
+      "natureOperation": "",
+      "medicalWasteAgreement": "",
+      "effectiveTime": "2019年8月28日",
+      "equipments": []
+    },
+    "msg": "success",
+    "code": 0
+  }
+}
