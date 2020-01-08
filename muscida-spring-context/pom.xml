@@ -18,7 +18,7 @@
         <!-- Jackson -->
         <version-jackson>2.9.5</version-jackson>
         <!-- validator -->
-        <version-validator>6.0.9.Final</version-validator>
+        <version-validator>6.1.0.Final</version-validator>
 
         <!-- log -->
         <version-log>1.7.25</version-log>
