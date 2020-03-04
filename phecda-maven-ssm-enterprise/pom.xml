@@ -23,7 +23,7 @@
         <!-- Aspectj -->
         <version-aspectj>1.9.1</version-aspectj>
         <!-- Jackson -->
-        <version-jackson>2.9.5</version-jackson>
+        <version-jackson>2.9.10.3</version-jackson>
         <!-- validator -->
         <version-validator>6.0.9.Final</version-validator>
         <!-- MyBatis -->
