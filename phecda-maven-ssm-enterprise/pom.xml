@@ -38,7 +38,7 @@
         <!-- 使用的数据库 -->
         <data-group-id>mysql</data-group-id>
         <data-artifact-id>mysql-connector-java</data-artifact-id>
-        <version-driver>8.0.11</version-driver>
+        <version-driver>8.0.16</version-driver>
         <version-pool>1.1.9</version-pool>
         <!-- log -->
         <version-log>1.2.3</version-log>
