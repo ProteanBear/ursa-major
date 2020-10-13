@@ -47,7 +47,7 @@
         <version-servlet>4.0.0</version-servlet>
 
         <!-- junit -->
-        <version-junit>4.12</version-junit>
+        <version-junit>4.13.1</version-junit>
 
         <!-- 项目信息:适用于web.xml -->
         <!-- 显示名称 -->
