@@ -13,7 +13,7 @@
         <!-- war打包 -->
         <version-maven-war>3.2.0</version-maven-war>
         <!-- junit -->
-        <version-junit>4.12</version-junit>
+        <version-junit>4.13.1</version-junit>
 
         <!-- 项目信息:适用于web.xml -->
         <!-- 显示名称 -->
