@@ -21,7 +21,7 @@
         <version-spring-redis>2.0.6.RELEASE</version-spring-redis>
         <version-jedis>2.9.0</version-jedis>
         <!-- Jackson -->
-        <version-jackson>2.9.5</version-jackson>
+        <version-jackson>2.9.10.8</version-jackson>
 
         <!-- log -->
         <version-log>1.7.25</version-log>
